@@ -790,8 +790,12 @@ function Inteligencia() {
             </div>
             <div className="intel-focus-row">
               <span className="intel-focus-k">Más olvidado</span>
-              <span className="intel-focus-v" style={{ color: subjColor(x.olvidado.subj) }}>{x.olvidado.subj}</span>
-              <span className="intel-focus-n">{x.olvidado.dias} d sin repasar</span>
+              {x.olvidado
+                ? <React.Fragment>
+                    <span className="intel-focus-v" style={{ color: subjColor(x.olvidado.subj) }}>{x.olvidado.subj}</span>
+                    <span className="intel-focus-n">{x.olvidado.dias} d sin repasar</span>
+                  </React.Fragment>
+                : <span className="intel-focus-n">sin datos aún · registra sesiones o tiempo</span>}
             </div>
             <div className="intel-focus-row">
               <span className="intel-focus-k">Más fuerte</span>
