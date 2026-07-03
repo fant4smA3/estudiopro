@@ -3,6 +3,7 @@ const { useGo: useGoC, PageHead: PageHeadC, Panel: PanelC, Diff: DiffC, EmptySta
 
 function Cuestionarios() {
   const go = useGoC();
+  const st = window.useStore();
   const [tab, setTab] = React.useState("config");
   const [modo, setModo] = React.useState("practica");
   const [origen, setOrigen] = React.useState("Legislación Militar");
@@ -11,22 +12,37 @@ function Cuestionarios() {
   const [soloImportantes, setSoloImportantes] = React.useState(false);
   const [dif, setDif] = React.useState("todas");
   const [temas, setTemas] = React.useState(["Todos"]);
-  const TEMAS = ["Todos", "Tema 1", "Tema 2", "Tema 3", "Cap. II"];
+  const [tiempo, setTiempo] = React.useState(null); // minutos; null = sin límite
+  // temas = ordenamientos reales presentes en el banco para la materia elegida
+  const bank = st.questions || [];
+  const TEMAS = ["Todos", ...Array.from(new Set(bank.filter((q) => q.subject === origen).map((q) => q.ord).filter(Boolean)))];
+  React.useEffect(() => { setTemas(["Todos"]); }, [origen]);
+  React.useEffect(() => { setTiempo(modo === "examen" ? 20 : null); }, [modo]);
   const toggleTema = (tm) => setTemas((prev) => {
     if (tm === "Todos") return ["Todos"];
     const sinTodos = prev.filter((x) => x !== "Todos");
     const next = sinTodos.includes(tm) ? sinTodos.filter((x) => x !== tm) : [...sinTodos, tm];
     return next.length ? next : ["Todos"];
   });
+  // contadores y disponibilidad reales según los filtros elegidos
+  const poolBase = bank.filter((q) => q.subject === origen);
+  const nFalladas = poolBase.filter((q) => q.status === "fall").length;
+  const nImportantes = poolBase.filter((q) => q.status === "imp").length;
+  const disponibles = poolBase.filter((q) => {
+    if (temas.length && !temas.includes("Todos") && !temas.includes(q.ord)) return false;
+    if (dif !== "todas" && q.dif !== dif) return false;
+    if (soloFalladas && q.status !== "fall") return false;
+    if (soloImportantes && q.status !== "imp") return false;
+    return true;
+  }).length;
+  const nReal = Math.min(n, disponibles);
 
-  const historial = [
-    ["Legislación Militar", "Código de Justicia Militar · examen", "20 preg · 14:32", "8.4", "hoy", "done"],
-    ["Legislación Militar", "Ley de Disciplina · práctica", "15 preg · 09:10", "9.3", "ayer", "done"],
-    ["Operaciones Militares", "Op. Conjuntas (falladas)", "12 preg · en pausa", "—", "ayer", "pause"],
-    ["Normatividad Gubernamental", "Simulacro general", "50 preg · 38:04", "7.2", "3 d", "done"],
-    ["Aspecto Técnico", "Ciberseguridad · práctica", "18 preg · 12:45", "6.1", "5 d", "done"],
-    ["Adiestramiento y Mando Militar", "Mando y Liderazgo · examen", "25 preg · 19:20", "8.8", "1 sem", "done"],
-  ];
+  const historial = st.sessions || [];
+  const fmtWhen = (s) => {
+    if (!s.date) return s.when || "";
+    const d = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(s.date + "T00:00:00")) / 86400000);
+    return d <= 0 ? "hoy" : d === 1 ? "ayer" : d < 7 ? d + " d" : Math.floor(d / 7) + " sem";
+  };
   const SUBJECTS6 = Object.keys(window.SUBJECT_COLORS || {});
 
   return (
@@ -70,8 +86,8 @@ function Cuestionarios() {
                 </div>
               </div>
               <div className="qc-toggles">
-                <label className="qc-tg"><span className={"box" + (soloFalladas ? " is-on" : "")} onClick={() => setSoloFalladas(!soloFalladas)}></span> Solo preguntas falladas <span className="qc-tg-n">18</span></label>
-                <label className="qc-tg"><span className={"box" + (soloImportantes ? " is-on" : "")} onClick={() => setSoloImportantes(!soloImportantes)}></span> Solo marcadas como importantes <span className="qc-tg-n">42</span></label>
+                <label className="qc-tg"><span className={"box" + (soloFalladas ? " is-on" : "")} onClick={() => setSoloFalladas(!soloFalladas)}></span> Solo preguntas falladas <span className="qc-tg-n">{nFalladas}</span></label>
+                <label className="qc-tg"><span className={"box" + (soloImportantes ? " is-on" : "")} onClick={() => setSoloImportantes(!soloImportantes)}></span> Solo marcadas como importantes <span className="qc-tg-n">{nImportantes}</span></label>
               </div>
             </PanelC>
 
@@ -91,10 +107,14 @@ function Cuestionarios() {
               </div>
               <div className="form-2">
                 <div className="field">
-                  <label>Número de preguntas: <b>{n}</b></label>
-                  <input className="range" type="range" min="5" max="50" step="5" value={n} onChange={(e) => setN(+e.target.value)} />
+                  <label>Número de preguntas: <b>{n}</b>{disponibles < n && <span className="opt-note"> · solo {disponibles} disponibles</span>}</label>
+                  <input className="range" type="range" min="5" max="50" step="5" value={n} onChange={(e) => setN(+e.target.value)} aria-label="Número de preguntas" />
                 </div>
-                <div className="field"><label>Tiempo límite</label><select className="input" defaultValue={modo === "examen" ? "20:00" : "Sin límite"}><option>Sin límite</option><option>10:00</option><option>20:00</option><option>30:00</option></select></div>
+                <div className="field"><label>Tiempo límite</label>
+                  <select className="input" value={tiempo == null ? "sin" : String(tiempo)} onChange={(e) => setTiempo(e.target.value === "sin" ? null : +e.target.value)} aria-label="Tiempo límite">
+                    <option value="sin">Sin límite</option><option value="10">10:00</option><option value="20">20:00</option><option value="30">30:00</option>
+                  </select>
+                </div>
               </div>
             </PanelC>
           </div>
@@ -104,19 +124,26 @@ function Cuestionarios() {
               <div className="qc-summary-h">Resumen de la sesión</div>
               <div className="qc-sum-row"><span>Origen</span><b>{origen}</b></div>
               <div className="qc-sum-row"><span>Modo</span><b>{modo === "practica" ? "Práctica" : "Examen"}</b></div>
-              <div className="qc-sum-row"><span>Preguntas</span><b>{n}</b></div>
+              <div className="qc-sum-row"><span>Preguntas</span><b>{nReal}{disponibles < n ? " de " + n : ""}</b></div>
               <div className="qc-sum-row"><span>Dificultad</span><b>{dif}</b></div>
               <div className="qc-sum-row"><span>Temas</span><b>{temas.includes("Todos") ? "todos" : temas.length + " sel."}</b></div>
+              <div className="qc-sum-row"><span>Tiempo</span><b>{tiempo == null ? "sin límite" : tiempo + " min"}</b></div>
               {soloFalladas && <div className="qc-sum-row"><span>Filtro</span><b>solo falladas</b></div>}
-              <div className="qc-sum-est">≈ {Math.round(n * 0.8)} min estimados</div>
-              <button className="btn btn-accent btn-lg" style={{ width: "100%" }} onClick={() => { window.__epSimulacro = false; window.__epSubject = origen; window.EPStore.setNav({ subject: origen, mode: modo, filter: soloFalladas ? "fall" : soloImportantes ? "imp" : null }); go("quiz"); }}>Empezar ▸</button>
+              {soloImportantes && <div className="qc-sum-row"><span>Filtro</span><b>solo importantes</b></div>}
+              <div className="qc-sum-est">{disponibles === 0 ? "Sin preguntas con estos filtros" : "≈ " + Math.max(1, Math.round(nReal * 0.8)) + " min estimados"}</div>
+              <button className="btn btn-accent btn-lg" style={{ width: "100%" }} disabled={disponibles === 0}
+                onClick={() => { window.__epSimulacro = false; window.__epSubject = origen; window.EPStore.setNav({ subject: origen, mode: modo, n, dif, temas, tiempo, filter: soloFalladas ? "fall" : soloImportantes ? "imp" : null }); go("quiz"); }}>Empezar ▸</button>
               <button className="btn btn-sm" style={{ width: "100%", marginTop: "8px" }} onClick={() => go("simulacro")}>¿Buscas el examen completo? Ir a Simulacro ▸</button>
             </div>
           </aside>
         </div>
       )}
 
-      {tab === "historial" && (
+      {tab === "historial" && (historial.length === 0 ? (
+        <EmptyStateC icon="◎" title="Aún no hay cuestionarios"
+          desc="Cuando completes un cuestionario o simulacro, aparecerá aquí con su nota y fecha."
+          actions={<button className="btn btn-accent" onClick={() => setTab("config")}>Configurar el primero ▸</button>} />
+      ) : (
         <div className="tbl-wrap">
           <table className="tbl tbl-bank tbl-hist">
             <thead>
@@ -124,24 +151,25 @@ function Cuestionarios() {
             </thead>
             <tbody>
               {historial.map((h, i) => {
-                const c = window.subjColor(h[0]);
+                const c = window.subjColor(h.subject);
+                const paused = h.state === "pause";
                 return (
-                <tr key={i} className="clickable" onClick={() => { window.__epSubject = h[0]; go(h[5] === "pause" ? "quiz" : "resultado"); }}>
+                <tr key={i} className="clickable" onClick={() => { window.__epSubject = h.subject; go(paused ? "quiz" : "resultado"); }}>
                   <td className="t-q">
                     <span className="t-q-bar" style={{ background: c }}></span>
                     <span className="t-q-body">
-                      <span className="t-q-text">{h[1]}</span>
-                      <span className="t-q-loc"><span className="t-q-subj" style={{ color: c }}>{h[0]}</span><span className="t-q-path">· {h[2]}</span></span>
+                      <span className="t-q-text">{h.label}</span>
+                      <span className="t-q-loc"><span className="t-q-subj" style={{ color: c }}>{h.subject}</span><span className="t-q-path">· {h.n} preg · {h.time}</span></span>
                     </span>
                   </td>
-                  <td className="ta-c">{h[3] === "—" ? <span className="st st-nuevo"><i className="st-dot"></i>en pausa</span> : <span className={"hist-score " + (+h[3] >= 8 ? "hs-ok" : +h[3] >= 6 ? "hs-warn" : "hs-bad")}>{h[3]}</span>}</td>
-                  <td className="ta-r t-mute">{h[4]}</td>
+                  <td className="ta-c">{h.score == null ? <span className="st st-nuevo"><i className="st-dot"></i>en pausa</span> : <span className={"hist-score " + (h.score >= 8 ? "hs-ok" : h.score >= 6 ? "hs-warn" : "hs-bad")}>{h.score}</span>}</td>
+                  <td className="ta-r t-mute">{fmtWhen(h)}</td>
                   <td className="ta-c" onClick={(e) => e.stopPropagation()}>
                     <div className="rowacts">
-                      {h[5] === "pause"
-                        ? <button className="btn btn-sm btn-accent" onClick={() => { window.__epSubject = h[0]; go("quiz"); }}>Reanudar</button>
+                      {paused
+                        ? <button className="btn btn-sm btn-accent" onClick={() => { window.__epSubject = h.subject; go("quiz"); }}>Reanudar</button>
                         : <button className="btn btn-sm" onClick={() => go("resultado")}>Ver</button>}
-                      <button className="btn btn-sm" onClick={() => { window.__epSubject = h[0]; go("quiz"); }}>Repetir</button>
+                      <button className="btn btn-sm" onClick={() => { window.__epSimulacro = false; window.__epSubject = h.subject; window.EPStore.setNav({ subject: h.subject, mode: "practica" }); go("quiz"); }}>Repetir</button>
                     </div>
                   </td>
                 </tr>
@@ -150,7 +178,7 @@ function Cuestionarios() {
             </tbody>
           </table>
         </div>
-      )}
+      ))}
     </main>
   );
 }
@@ -160,20 +188,29 @@ window.Cuestionarios = Cuestionarios;
 /* ========================= PERFIL ========================= */
 function Perfil() {
   const go = useGoC();
+  const st = window.useStore();
+  const nombre = (st.plan.nombre || "Aspirante").trim();
+  const iniciales = nombre.split(/\s+/).map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "A";
+  const dExam = window.daysToExam();
+  const examFecha = (() => { try { return new Date(st.plan.examDate + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" }); } catch (e) { return ""; } })();
+  const nQ = st.questions.length;
+  const dominadas = st.cards.filter((c) => c.nivel === "dominado").length;
+  const avancePct = nQ ? Math.round(dominadas / nQ * 100) : 0;
+  const streak = window.realStreak ? window.realStreak() : 0;
+  const sims = st.simHistory || [];
+  const simMedia = sims.length ? (sims.reduce((a, s) => a + (s.global || 0), 0) / sims.length).toFixed(1) : "—";
   const kpis = [
-    ["Días para el examen", "48", "27 jul 2026"],
-    ["Avance global", "19%", "212 / 1,120"],
-    ["Racha actual", "12 días", "récord: 23"],
-    ["Simulacros", "18", "media 8.1 / 10"],
+    ["Días para el examen", String(dExam), examFecha],
+    ["Avance global", avancePct + "%", dominadas.toLocaleString() + " / " + nQ.toLocaleString()],
+    ["Racha actual", streak + " día" + (streak === 1 ? "" : "s"), "días consecutivos de estudio"],
+    ["Simulacros", String(sims.length), sims.length ? "media " + simMedia + " / 10" : "aún sin simulacros"],
   ];
-  const porMateria = [
-    ["Legislación Militar", 24, "#2F73CE"],
-    ["Operaciones Militares", 12, "#2A8A5E"],
-    ["Normatividad Gubernamental", 18, "#A0742A"],
-    ["Aspecto Administrativo", 8, "#7A57C2"],
-    ["Adiestramiento y Mando Militar", 15, "#C2410C"],
-    ["Aspecto Técnico", 5, "#0E7490"],
-  ];
+  const SUBJECTS = Object.keys(window.SUBJECT_COLORS || {});
+  const porMateria = SUBJECTS.map((s) => {
+    const qs = st.cards.filter((c) => c.subject === s);
+    const dom = qs.filter((c) => c.nivel === "dominado").length;
+    return [s, qs.length ? Math.round(dom / qs.length * 100) : 0, window.subjColor(s)];
+  });
   const logros = (window.computeAchievements && window.computeAchievements()) || [];
   const earnedCount = logros.filter((l) => l[2]).length;
   return (
@@ -181,13 +218,12 @@ function Perfil() {
       <header className="page-head-card" style={{ borderTop: "3px solid var(--accent)" }}>
         <Crumbs path={[["Inicio", "inicio"], "Perfil"]} />
         <div className="profile-head">
-          <div className="profile-av">JR</div>
+          <div className="profile-av">{iniciales}</div>
           <div className="profile-id">
-            <h1 className="page-title">Aspirante J. Ramírez</h1>
-            <div className="profile-sub">Capitán 1/o. I.C.I. · Ingeniero en Computación e Informática</div>
+            <h1 className="page-title">{nombre}</h1>
+            <div className="profile-sub">Configura tu nombre y fecha de examen en Configuración</div>
             <div className="stat-chips">
               <span className="sc"><b>Promoción 2026</b></span>
-              <span className="sc">Inscrito desde <b>mar 2026</b></span>
               <span className="sc">Sesión <b>local</b></span>
             </div>
           </div>
@@ -201,12 +237,12 @@ function Perfil() {
       <div className="exam-countdown">
         <div className="exam-l">
           <span className="exam-tag">Cuenta regresiva</span>
-          <div className="exam-title">Faltan <b>48 días</b> para el examen de promoción</div>
-          <div className="exam-meta">27 de julio de 2026 · prepárate con simulacros completos por materia</div>
+          <div className="exam-title">Faltan <b>{dExam} día{dExam === 1 ? "" : "s"}</b> para el examen de promoción</div>
+          <div className="exam-meta">{examFecha} · prepárate con simulacros completos por materia</div>
         </div>
         <div className="exam-ring">
-          <svg viewBox="0 0 44 44"><circle className="rr-bg" cx="22" cy="22" r="19"></circle><circle className="rr-fg" cx="22" cy="22" r="19" strokeDasharray="119.4" strokeDashoffset="96.7"></circle></svg>
-          <span className="resume-ring-n">19%</span>
+          <svg viewBox="0 0 44 44"><circle className="rr-bg" cx="22" cy="22" r="19"></circle><circle className="rr-fg" cx="22" cy="22" r="19" strokeDasharray="119.4" strokeDashoffset={(119.4 * (1 - avancePct / 100)).toFixed(1)}></circle></svg>
+          <span className="resume-ring-n">{avancePct}%</span>
         </div>
       </div>
 

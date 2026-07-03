@@ -206,8 +206,8 @@ function Metas() {
           </div>
         </section>
         <div className="mt-side">
-          <PanelK idx="🔥" title="Racha" meta={st.plan.streak + " días"}>
-            <div className="mt-streak"><div className="mt-streak-n">{st.plan.streak}</div><div className="mt-streak-l">días seguidos</div></div>
+          <PanelK idx="🔥" title="Racha" meta={(window.realStreak ? window.realStreak() : 0) + " días"}>
+            <div className="mt-streak"><div className="mt-streak-n">{window.realStreak ? window.realStreak() : 0}</div><div className="mt-streak-l">días seguidos</div></div>
             <div className="mt-freeze">
               <div className="mt-freeze-h"><span>❄ Comodines de racha</span><b>{w.freezes} disponibles</b></div>
               <p className="mt-freeze-d">Úsalos en un día justificado (guardia, comisión) para no perder la racha.</p>

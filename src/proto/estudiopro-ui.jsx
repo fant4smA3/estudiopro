@@ -76,11 +76,24 @@ function Topbar({ onMenu, onFocus, onDark, dark }) {
         <button className="btn btn-accent" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ Pregunta</button>
         <button className="btn qbar-opt" onClick={() => { window.__epEditC = null; go("tarjeta"); }}>+ Tarjeta</button>
         <span className="qbar-rule qbar-opt"></span>
-        <span className="streak qbar-opt"><b>12</b> días</span>
-        <button className="topbar-av" onClick={() => go("perfil")} title="Perfil">JR</button>
+        <TopbarStreak />
+        <TopbarAvatar onClick={() => go("perfil")} />
       </div>
     </header>
   );
+}
+
+/* racha real (días consecutivos con actividad) e iniciales del aspirante */
+function TopbarStreak() {
+  const st = window.useStore ? window.useStore() : null;
+  const streak = st && window.realStreak ? window.realStreak() : 0;
+  return <span className="streak qbar-opt"><b>{streak}</b> día{streak === 1 ? "" : "s"}</span>;
+}
+function TopbarAvatar({ onClick }) {
+  const st = window.useStore ? window.useStore() : null;
+  const nombre = ((st && st.plan.nombre) || "Aspirante").trim();
+  const ini = nombre.split(/\s+/).map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "A";
+  return <button className="topbar-av" onClick={onClick} title="Perfil">{ini}</button>;
 }
 
 function GlobalSearch() {
@@ -148,12 +161,23 @@ function Side({ active, open }) {
           ))}
         </div>
       ))}
-      <div className="side-foot">
-        <div className="side-foot-h">avance global</div>
-        <div className="mini-bar"><i style={{ width: "47%" }}></i></div>
-        <div className="side-foot-n"><b>47%</b> · 1,498 / 3,184</div>
-      </div>
+      <SideFoot />
     </nav>
+  );
+}
+
+/* avance global real: % de tarjetas dominadas sobre el banco */
+function SideFoot() {
+  const st = window.useStore ? window.useStore() : null;
+  const total = st ? st.questions.length : 0;
+  const dom = st ? st.cards.filter((c) => c.nivel === "dominado").length : 0;
+  const pct = total ? Math.round(dom / total * 100) : 0;
+  return (
+    <div className="side-foot">
+      <div className="side-foot-h">avance global</div>
+      <div className="mini-bar"><i style={{ width: pct + "%" }}></i></div>
+      <div className="side-foot-n"><b>{pct}%</b> · {dom.toLocaleString()} / {total.toLocaleString()}</div>
+    </div>
   );
 }
 

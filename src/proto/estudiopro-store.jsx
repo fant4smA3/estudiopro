@@ -30,33 +30,20 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   const store = {
     questions: [],
     cardSrs: {},     // estado SRS de tarjeta por id de pregunta: { [qId]: { nivel, lastGrade, studied } } — INDEPENDIENTE del status de la pregunta
-    sessions: [
-      { subject: "Legislación Militar", label: "Código de Justicia Militar · examen", n: 20, time: "14:32", score: 8.4, when: "hoy", state: "done" },
-      { subject: "Legislación Militar", label: "Ley de Disciplina · práctica", n: 15, time: "09:10", score: 9.3, when: "ayer", state: "done" },
-      { subject: "Operaciones Militares", label: "Op. Conjuntas (falladas)", n: 12, time: "en pausa", score: null, when: "ayer", state: "pause" },
-      { subject: "Normatividad Gubernamental", label: "Simulacro general", n: 50, time: "38:04", score: 7.2, when: "3 d", state: "done" },
-      { subject: "Aspecto Técnico", label: "Ciberseguridad · práctica", n: 18, time: "12:45", score: 6.1, when: "5 d", state: "done" },
-      { subject: "Adiestramiento y Mando Militar", label: "Mando y Liderazgo · examen", n: 25, time: "19:20", score: 8.8, when: "1 sem", state: "done" },
-    ],
+    sessions: [],    // { subject, label, n, time, score, date, state }
     lastResult: null, // { subject, total, correct, wrong, time, byChapter, missed }
-    plan: { dailyGoal: 30, doneToday: 18, streak: 12, examDate: "2026-07-27", weeklyGoal: 5, freezes: 2, frozenDates: [] },
+    plan: { dailyGoal: 30, doneToday: 0, streak: 0, examDate: "2026-07-27", weeklyGoal: 5, freezes: 2, frozenDates: [] },
     notes: {},      // { "clave de capítulo": "texto de apuntes" }
     nav: {},        // contexto de navegación: { subject, ord, loc, mode, filter, focusId }
-    resume: { subject: "Legislación Militar", label: "Código de Justicia Militar — Libro Primero", at: 7, total: 20, missed: 18 },
-    activity: null, // heatmap de actividad (se genera al primer uso)
+    resume: null,
+    activity: {},   // actividad real por día: { "YYYY-MM-DD": unidades (≈min) } — alimenta heatmap y racha
     unlocked: {},   // logros desbloqueados manualmente / por evento
     // taxonomía añadida por el usuario (se suma a la semilla fija en las cuadrículas)
     userCats: [],   // { id, name, desc, color }
     userMats: [],   // { id, name, desc, color }
     userOrds: {},   // { [subject]: [{ id, name, desc }] }
     // registro de tiempo real de estudio (Pomodoro / sesiones cronometradas)
-    timeLog: [
-      { id: "t1", subject: "Legislación Militar", label: "Código de Justicia Militar", seconds: 1500, date: "2026-06-29", hour: 7 },
-      { id: "t2", subject: "Operaciones Militares", label: "Op. Conjuntas", seconds: 1500, date: "2026-06-29", hour: 20 },
-      { id: "t3", subject: "Legislación Militar", label: "Ley de Disciplina", seconds: 900, date: "2026-06-30", hour: 8 },
-      { id: "t4", subject: "Normatividad Gubernamental", label: "Repaso general", seconds: 1500, date: "2026-06-30", hour: 21 },
-      { id: "t5", subject: "Aspecto Técnico", label: "Ciberseguridad", seconds: 1200, date: "2026-06-30", hour: 7 },
-    ],
+    timeLog: [],    // { id, subject, label, seconds, date, hour }
     // reportes de errores/desactualización en reactivos del banco
     reports: [],    // { id, qId, subject, reason, note, when, status }
     // bitácora de estudio (diario reflexivo)
@@ -72,13 +59,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       { id: "g7", term: "Situación del militar", subject: "Legislación Militar", def: "Estado administrativo del militar: activo, reserva o retiro. Determina obligaciones, derechos y percepciones.", ref: "Ley del ISSFAM" },
     ],
     // histórico de simulacros para la gráfica de evolución (global + por materia, sobre 10)
-    simHistory: [
-      { id: "s1", date: "2026-05-29", global: 5.8, byS: { "Legislación Militar": 6.4, "Operaciones Militares": 5.2, "Normatividad Gubernamental": 5.9, "Aspecto Administrativo": 4.8, "Adiestramiento y Mando Militar": 6.1, "Aspecto Técnico": 5.0 } },
-      { id: "s2", date: "2026-06-05", global: 6.3, byS: { "Legislación Militar": 7.0, "Operaciones Militares": 5.8, "Normatividad Gubernamental": 6.2, "Aspecto Administrativo": 5.4, "Adiestramiento y Mando Militar": 6.6, "Aspecto Técnico": 5.5 } },
-      { id: "s3", date: "2026-06-12", global: 6.9, byS: { "Legislación Militar": 7.6, "Operaciones Militares": 6.4, "Normatividad Gubernamental": 6.8, "Aspecto Administrativo": 6.0, "Adiestramiento y Mando Militar": 7.1, "Aspecto Técnico": 6.1 } },
-      { id: "s4", date: "2026-06-19", global: 7.2, byS: { "Legislación Militar": 7.9, "Operaciones Militares": 6.7, "Normatividad Gubernamental": 7.1, "Aspecto Administrativo": 6.3, "Adiestramiento y Mando Militar": 7.4, "Aspecto Técnico": 6.4 } },
-      { id: "s5", date: "2026-06-26", global: 7.8, byS: { "Legislación Militar": 8.4, "Operaciones Militares": 7.2, "Normatividad Gubernamental": 7.6, "Aspecto Administrativo": 6.9, "Adiestramiento y Mando Militar": 8.0, "Aspecto Técnico": 7.0 } },
-    ],
+    simHistory: [],
   };
 
   // store.cards es DERIVADO del banco: cada pregunta genera una tarjeta (frente=enunciado, reverso=respuesta correcta)
@@ -122,8 +103,22 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     seeded = store.questions.length > 0;
   };
 
+  const isoToday = () => new Date().toISOString().slice(0, 10);
+  // registra actividad real del día (≈minutos-equivalentes) — alimenta heatmap, racha y metas
+  const markActivity = (units) => {
+    const d = isoToday();
+    const act = store.activity || {};
+    store.activity = { ...act, [d]: (act[d] || 0) + Math.max(1, units || 1) };
+  };
+  // la meta "de hoy" se reinicia al cambiar el día
+  const ensureDay = () => {
+    const d = isoToday();
+    if (store.plan.doneDate !== d && store.plan.doneToday) store.plan = { ...store.plan, doneToday: 0, doneDate: d };
+    else if (store.plan.doneDate !== d) store.plan = { ...store.plan, doneDate: d };
+  };
+
   window.EPStore = {
-    get: () => { ensureSeed(); return store; },
+    get: () => { ensureSeed(); ensureDay(); return store; },
     subscribe: (fn) => { listeners.add(fn); return () => listeners.delete(fn); },
     addQuestion: (q) => {
       ensureSeed();
@@ -222,12 +217,14 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       const cur = store.cardSrs[id] || { nivel: "nuevo", studied: 0 };
       const next = sm2Grade(cur.sm2, grado);
       store.cardSrs = { ...store.cardSrs, [id]: { ...cur, sm2: next, nivel: sm2Nivel(next), lastGrade: grado, studied: (cur.studied || 0) + 1 } };
+      ensureDay();
       store.plan = { ...store.plan, doneToday: store.plan.doneToday + 1 };
+      markActivity(1);
       emit();
     },
     setLastResult: (r) => { store.lastResult = r; emit(); },
-    addSession: (s) => { store.sessions = [s, ...store.sessions]; emit(); },
-    bumpToday: (k) => { store.plan = { ...store.plan, doneToday: store.plan.doneToday + (k || 1) }; emit(); },
+    addSession: (s) => { store.sessions = [{ date: isoToday(), ...s }, ...store.sessions]; emit(); },
+    bumpToday: (k) => { ensureDay(); store.plan = { ...store.plan, doneToday: store.plan.doneToday + (k || 1) }; markActivity(k || 1); emit(); },
     setNav: (n) => { store.nav = n || {}; },
     getNav: () => { const n = store.nav; return n; },
     setNote: (key, text) => { store.notes = { ...store.notes, [key]: text }; emit(); },
@@ -288,7 +285,9 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       store.timeLog = [{ id: "t" + Date.now(), date, hour: new Date().getHours(), ...entry }, ...store.timeLog];
       // el tiempo de estudio también avanza la meta del día (1 punto por cada 5 min)
       const pts = Math.max(1, Math.round((entry.seconds || 0) / 300));
+      ensureDay();
       store.plan = { ...store.plan, doneToday: store.plan.doneToday + pts };
+      markActivity(Math.max(1, Math.round((entry.seconds || 0) / 60)));
       emit();
     },
     deleteTime: (id) => { store.timeLog = store.timeLog.filter((t) => t.id !== id); emit(); },
@@ -341,6 +340,22 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     return Math.max(0, Math.ceil((exam - now) / 86400000));
   };
 
+  // racha real: días consecutivos con actividad registrada (hoy cuenta si ya estudiaste;
+  // si hoy aún no, la racha se conserva contando desde ayer). Los días congelados cuentan.
+  window.realStreak = function () {
+    const s = window.EPStore.get();
+    const active = new Set(Object.keys(s.activity || {}).filter((d) => (s.activity[d] || 0) > 0));
+    (s.timeLog || []).forEach((t) => { if (t.date) active.add(t.date); });
+    (s.sessions || []).forEach((x) => { if (x.date && x.state === "done") active.add(x.date); });
+    (s.plan.frozenDates || []).forEach((d) => active.add(d));
+    const day = new Date(); day.setHours(0, 0, 0, 0);
+    const iso = (d) => d.toISOString().slice(0, 10);
+    let streak = 0;
+    if (!active.has(iso(day))) day.setDate(day.getDate() - 1); // hoy aún sin actividad: evalúa desde ayer
+    while (active.has(iso(day))) { streak++; day.setDate(day.getDate() - 1); }
+    return streak;
+  };
+
   // logros calculados del progreso real (+ desbloqueos manuales)
   window.computeAchievements = function () {
     const s = window.EPStore.get();
@@ -348,7 +363,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     const best = done.reduce((m, x) => Math.max(m, x.score || 0), 0);
     const subjectsStudied = new Set(done.map((x) => x.subject)).size;
     return [
-      ["🔥", "Racha de 7 días", s.plan.streak >= 7],
+      ["🔥", "Racha de 7 días", window.realStreak() >= 7],
       ["🎯", "Primer 10 en un simulacro", best >= 10 || !!s.unlocked.ten],
       ["📚", "100 preguntas en el banco", s.questions.length >= 100],
       ["⚖️", "5+ cuestionarios completados", done.length >= 5],
@@ -435,13 +450,17 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   window.intel = function () {
     const s = window.EPStore.get();
     const subjects = Object.keys(window.SUBJECT_COLORS || {});
-    const baseAvance = { "Legislación Militar": 24, "Operaciones Militares": 12, "Normatividad Gubernamental": 18, "Aspecto Administrativo": 8, "Adiestramiento y Mando Militar": 15, "Aspecto Técnico": 5 };
+    const hoy = new Date().setHours(0, 0, 0, 0);
     const porMateria = subjects.map((subj) => {
       const qs = s.questions.filter((q) => q.subject === subj);
       const fall = qs.filter((q) => q.status === "fall").length;
       const ok = qs.filter((q) => q.status === "ok").length;
-      const dominio = Math.max(2, Math.min(98, (baseAvance[subj] || 10) + ok * 3 - fall * 4));
-      const dias = { "Aspecto Técnico": 6, "Aspecto Administrativo": 5, "Operaciones Militares": 4, "Adiestramiento y Mando Militar": 3, "Normatividad Gubernamental": 2, "Legislación Militar": 1 }[subj] || 3;
+      const dom = s.cards.filter((c) => c.subject === subj && c.nivel === "dominado").length;
+      // dominio real: % de tarjetas dominadas de la materia (0 si no hay preguntas)
+      const dominio = qs.length ? Math.round(dom / qs.length * 100) : 0;
+      // días sin repasar: desde el último registro de tiempo o sesión de esa materia (null = sin datos)
+      const fechas = [...(s.timeLog || []).filter((t) => t.subject === subj).map((t) => t.date), ...(s.sessions || []).filter((x) => x.subject === subj && x.date).map((x) => x.date)].filter(Boolean).sort();
+      const dias = fechas.length ? Math.max(0, Math.round((hoy - new Date(fechas[fechas.length - 1] + "T00:00:00")) / 86400000)) : null;
       return { subj, dominio, fall, ok, dias };
     });
     // predicción de nota = promedio ponderado de dominio (peso similar) escalado a 10
@@ -450,13 +469,14 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     const nota = +(porMateria.reduce((a, m) => a + m.dominio * (pesos[m.subj] || 30), 0) / totalPeso / 10).toFixed(1);
     const debil = [...porMateria].sort((a, b) => a.dominio - b.dominio)[0];
     const fuerte = [...porMateria].sort((a, b) => b.dominio - a.dominio)[0];
-    const olvidado = [...porMateria].sort((a, b) => b.dias - a.dias)[0];
+    const conDias = porMateria.filter((m) => m.dias != null);
+    const olvidado = conDias.length ? [...conDias].sort((a, b) => b.dias - a.dias)[0] : null;
     const totalFall = porMateria.reduce((a, m) => a + m.fall, 0);
     // recomendaciones priorizadas
     const recos = [];
     if (debil) recos.push({ tipo: "debil", subj: debil.subj, txt: "Tu punto más débil es " + debil.subj + " (" + debil.dominio + "% de dominio). Dedícale las próximas sesiones." });
     if (totalFall > 0) recos.push({ tipo: "fall", subj: debil.subj, txt: "Tienes " + totalFall + " preguntas falladas en cola. Repásalas antes del próximo simulacro." });
-    if (olvidado && olvidado.dias >= 5) recos.push({ tipo: "olvido", subj: olvidado.subj, txt: olvidado.subj + " lleva " + olvidado.dias + " días sin repasar. Refréscalo para no perder retención." });
+    if (olvidado && olvidado.dias != null && olvidado.dias >= 5) recos.push({ tipo: "olvido", subj: olvidado.subj, txt: olvidado.subj + " lleva " + olvidado.dias + " días sin repasar. Refréscalo para no perder retención." });
     if (nota < 6) recos.push({ tipo: "nota", subj: debil.subj, txt: "Tu nota proyectada está por debajo de 6. Aumenta tu meta diaria y prioriza áreas débiles." });
     else if (nota >= 8) recos.push({ tipo: "nota", subj: fuerte.subj, txt: "Vas bien (proyección " + nota + "/10). Mantén el ritmo y refuerza tus áreas débiles para asegurar." });
     return { porMateria, nota, debil, fuerte, olvidado, totalFall, recos };
@@ -496,7 +516,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     const dominadas = (s.cards || []).filter((c) => c.nivel === "dominado").length;
     const sesiones = (s.sessions || []).filter((x) => x.state === "done").length;
     const minutos = Math.round((s.timeLog || []).reduce((a, t) => a + (t.seconds || 0), 0) / 60);
-    const xp = studied * 5 + dominadas * 10 + sesiones * 40 + minutos * 2 + (s.plan.streak || 0) * 15;
+    const xp = studied * 5 + dominadas * 10 + sesiones * 40 + minutos * 2 + window.realStreak() * 15;
     // nivel: cada nivel n requiere 150*n xp acumulado incremental
     let level = 1, need = 150, acc = 0;
     while (xp >= acc + need) { acc += need; level++; need = 150 * level; }
@@ -542,7 +562,6 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   // ===== Progreso semanal (días activos esta semana vs meta) =====
   window.weeklyProgress = function () {
     const s = window.EPStore.get();
-    const hash = (str) => { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return h; };
     const now = new Date();
     const dow = (now.getDay() + 6) % 7; // lunes=0
     const monday = new Date(now); monday.setDate(now.getDate() - dow);
@@ -550,11 +569,10 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday); d.setDate(monday.getDate() + i);
       const iso = d.toISOString().slice(0, 10);
-      const min = (s.timeLog || []).filter((t) => t.date === iso).reduce((a, t) => a + Math.round((t.seconds || 0) / 60), 0);
-      // señal estable de práctica para días sin registro (demo), respetando futuro vacío
-      const seeded = (i < dow && min === 0) ? ([25, 0, 40, 30, 0, 55, 20][ (hash(iso) % 7) ]) : min;
+      const min = (s.timeLog || []).filter((t) => t.date === iso).reduce((a, t) => a + Math.round((t.seconds || 0) / 60), 0)
+        + ((s.activity || {})[iso] || 0);
       const frozen = (s.plan.frozenDates || []).includes(iso);
-      days.push({ iso, min: seeded, active: seeded >= 15 || frozen, frozen, isToday: i === dow, future: i > dow });
+      days.push({ iso, min, active: min >= 15 || frozen, frozen, isToday: i === dow, future: i > dow });
     }
     const active = days.filter((d) => d.active).length;
     const goal = s.plan.weeklyGoal || 5;

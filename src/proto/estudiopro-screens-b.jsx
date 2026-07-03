@@ -623,45 +623,52 @@ function TarjetaForm() {
 /* ======================== CUESTIONARIO ========================= */
 function Quiz() {
   const go = useGoB();
-  const { QUESTION_BANK, TYPE_LABEL, subjColor, ConfirmDialog } = window;
+  const { TYPE_LABEL, subjColor, ConfirmDialog } = window;
   const nav = (window.EPStore && window.EPStore.getNav && window.EPStore.getNav()) || {};
   const isSim = !!window.__epSimulacro;
   const strict = nav.mode === "examen";
   const subject = isSim ? "Simulacro general" : ((window.__epSubject && window.SUBJECT_COLORS[window.__epSubject]) ? window.__epSubject : "Legislación Militar");
   const color = isSim ? "var(--accent)" : subjColor(subject);
   const qs = React.useMemo(() => {
+    const bank = window.EPStore.get().questions || [];
+    const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
     if (isSim) {
-      // mezcla las 6 materias, una pasada equilibrada
+      // mezcla las materias del banco real, una pasada equilibrada
       const bySubj = {};
-      QUESTION_BANK.forEach((x) => { (bySubj[x.subject] = bySubj[x.subject] || []).push(x); });
+      bank.forEach((x) => { (bySubj[x.subject] = bySubj[x.subject] || []).push(x); });
       const subs = Object.keys(bySubj);
       const out = []; let added = true; let r = 0;
       while (added) { added = false; subs.forEach((s) => { if (bySubj[s][r]) { out.push(bySubj[s][r]); added = true; } }); r++; }
       return out;
     }
-    let pool = QUESTION_BANK.filter((x) => x.subject === subject);
+    let pool = bank.filter((x) => x.subject === subject);
     if (nav.loc) { const byLoc = pool.filter((x) => x.loc === nav.loc); if (byLoc.length) pool = byLoc; }
-    if (nav.filter === "fall") { const f = pool.filter((x) => x.status === "fall"); if (f.length) pool = f; }
-    if (nav.filter === "imp") { const f = pool.filter((x) => x.status === "imp"); if (f.length) pool = f; }
-    if (pool.length < 4) pool = QUESTION_BANK.slice();
+    if (nav.temas && nav.temas.length && !nav.temas.includes("Todos")) pool = pool.filter((x) => nav.temas.includes(x.ord));
+    if (nav.dif && nav.dif !== "todas") pool = pool.filter((x) => x.dif === nav.dif);
+    if (nav.filter === "fall") pool = pool.filter((x) => x.status === "fall");
+    if (nav.filter === "imp") pool = pool.filter((x) => x.status === "imp");
+    if (nav.n && pool.length > nav.n) pool = shuffle(pool).slice(0, nav.n);
     return pool;
   }, [subject, isSim]);
   const N = qs.length;
+  // tiempo límite en minutos; null = sin límite (el reloj cuenta hacia arriba)
+  const limitMin = nav.tiempo != null ? nav.tiempo : (strict ? 20 : null);
   const [cur, setCur] = React.useState(Math.min((nav.at ? nav.at - 1 : 0), Math.max(0, (qs.length || 1) - 1)));
   const [answers, setAnswers] = React.useState(() => qs.map(() => null));
   const [revealed, setRevealed] = React.useState(() => qs.map(() => false));
   const [flags, setFlags] = React.useState(() => qs.map(() => false));
-  const [secs, setSecs] = React.useState(20 * 60);
+  const [secs, setSecs] = React.useState(limitMin ? limitMin * 60 : 0);
   const [showPause, setShowPause] = React.useState(false);
+  const finishedRef = React.useRef(false);
   React.useEffect(() => {
-    const t = setInterval(() => setSecs((s) => (s > 0 ? s - 1 : 0)), 1000);
+    const t = setInterval(() => setSecs((s) => (limitMin ? (s > 0 ? s - 1 : 0) : s + 1)), 1000);
     return () => clearInterval(t);
-  }, []);
+  }, [limitMin]);
   const q = qs[cur];
   const sel = answers[cur];
-  const isOpen = q.type === "AB";
+  const isOpen = q ? q.type === "AB" : false;
   const checked = revealed[cur];
-  const correct = q.answer;
+  const correct = q ? q.answer : null;
   const mmss = String(Math.floor(secs / 60)).padStart(2, "0") + ":" + String(secs % 60).padStart(2, "0");
   const setAns = (i) => { if (checked || isOpen) return; setAnswers((a) => a.map((v, k) => (k === cur ? i : v))); };
   const comprobar = () => setRevealed((r) => r.map((v, k) => (k === cur ? true : v)));
@@ -670,11 +677,13 @@ function Quiz() {
   const answeredCount = answers.filter((a) => a !== null).length;
   const navState = (n) => (n === cur ? "cur" : flags[n] ? "flag" : answers[n] !== null ? "done" : "");
   const finish = () => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
     const correctCount = qs.reduce((a, qq, k) => a + (qq.type !== "AB" && answers[k] === qq.answer ? 1 : 0), 0);
     const graded = qs.filter((qq) => qq.type !== "AB").length || 1;
     const missed = qs.map((qq, k) => ({ q: qq.q, loc: qq.loc, ord: qq.ord, ok: qq.type !== "AB" && answers[k] === qq.answer }))
       .filter((m) => !m.ok);
-    const elapsed = 20 * 60 - secs;
+    const elapsed = limitMin ? limitMin * 60 - secs : secs;
     const time = String(Math.floor(elapsed / 60)).padStart(2, "0") + ":" + String(elapsed % 60).padStart(2, "0");
     const score = +(correctCount / graded * 10).toFixed(1);
     const byChapter = {};
@@ -686,23 +695,25 @@ function Quiz() {
     window.EPStore.setLastResult({ subject, total: graded, correct: correctCount, wrong: graded - correctCount, time, score, missed, byChapter, isSim });
     // marca el banco real: aciertos → dominada, errores → fallada (alimenta repaso e inteligencia)
     const results = [];
-    qs.forEach((qq, k) => { if (qq.type !== "AB" && qq.id) results.push({ id: qq.id, correct: answers[k] === qq.answer }); });
+    qs.forEach((qq, k) => { if (qq.type !== "AB" && qq._id) results.push({ id: qq._id, correct: answers[k] === qq.answer }); });
     window.EPStore.applyQuizResults(results);
-    window.EPStore.addSession({ subject: isSim ? "Normatividad Gubernamental" : subject, label: isSim ? "Simulacro general" : (subject + " · práctica"), n: N, time, score, when: "hoy", state: "done" });
+    window.EPStore.addSession({ subject: isSim ? "Simulacro general" : subject, label: isSim ? "Simulacro general" : (subject + " · " + (strict ? "examen" : "práctica")), n: N, time, score, date: new Date().toISOString().slice(0, 10), state: "done" });
     window.EPStore.bumpToday(answeredCount);
     if (!isSim) window.EPStore.clearResume();
     go("resultado");
   };
+  // al agotarse el tiempo límite, el cuestionario se entrega solo
+  React.useEffect(() => { if (limitMin && secs === 0 && N > 0) finish(); }, [secs]);
   const next = () => { if (cur >= N - 1) { finish(); return; } setCur(cur + 1); };
   const doPause = () => {
-    if (!isSim) window.EPStore.setResume({ subject, label: subject + " — " + (nav.ord || "en curso"), at: cur + 1, total: N, missed: 18 });
+    if (!isSim) window.EPStore.setResume({ subject, label: subject + " — " + (nav.ord || "en curso"), at: cur + 1, total: N });
     go("inicio");
   };
   const skip = () => { if (cur < N - 1) setCur(cur + 1); };
   // keyboard shortcuts: 1-9 select option, Enter comprobar/siguiente, F flag, ←/→ nav
   React.useEffect(() => {
     const onKey = (e) => {
-      if (showPause) return;
+      if (showPause || !q) return;
       if (e.key >= "1" && e.key <= "9" && !isOpen && !checked) { const i = +e.key - 1; if (i < q.options.length) setAns(i); }
       else if (e.key === "Enter") { e.preventDefault(); if (!checked) { if (isOpen || sel !== null) comprobar(); } else next(); }
       else if (e.key.toLowerCase() === "f") toggleFlag();
@@ -718,6 +729,22 @@ function Quiz() {
     if (i === sel) return " is-wrong";
     return " is-dim";
   };
+  // sin preguntas que coincidan con la materia/filtros: estado vacío en lugar de sesión
+  if (N === 0) {
+    return (
+      <main className="main main-center">
+        <CrumbsB path={[["Inicio", "inicio"], ["Cuestionarios", "cuestionarios"], "Cuestionario"]} />
+        <div className="card-stage">
+          <window.EmptyState icon="⌕" title="No hay preguntas para esta sesión"
+            desc="Ninguna pregunta de tu banco coincide con la materia y filtros elegidos. Ajusta la configuración o agrega preguntas."
+            actions={<React.Fragment>
+              <button className="btn" onClick={() => go("cuestionarios")}>‹ Ajustar configuración</button>
+              <button className="btn btn-accent" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ Nueva pregunta</button>
+            </React.Fragment>} />
+        </div>
+      </main>
+    );
+  }
   return (
     <main className="main main-flush">
       <header className="page-head-card" style={{ borderTop: "3px solid " + color }}>
@@ -729,7 +756,7 @@ function Quiz() {
           </div>
           <div className="quiz-meta">
             <span className="quiz-prog">Pregunta <b>{cur + 1}</b> / {N}</span>
-            <span className={"quiz-timer" + (secs < 120 ? " is-low" : "")}>⏱ {mmss}</span>
+            <span className={"quiz-timer" + (limitMin && secs < 120 ? " is-low" : "")}>⏱ {mmss}</span>
             <button className="btn btn-sm" onClick={() => setShowPause(true)}>Pausar</button>
             <button className="btn btn-sm btn-accent" onClick={finish}>Finalizar</button>
           </div>
@@ -804,8 +831,8 @@ function Quiz() {
           <div className="rail-cfg">
             <div className="rail-cfg-h">configuración</div>
             <div className="cfg-row"><span>Materia</span><b style={{ color }}>{subject.split(" ")[0]}</b></div>
-            <div className="cfg-row"><span>Mostrar respuestas</span><b>tras responder</b></div>
-            <div className="cfg-row"><span>Tiempo límite</span><b>20:00</b></div>
+            <div className="cfg-row"><span>Mostrar respuestas</span><b>{strict ? "al final" : "tras responder"}</b></div>
+            <div className="cfg-row"><span>Tiempo límite</span><b>{limitMin ? String(limitMin).padStart(2, "0") + ":00" : "Sin límite"}</b></div>
           </div>
         </aside>
       </div>
