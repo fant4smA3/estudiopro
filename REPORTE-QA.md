@@ -1,5 +1,12 @@
 # Reporte de auditoría QA — EstudioPro
 
+> **Estado (2026-07-03): las 3 olas de corrección están aplicadas y verificadas.**
+> - **Ola 1** (`4993fc3`): C-01…C-04 — quiz/simulacro conectados al banco real, configuración aplicada, métricas derivadas del store.
+> - **Ola 2** (`0618ef4`): A-01…A-08 — gates de IA, tema persistente, resultado consistente, iconos PWA, a11y (select/button/label: 0 violaciones axe), contraste `--mute` a AA.
+> - **Ola 3** (`e051b42`): M-01…M-13 y B-01/B-03 — orden de columnas y selección por página en Banco, ordenamientos reales en formularios, dedupe de etiquetas, modales con Escape/max-height/foco, touch targets ≥44px y font 16px en móvil, pestaña historial, onboarding accesible, tests sin ruido, deps limpias.
+> - **Residuales conocidos:** ~68 nodos de contraste por el acento de marca usado como texto pequeño (decisión de diseño pendiente) y la fecha de examen por defecto (editable en Configuración).
+> Verificación: Playwright E2E por ola + barrido de 40 rutas sin errores + vitest 35/35.
+
 **Fecha:** 2026-07-03 · **Auditor:** QA integral (funcional + responsive + visual + técnica)
 **Método:** servidor levantado (`npm run dev`), navegación real con Chromium/Playwright sobre las **41 rutas navegables** (+ 7 de detalle), pruebas E2E de flujos completos, medición de overflow en 4 anchos (360/768/1280/1920), auditoría axe-core (WCAG 2.0 A/AA) por ruta, y revisión de código de los 19 módulos de `src/proto/`.
 
