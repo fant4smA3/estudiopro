@@ -240,9 +240,9 @@ function Diff({ level }) {
 }
 
 /* Toggle switch for settings/forms */
-function Switch({ on, onClick }) {
+function Switch({ on, onClick, label }) {
   return (
-    <button className={"switch" + (on ? " is-on" : "")} onClick={onClick} aria-pressed={on}>
+    <button className={"switch" + (on ? " is-on" : "")} onClick={onClick} aria-pressed={on} aria-label={label || "Activar o desactivar"}>
       <i></i>
     </button>
   );

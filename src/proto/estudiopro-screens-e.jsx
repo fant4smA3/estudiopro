@@ -166,20 +166,20 @@ function CreaRapido() {
         <div className="qr-dest-grid">
           <div className="field">
             <label>Materia</label>
-            <select className="input" value={dest.subject} onChange={(e) => setSubject(e.target.value)}>
+            <select className="input" aria-label="Materia" value={dest.subject} onChange={(e) => setSubject(e.target.value)}>
               {SUBJECTS.map((s) => <option key={s}>{s}</option>)}
             </select>
           </div>
           <div className="field">
             <label>Ordenamiento</label>
-            <select className="input" value={dest.ord} onChange={(e) => setOrd(e.target.value)} disabled={!ords.length}>
+            <select className="input" aria-label="Ordenamiento" value={dest.ord} onChange={(e) => setOrd(e.target.value)} disabled={!ords.length}>
               {!ords.length && <option value="">— Sin ordenamientos —</option>}
               {ords.map((o) => <option key={o}>{o}</option>)}
             </select>
           </div>
           <div className="field">
             <label>Capítulo / Título</label>
-            <select className="input" value={dest.cap} onChange={(e) => setCap(e.target.value)} disabled={!caps.length}>
+            <select className="input" aria-label="Capítulo" value={dest.cap} onChange={(e) => setCap(e.target.value)} disabled={!caps.length}>
               <option value="">{caps.length ? "Todo el ordenamiento" : "—"}</option>
               {caps.map((c) => <option key={c}>{c}</option>)}
             </select>

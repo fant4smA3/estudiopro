@@ -168,20 +168,26 @@ const __TWEAKS_STYLE = `
 `;
 
 // ── useTweaks ───────────────────────────────────────────────────────────────
-// Single source of truth for tweak values. setTweak persists via the host
-// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+// Single source of truth for tweak values. Persiste en localStorage para que
+// tema/acento/densidad sobrevivan a recargas.
+const TWEAKS_LS_KEY = 'ep-tweaks';
 function useTweaks(defaults) {
-  const [values, setValues] = React.useState(defaults);
-  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
-  // useState-style call doesn't write a "[object Object]" key into the persisted
-  // JSON block.
+  const [values, setValues] = React.useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(TWEAKS_LS_KEY) || 'null');
+      return saved && typeof saved === 'object' ? { ...defaults, ...saved } : defaults;
+    } catch (e) { return defaults; }
+  });
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }).
   const setTweak = React.useCallback((keyOrEdits, val) => {
     const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
       ? keyOrEdits : { [keyOrEdits]: val };
-    setValues((prev) => ({ ...prev, ...edits }));
-    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
-    // Same-window signal so in-page listeners (deck-stage rail thumbnails)
-    // can react — the parent message only reaches the host, not peers.
+    setValues((prev) => {
+      const next = { ...prev, ...edits };
+      try { localStorage.setItem(TWEAKS_LS_KEY, JSON.stringify(next)); } catch (e) { /* sin almacenamiento */ }
+      return next;
+    });
+    // Señal en la misma ventana para listeners in-page.
     window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
   }, []);
   return [values, setTweak];

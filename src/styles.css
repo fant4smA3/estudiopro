@@ -198,7 +198,7 @@
   .panel-h-l { display: flex; align-items: center; gap: 9px; min-width: 0; }
   .panel-h-r { display: flex; align-items: center; gap: 12px; }
   .panel-meta { font-size: 10px; color: var(--mute); letter-spacing: .04em; }
-  .panel-act { font-size: 10px; color: var(--accent); letter-spacing: .06em; text-transform: uppercase; font-weight: 600; cursor: pointer; }
+  .panel-act { font-size: 10px; color: var(--accent-press, var(--accent)); letter-spacing: .06em; text-transform: uppercase; font-weight: 600; cursor: pointer; }
   .panel-b { padding: 12px; }
 
   /* ---- Categories ---- */
@@ -493,7 +493,8 @@
   .source {
     --r: 8px;
     --bg:#ECF3F9; --surface:#FFFFFF; --surface-2:#E2EDF4;
-    --ink:#152C38; --ink-soft:#35505E; --mute:#78899A;
+    /* --mute a 4.5:1+ sobre --bg y --surface (WCAG AA texto normal) */
+    --ink:#152C38; --ink-soft:#35505E; --mute:#5B6B7B;
     --line:#D8E4EE; --line-strong:#BFCEDB; --soft-line:#E6EFF6;
     --accent:#1B8FBE; --accent-press:#14708F; --accent-tint:#DEF1F9; --on-accent:#FFFFFF;
     --ok:#2A8A5E; --ok-tint:#DEF1E8; --warn:#A0742A; --warn-tint:#F3EBD7; --danger:#C85059; --danger-tint:#F6E3E5;
@@ -847,7 +848,7 @@
   .home-streak-week i.on { background: var(--accent); }
 
   .home-sec { font-size: 15px; flex-shrink: 0; font-weight: 800; margin: 22px 2px 12px; display: flex; align-items: center; justify-content: space-between; }
-  .home-sec .link-btn { font-size: 12px; font-weight: 700; color: var(--accent); background: none; border: none; cursor: pointer; font-family: inherit; }
+  .home-sec .link-btn { font-size: 12px; font-weight: 700; color: var(--accent-press, var(--accent)); background: none; border: none; cursor: pointer; font-family: inherit; }
   .home-mats { display: grid; flex-shrink: 0; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .home-mat { background: var(--surface); border: 1px solid var(--soft-line); border-radius: var(--r); padding: 16px; position: relative; overflow: hidden; text-align: left; cursor: pointer; font-family: inherit; box-shadow: var(--shadow); transition: transform .15s, box-shadow .15s; }
   .home-mat:hover { transform: translateY(-3px); box-shadow: 0 16px 30px -20px rgba(21,44,56,.45); }
@@ -1417,7 +1418,7 @@
 
   /* ==================== PANTALLAS NUEVAS (Cronómetro, Apuntes, Audio, IA, Preparación, Evolución, Mapa, Respaldo, Reportes) ==================== */
   .proapp .btn-lg { padding: 11px 18px; font-size: 14px; font-weight: 600; }
-  .proapp .link-btn { background: none; border: 0; color: var(--accent); font: inherit; font-weight: 600; font-size: 12.5px; cursor: pointer; padding: 2px 4px; border-radius: 5px; }
+  .proapp .link-btn { background: none; border: 0; color: var(--accent-press, var(--accent)); font: inherit; font-weight: 600; font-size: 12.5px; cursor: pointer; padding: 2px 4px; border-radius: 5px; }
   .proapp .link-btn:hover { background: var(--accent-tint); }
   .proapp .link-danger { color: var(--danger); }
   .proapp .link-danger:hover { background: var(--danger-tint); }
@@ -1956,3 +1957,6 @@ html, body { overscroll-behavior: none; }
   .proapp .side { padding-bottom: env(safe-area-inset-bottom); }
 }
 .proapp button, .proapp .segchip, .proapp .fchip, .proapp .subjchip, .proapp .flashcard { touch-action: manipulation; }
+
+  /* AA: en claro los enlaces usan accent-press; en oscuro el acento base ya contrasta */
+  .theme-dark .panel-act, .theme-dark .link-btn, .theme-dark .home-sec .link-btn { color: var(--accent); }

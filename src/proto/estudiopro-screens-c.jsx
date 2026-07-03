@@ -60,9 +60,9 @@ function Cuestionarios() {
           <div className="qc-main">
             <PanelC idx="01" title="Origen de las preguntas">
               <div className="form-2">
-                <div className="field"><label>Categoría</label><select className="input"><option>Promoción 2026</option></select></div>
+                <div className="field"><label>Categoría</label><select className="input" aria-label="Categoría"><option>Promoción 2026</option></select></div>
                 <div className="field"><label>Materia</label>
-                  <select className="input" value={origen} onChange={(e) => setOrigen(e.target.value)}>
+                  <select className="input" aria-label="Materia" value={origen} onChange={(e) => setOrigen(e.target.value)}>
                     {SUBJECTS6.map((s) => <option key={s}>{s}</option>)}
                   </select>
                 </div>

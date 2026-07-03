@@ -112,7 +112,7 @@ function Informe() {
     const sys = "Eres el mentor de estudio de un aspirante al ascenso militar mexicano. Redacta un informe semanal breve, motivador y accionable en español, "
       + "con estas secciones en MAYÚSCULA como encabezado: RESUMEN DE LA SEMANA, LO QUE VA BIEN, A MEJORAR, PLAN PARA LA PRÓXIMA SEMANA (lista numerada de 3-4 acciones). "
       + "Sé concreto y usa los datos. Máximo 220 palabras.";
-    const prompt = "Datos del aspirante esta semana:\n" + JSON.stringify(datos, null, 2) + "\nExamen el 27 de julio de 2026.";
+    const prompt = "Datos del aspirante esta semana:\n" + JSON.stringify(datos, null, 2) + "\nFecha del examen: " + (window.EPStore.get().plan.examDate || "sin definir") + ".";
     try {
       const out = await window.claude.complete({ system: sys, messages: [{ role: "user", content: prompt }], max_tokens: 700 });
       setReport(out);
@@ -181,7 +181,7 @@ function HojaRepaso() {
               <button key={k} className={"rep-tab" + (modo === k ? " is-on" : "")} onClick={() => setModo(k)}>{l}</button>
             ))}
           </div>
-          {modo === "subj" && <select className="input" value={subj} onChange={(e) => setSubj(e.target.value)} style={{ maxWidth: "240px" }}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>}
+          {modo === "subj" && <select className="input" aria-label="Materia" value={subj} onChange={(e) => setSubj(e.target.value)} style={{ maxWidth: "240px" }}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>}
           <label className="hoja-chk"><input type="checkbox" checked={conResp} onChange={() => setConResp(!conResp)} /> Incluir respuestas</label>
           <span style={{ flex: 1 }}></span>
           <button className="btn btn-accent" disabled={!lista.length} onClick={() => window.print()}>🖨 Imprimir / PDF</button>

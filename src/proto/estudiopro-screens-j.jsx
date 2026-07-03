@@ -78,7 +78,7 @@ function ImportarIA() {
     <main className="main">
       <PageHeadJ title="Importar con IA" sub="Sube el manual o una foto y extrae preguntas automáticamente"
         crumbs={[["Importar", "importar"], "Importar con IA"]} />
-      {!aiReady && <div className="audio-warn">⚠ La IA no está disponible aquí; se muestra el flujo. La extracción real requiere conexión.</div>}
+      {!aiReady && <div className="audio-warn">⚠ La extracción con IA no está disponible en esta instalación. Usa <b>Importar</b> (CSV/JSON) o <b>Crear preguntas</b> para cargar tu material.</div>}
       <div className="gen-grid">
         <section className="panel">
           <div className="panel-h"><div className="panel-h-l"><span className="panel-idx">1</span><span className="panel-title">Material fuente</span></div></div>
@@ -96,7 +96,7 @@ function ImportarIA() {
               <label className="gen-f"><span>Máx. reactivos</span><select className="input" value={n} onChange={(e) => setN(+e.target.value)}>{[5, 8, 12, 16].map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
             </div>
             {err && <div className="gen-err">{err}</div>}
-            <button className="btn btn-accent btn-lg gen-go" onClick={extraer} disabled={loading}>{loading ? "Extrayendo…" : "✨ Extraer reactivos"}</button>
+            <button className="btn btn-accent btn-lg gen-go" onClick={extraer} disabled={loading || !aiReady} title={!aiReady ? "IA no disponible en esta instalación" : undefined}>{loading ? "Extrayendo…" : "✨ Extraer reactivos"}</button>
           </div>
         </section>
         <section className="panel gen-out">

@@ -213,9 +213,9 @@ function PreguntaForm() {
       <div className="form">
         <PanelB idx="01" title="Clasificación">
           <div className="form-3">
-            <div className="field"><label>Categoría</label><select className="input"><option>Promoción 2026</option></select></div>
-            <div className="field"><label>Materia</label><select className="input" value={subject} onChange={(e) => setSubject(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
-            <div className="field"><label>Ordenamiento / Capítulo</label><select className="input"><option>Código de Justicia Militar · Libro Primero</option></select></div>
+            <div className="field"><label>Categoría</label><select className="input" aria-label="Categoría"><option>Promoción 2026</option></select></div>
+            <div className="field"><label>Materia</label><select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
+            <div className="field"><label>Ordenamiento / Capítulo</label><select className="input" aria-label="Ordenamiento o capítulo"><option>Código de Justicia Militar · Libro Primero</option></select></div>
           </div>
         </PanelB>
 
@@ -571,9 +571,9 @@ function TarjetaForm() {
           </PanelB>
           <PanelB idx="02" title="Clasificación">
             <div className="form-3">
-              <div className="field"><label>Categoría</label><select className="input"><option>Promoción 2026</option></select></div>
-              <div className="field"><label>Materia</label><select className="input" value={subject} onChange={(e) => setSubject(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
-              <div className="field"><label>Ordenamiento / Capítulo</label><select className="input"><option>Código de Justicia Militar · Libro Primero</option></select></div>
+              <div className="field"><label>Categoría</label><select className="input" aria-label="Categoría"><option>Promoción 2026</option></select></div>
+              <div className="field"><label>Materia</label><select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
+              <div className="field"><label>Ordenamiento / Capítulo</label><select className="input" aria-label="Ordenamiento o capítulo"><option>Código de Justicia Militar · Libro Primero</option></select></div>
             </div>
             <div className="form-2">
               <div className="field">
@@ -679,20 +679,27 @@ function Quiz() {
   const finish = () => {
     if (finishedRef.current) return;
     finishedRef.current = true;
+    // solo las preguntas calificables (no abiertas) puntúan; se separa incorrecta de sin contestar
     const correctCount = qs.reduce((a, qq, k) => a + (qq.type !== "AB" && answers[k] === qq.answer ? 1 : 0), 0);
-    const graded = qs.filter((qq) => qq.type !== "AB").length || 1;
-    const missed = qs.map((qq, k) => ({ q: qq.q, loc: qq.loc, ord: qq.ord, ok: qq.type !== "AB" && answers[k] === qq.answer }))
+    const nGradable = qs.filter((qq) => qq.type !== "AB").length;
+    const graded = nGradable || 1;
+    const answeredG = qs.reduce((a, qq, k) => a + (qq.type !== "AB" && answers[k] !== null ? 1 : 0), 0);
+    const wrongCount = answeredG - correctCount;
+    const blankCount = nGradable - answeredG;
+    const abiertas = qs.length - nGradable;
+    const missed = qs.map((qq, k) => ({ q: qq.q, loc: qq.loc, ord: qq.ord, blank: qq.type !== "AB" && answers[k] === null, ok: qq.type === "AB" || answers[k] === qq.answer }))
       .filter((m) => !m.ok);
     const elapsed = limitMin ? limitMin * 60 - secs : secs;
     const time = String(Math.floor(elapsed / 60)).padStart(2, "0") + ":" + String(elapsed % 60).padStart(2, "0");
     const score = +(correctCount / graded * 10).toFixed(1);
     const byChapter = {};
     qs.forEach((qq, k) => {
+      if (qq.type === "AB") return; // las abiertas no puntúan: fuera del desglose
       const key = isSim ? qq.subject : (qq.loc || qq.ord || "General");
       if (!byChapter[key]) byChapter[key] = { ok: 0, total: 0 };
-      if (qq.type !== "AB") { byChapter[key].total++; if (answers[k] === qq.answer) byChapter[key].ok++; }
+      byChapter[key].total++; if (answers[k] === qq.answer) byChapter[key].ok++;
     });
-    window.EPStore.setLastResult({ subject, total: graded, correct: correctCount, wrong: graded - correctCount, time, score, missed, byChapter, isSim });
+    window.EPStore.setLastResult({ subject, total: graded, correct: correctCount, wrong: wrongCount, blank: blankCount, abiertas, time, score, missed, byChapter, isSim });
     // marca el banco real: aciertos → dominada, errores → fallada (alimenta repaso e inteligencia)
     const results = [];
     qs.forEach((qq, k) => { if (qq.type !== "AB" && qq._id) results.push({ id: qq._id, correct: answers[k] === qq.answer }); });
@@ -777,7 +784,10 @@ function Quiz() {
 
           {isOpen ? (
             <div className="opts">
-              <textarea className="input textarea" placeholder="Escribe tu respuesta…" disabled={checked}></textarea>
+              <textarea className="input textarea" placeholder="Escribe tu respuesta…" disabled={checked}
+                aria-label="Tu respuesta"
+                value={typeof sel === "string" ? sel : ""}
+                onChange={(e) => { const v = e.target.value; setAnswers((a) => a.map((x, k) => (k === cur ? (v.trim() ? v : null) : x))); }}></textarea>
             </div>
           ) : (
             <div className="opts">
@@ -882,6 +892,8 @@ function Resultado() {
           <div className="res-tags">
             <span className="res-pill res-ok"><b>{r.correct}</b> correctas</span>
             <span className="res-pill res-bad"><b>{r.wrong}</b> incorrectas</span>
+            {(r.blank || 0) > 0 && <span className="res-pill"><b>{r.blank}</b> sin contestar</span>}
+            {(r.abiertas || 0) > 0 && <span className="res-pill"><b>{r.abiertas}</b> abierta{r.abiertas === 1 ? "" : "s"} · no puntúa{r.abiertas === 1 ? "" : "n"}</span>}
             <span className="res-pill"><b>{pct}%</b> de acierto</span>
           </div>
         </div>
@@ -909,10 +921,11 @@ function Resultado() {
               <div className="missed-list">
                 {r.missed.slice(0, 4).map((m, i) => (
                   <div className="missed-row" key={i}>
-                    <span className="missed-x">✕</span>
-                    <div><div className="missed-q">{m.q}</div><div className="missed-loc">{m.ord || ""} {m.loc ? "· " + m.loc : ""}</div></div>
+                    <span className="missed-x">{m.blank ? "—" : "✕"}</span>
+                    <div><div className="missed-q">{m.q}</div><div className="missed-loc">{m.ord || ""} {m.loc ? "· " + m.loc : ""}{m.blank ? " · sin contestar" : ""}</div></div>
                   </div>
                 ))}
+                {r.missed.length > 4 && <div className="missed-loc" style={{ paddingLeft: "26px" }}>…y {r.missed.length - 4} más en tu repaso prioritario.</div>}
                 <div className="reco-acts" style={{ marginTop: "12px" }}>
                   <button className="btn btn-accent" onClick={() => { window.__epSimulacro = false; window.__epSubject = r.subject; window.EPStore.setNav({ subject: r.subject, mode: "practica", filter: "fall" }); go("quiz"); }}>Reintentar falladas ({r.missed.length})</button>
                   <button className="btn" onClick={() => { window.__epSubject = r.subject; window.__epCardVista = "estudiar"; go("tarjetas"); }}>Repasar como tarjetas ▸</button>

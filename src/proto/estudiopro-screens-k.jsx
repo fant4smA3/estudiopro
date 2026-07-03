@@ -194,7 +194,7 @@ function Metas() {
             <div className="mt-ring-c"><div className="mt-ring-n">{w.active}<span>/{w.goal}</span></div><div className="mt-ring-l">días activos</div></div>
           </div>
           <div className="mt-goal-row"><span>Meta semanal</span>
-            <select className="input input-sm" value={w.goal} onChange={(e) => window.EPStore.setWeeklyGoal(+e.target.value)}>{[3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n} días</option>)}</select>
+            <select className="input input-sm" aria-label="Meta semanal de días" value={w.goal} onChange={(e) => window.EPStore.setWeeklyGoal(+e.target.value)}>{[3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n} días</option>)}</select>
           </div>
           <div className="mt-week">
             {w.days.map((d, i) => (
@@ -279,10 +279,10 @@ function Podcast() {
         crumbs={[["Inicio", "inicio"], "Podcast de repaso"]} />
       {!supported && <div className="audio-warn">⚠ Tu navegador no soporta voz; el podcast avanzará por temporizador sin audio.</div>}
       <div className="audio-bar">
-        <select className="input" value={fuente} onChange={(e) => setFuente(e.target.value)} style={{ maxWidth: "200px" }}>
+        <select className="input" aria-label="Fuente" value={fuente} onChange={(e) => setFuente(e.target.value)} style={{ maxWidth: "200px" }}>
           <option value="falladas">Solo falladas</option><option value="importantes">Importantes</option><option value="todas">Todas</option>
         </select>
-        <select className="input" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}>
+        <select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}>
           <option value="todas">Todas las materias</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}
         </select>
         <label className="audio-rate">Velocidad<input type="range" min="0.7" max="1.5" step="0.1" value={rate} onChange={(e) => setRate(+e.target.value)} /><b>{rate.toFixed(1)}×</b></label>
@@ -326,7 +326,7 @@ function Glosario() {
         actions={<button className="btn btn-accent" onClick={() => setAdding(true)}>+ Nuevo término</button>} />
       <div className="notas-hub-bar">
         <input className="input search-input" placeholder="Buscar término…" value={q} onChange={(e) => setQ(e.target.value)} />
-        <select className="input" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}><option value="todas">Todas</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>
+        <select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}><option value="todas">Todas</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>
         <span className="notas-hub-count">{terms.length} término(s)</span>
       </div>
       {terms.length === 0

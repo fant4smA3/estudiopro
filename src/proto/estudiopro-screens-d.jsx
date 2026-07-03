@@ -469,10 +469,10 @@ function Alertas() {
             <div className="set-row" key={k}>
               <div><div className="set-label">{ic} {title}</div><div className="set-desc">{msg}</div></div>
               <div className="alert-cfg-r">
-                <select className="input input-sm" defaultValue={when} disabled={!cfg[k]}>
+                <select className="input input-sm" defaultValue={when} disabled={!cfg[k]} aria-label={"Horario · " + title}>
                   <option>{when}</option><option>7:00 a.m.</option><option>8:00 a.m.</option><option>12:00 p.m.</option><option>6:00 p.m.</option><option>9:00 p.m.</option>
                 </select>
-                <Switch on={cfg[k]} onClick={() => t(k)} />
+                <Switch on={cfg[k]} onClick={() => t(k)} label={title} />
               </div>
             </div>
           ))}
