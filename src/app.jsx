@@ -9,6 +9,7 @@ const {
   Informe, HojaRepaso, EditorPlan, CommandPalette,
   ImportarIA, Duplicados, RetoDiario, Habitos, Bitacora,
   ExamenAdaptativo, Confusiones, Metas, Podcast, Glosario, Simulador,
+  ReparaDistractores,
   useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor,
 } = window;
 
@@ -26,7 +27,7 @@ export default function App() {
   const [navOpen, setNavOpen] = React.useState(false);
   const go = React.useCallback((r) => setRoute(r), []);
   React.useEffect(() => { const m = document.querySelector(".main"); if (m) m.scrollTop = 0; setNavOpen(false); }, [route]);
-  const screens = { inicio: Inicio, categorias: Categorias, materias: Materias, materia: MateriaDetalle, banco: Banco, pregunta: PreguntaForm, "crear-rapido": CreaRapido, tarjetas: Tarjetas, tarjeta: TarjetaForm, cuestionarios: Cuestionarios, quiz: Quiz, resultado: Resultado, importar: Importar, estadisticas: Estadisticas, config: Config, perfil: Perfil, calendario: Calendario, simulacro: Simulacro, simrun: SimRun, alertas: Alertas, repaso: RepasoPrioritario, sesion: SesionHoy, onboarding: Onboarding, inteligencia: Inteligencia, cronometro: Cronometro, notas: Apuntes, audio: Audio, generador: Generador, tutor: Tutor, preparacion: Preparacion, evolucion: Evolucion, mapa: MapaTemario, respaldo: Respaldo, reportes: Reportes, informe: Informe, imprimir: HojaRepaso, plan: EditorPlan, "importar-ia": ImportarIA, duplicados: Duplicados, reto: RetoDiario, habitos: Habitos, bitacora: Bitacora, "examen-adaptativo": ExamenAdaptativo, confusiones: Confusiones, metas: Metas, podcast: Podcast, glosario: Glosario, simulador: Simulador };
+  const screens = { inicio: Inicio, categorias: Categorias, materias: Materias, materia: MateriaDetalle, banco: Banco, pregunta: PreguntaForm, "crear-rapido": CreaRapido, tarjetas: Tarjetas, tarjeta: TarjetaForm, cuestionarios: Cuestionarios, quiz: Quiz, resultado: Resultado, importar: Importar, estadisticas: Estadisticas, config: Config, perfil: Perfil, calendario: Calendario, simulacro: Simulacro, simrun: SimRun, alertas: Alertas, repaso: RepasoPrioritario, sesion: SesionHoy, onboarding: Onboarding, inteligencia: Inteligencia, cronometro: Cronometro, notas: Apuntes, audio: Audio, generador: Generador, tutor: Tutor, preparacion: Preparacion, evolucion: Evolucion, mapa: MapaTemario, respaldo: Respaldo, reportes: Reportes, informe: Informe, imprimir: HojaRepaso, plan: EditorPlan, "importar-ia": ImportarIA, duplicados: Duplicados, reto: RetoDiario, habitos: Habitos, bitacora: Bitacora, "examen-adaptativo": ExamenAdaptativo, confusiones: Confusiones, metas: Metas, podcast: Podcast, glosario: Glosario, simulador: Simulador, distractores: ReparaDistractores };
   const Screen = screens[route] || Inicio;
   const estiloCls = ESTILO_CLS[t.estilo] || "opt-sereno";
   const densCls = t.densidad === "compacta" ? "dens-compact" : (t.densidad === "amplia" ? "dens-comfy" : "");

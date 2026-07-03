@@ -26,6 +26,7 @@ const NAV = [
     ["crear-rapido", "Crear preguntas"],
     ["generador", "Generador IA"],
     ["duplicados", "Duplicados"],
+    ["distractores", "Reparar distractores"],
     ["tarjetas", "Tarjetas"],
     ["repaso", "Repaso prioritario"],
     ["cuestionarios", "Cuestionarios"],

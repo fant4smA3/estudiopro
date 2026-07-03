@@ -141,6 +141,28 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       emit();
       return id;
     },
+    // importación masiva con detección de duplicados (mismo enunciado normalizado)
+    addQuestions: (list) => {
+      ensureSeed();
+      const norm = (t) => (t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+      // clave = enunciado + respuesta correcta (una misma pregunta puede repetirse con distinta respuesta en series de enumeración)
+      const ansTxt = (q) => (q.options && typeof q.answer === "number") ? (q.options[q.answer] || "") : String(q.answer || "");
+      const key = (q) => norm(q.q) + "::" + norm(ansTxt(q));
+      const seen = new Set(store.questions.map(key));
+      const stamp = Date.now();
+      const toAdd = [];
+      let added = 0, skipped = 0;
+      (list || []).forEach((q, i) => {
+        const k = norm(q.q) ? key(q) : "";
+        if (!k || seen.has(k)) { skipped++; return; }
+        seen.add(k);
+        toAdd.push({ _id: "Q" + stamp + "-" + i, status: "nuevo", tags: [], ...q });
+        added++;
+      });
+      if (toAdd.length) store.questions = [...toAdd, ...store.questions];
+      emit();
+      return { added, skipped };
+    },
     deleteQuestion: (id) => { store.questions = store.questions.filter((q) => q._id !== id); const cs = { ...store.cardSrs }; delete cs[id]; store.cardSrs = cs; emit(); },
     updateQuestion: (id, patch) => { store.questions = store.questions.map((q) => q._id === id ? { ...q, ...patch } : q); emit(); },
     // editar una tarjeta edita la pregunta de origen (frente→enunciado, reverso→respuesta) + su nivel SRS

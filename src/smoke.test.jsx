@@ -58,7 +58,61 @@ describe("EstudioPro — humo", () => {
     expect(f.length).toBe(7);
   });
 
-  const SCREENS = ["Inicio", "Categorias", "Materias", "Banco", "Tarjetas", "TarjetaForm", "PreguntaForm", "Cuestionarios", "Simulacro", "Estadisticas", "Config", "Importar", "SesionHoy", "RepasoPrioritario", "Perfil", "Respaldo"];
+  it("addQuestions importa y omite duplicados", () => {
+    const before = W.EPStore.get().questions.length;
+    const lote = [
+      { subject: "Aspecto Técnico", ord: "Manual X", q: "¿Pregunta nueva de importación uno?", type: "OM", options: ["a", "b", "c", "d"], answer: 0 },
+      { subject: "Aspecto Técnico", ord: "Manual X", q: "¿Pregunta nueva de importación dos?", type: "OM", options: ["a", "b"], answer: 1 },
+    ];
+    const r1 = W.EPStore.addQuestions(lote);
+    expect(r1.added).toBe(2);
+    const r2 = W.EPStore.addQuestions(lote); // mismo lote → todo duplicado
+    expect(r2.added).toBe(0);
+    expect(r2.skipped).toBe(2);
+    expect(W.EPStore.get().questions.length).toBe(before + 2);
+  });
+
+  it("el banco real de ciberseguridad es importable (278 preguntas)", () => {
+    const fs = require("fs");
+    const data = JSON.parse(fs.readFileSync(process.cwd() + "/data/ciberseguridad-aspecto-tecnico.json", "utf8"));
+    expect(data.length).toBe(278);
+    const r = W.EPStore.addQuestions(data);
+    // el documento fuente trae 6 preguntas repetidas exactas (misma pregunta y respuesta) → se omiten
+    expect(r.added).toBe(272);
+    expect(r.skipped).toBe(6);
+    data.forEach((q) => {
+      expect(q.subject).toBe("Aspecto Técnico");
+      expect(q.options.length).toBeGreaterThanOrEqual(2);
+      expect(q.answer).toBeGreaterThanOrEqual(0);
+      expect(q.answer).toBeLessThan(q.options.length);
+    });
+  });
+
+  it("reparar distractores: detecta, sugiere y aplica", () => {
+    const r0 = W.EPStore.addQuestions([
+      { subject: "Aspecto Técnico", ord: "Manual Y", loc: "Cap. I", q: "¿Concepto base de prueba de reparación?", type: "OM",
+        options: ["Protección de activos de información", "Respuesta idéntica", "Distractor 1", "Distractor 2"], answer: 0 },
+      { subject: "Aspecto Técnico", ord: "Manual Y", loc: "Cap. I", q: "¿Candidato uno de prueba?", type: "OM",
+        options: ["Defensa del ciberespacio nacional", "Gestión de riesgos de información", "Continuidad de operaciones", "Análisis de vulnerabilidades"], answer: 0 },
+    ]);
+    expect(r0.added).toBe(2);
+    const found = W.epScanPlaceholders();
+    const mine = found.find((f) => f.q.q === "¿Concepto base de prueba de reparación?");
+    expect(mine).toBeTruthy();
+    expect(mine.bad).toEqual([1, 2, 3]);
+    const sug = W.epRepairSuggest(mine.q, 3, 0);
+    expect(sug.length).toBeGreaterThanOrEqual(3);
+    sug.forEach((t) => expect(W.epIsPlaceholder(t)).toBe(false));
+    expect(new Set(sug.map(W.epNorm)).size).toBe(sug.length); // sin repetidos
+    expect(sug.map(W.epNorm)).not.toContain(W.epNorm(mine.q.options[0])); // nunca la correcta
+    W.epRepairApply(mine.q, mine.bad, sug);
+    const after = W.epScanPlaceholders().find((f) => f.q.q === "¿Concepto base de prueba de reparación?");
+    expect(after).toBeFalsy();
+    const fixed = W.EPStore.get().questions.find((q) => q.q === "¿Concepto base de prueba de reparación?");
+    expect(fixed.options[0]).toBe("Protección de activos de información"); // correcta intacta
+  });
+
+  const SCREENS = ["Inicio", "Categorias", "Materias", "Banco", "Tarjetas", "TarjetaForm", "PreguntaForm", "Cuestionarios", "Simulacro", "Estadisticas", "Config", "Importar", "SesionHoy", "RepasoPrioritario", "Perfil", "Respaldo", "ReparaDistractores"];
   for (const name of SCREENS) {
     it("pantalla " + name + " renderiza", async () => {
       const C = W[name];

@@ -678,9 +678,15 @@ function Importar() {
   const [fileName, setFileName] = React.useState("");
   const [headers, setHeaders] = React.useState([]);
   const [rows, setRows] = React.useState([]);
+  const [map, setMap] = React.useState([]);          // campo asignado a cada columna (CSV)
+  const [nativeQs, setNativeQs] = React.useState(null); // JSON nativo de EstudioPro (objetos con q/answer)
+  const [result, setResult] = React.useState(null);
   const [error, setError] = React.useState("");
   const fileRef = React.useRef(null);
   const steps = ["Archivo", "Columnas", "Destino", "Confirmar"];
+  const SUBJECTS = Object.keys(window.SUBJECT_COLORS || {});
+  const [destSubj, setDestSubj] = React.useState(SUBJECTS[0] || "");
+  const [destOrd, setDestOrd] = React.useState("");
 
   // very small CSV parser (handles quoted fields + commas)
   const parseCSV = (text) => {
@@ -698,25 +704,55 @@ function Importar() {
     return lines.map(parseLine);
   };
 
+  // guess field mapping from header names
+  const guessField = (h) => {
+    const s = h.toLowerCase();
+    if (/(enunciad|pregunt|question|front)/.test(s)) return "Enunciado";
+    if (/(opci[oó]n|option)\s*a/.test(s)) return "Opción A";
+    if (/(opci[oó]n|option)\s*b/.test(s)) return "Opción B";
+    if (/(opci[oó]n|option)\s*c/.test(s)) return "Opción C";
+    if (/(opci[oó]n|option)\s*d/.test(s)) return "Opción D";
+    if (/(tipo|type)/.test(s)) return "Tipo";
+    if (/(respuesta|answer|correct|back)/.test(s)) return "Respuesta correcta";
+    if (/(dificult|difficul|nivel)/.test(s)) return "Dificultad";
+    if (/(etiq|tag|categor)/.test(s)) return "Etiquetas";
+    if (/(explica|explan)/.test(s)) return "Explicación";
+    if (/(referen|fuente|ref\b|loc)/.test(s)) return "Referencia";
+    return "Ignorar";
+  };
+  const FIELDS = ["Enunciado", "Tipo", "Respuesta correcta", "Opción A", "Opción B", "Opción C", "Opción D", "Dificultad", "Etiquetas", "Explicación", "Referencia", "Ignorar"];
+
   const handleFile = (file) => {
     if (!file) return;
-    setError(""); setFileName(file.name);
+    setError(""); setFileName(file.name); setNativeQs(null); setResult(null);
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = String(e.target.result || "");
       try {
         if (file.name.toLowerCase().endsWith(".json")) {
           const data = JSON.parse(text);
-          const arr = Array.isArray(data) ? data : (data.preguntas || data.questions || []);
+          const arr = Array.isArray(data) ? data : (data.preguntas || data.questions || (data.data && data.data.questions) || []);
           if (!arr.length) throw new Error("vacío");
+          if (arr[0] && arr[0].q !== undefined && arr[0].answer !== undefined) {
+            // formato nativo de EstudioPro: sin mapeo de columnas
+            setNativeQs(arr);
+            setRows(arr.map((o) => [String(o.q || "")]));
+            setHeaders(["Enunciado"]);
+            if (arr[0].subject && SUBJECTS.includes(arr[0].subject)) setDestSubj(arr[0].subject);
+            if (arr[0].ord) setDestOrd(String(arr[0].ord));
+            setStep(3);
+            return;
+          }
           const hs = Object.keys(arr[0]);
           setHeaders(hs);
           setRows(arr.map((o) => hs.map((h) => String(o[h] ?? ""))));
+          setMap(hs.map(guessField));
         } else {
           const matrix = parseCSV(text);
           if (matrix.length < 2) throw new Error("vacío");
           setHeaders(matrix[0]);
           setRows(matrix.slice(1));
+          setMap(matrix[0].map(guessField));
         }
         setStep(2);
       } catch (err) {
@@ -727,29 +763,62 @@ function Importar() {
   };
 
   const loadSample = () => {
-    const sample = "enunciado,tipo,respuesta,dificultad,etiquetas\n" +
-      '"¿Cómo se clasifican los delitos según la voluntad del agente?",OM,"Intencionales y no intencionales",medio,"cjm;delitos"\n' +
-      '"El arresto es un correctivo disciplinario.",VF,Verdadero,fácil,"disciplina"\n' +
-      '"Explica el deber esencial de un jefe según el RGDM.",AB,"Velar por instrucción y disciplina",difícil,"rgdm;deberes"\n' +
-      '"Menciona un principio del uso de la fuerza.",OM,Proporcionalidad,medio,"uso-de-la-fuerza"';
-    setFileName("ejemplo_legislacion.csv");
+    const sample = "enunciado,tipo,respuesta,opcion a,opcion b,opcion c,opcion d,dificultad,etiquetas\n" +
+      '"¿Cómo se clasifican los delitos según la voluntad del agente?",OM,"Intencionales y no intencionales","Intencionales y no intencionales","Graves y no graves","Comunes y federales","Dolosos y de querella",medio,"cjm;delitos"\n' +
+      '"El arresto es un correctivo disciplinario.",VF,Verdadero,,,,,fácil,"disciplina"\n' +
+      '"Explica el deber esencial de un jefe según el RGDM.",AB,"Velar por instrucción y disciplina",,,,,difícil,"rgdm;deberes"';
+    setFileName("ejemplo_legislacion.csv"); setNativeQs(null); setResult(null);
     const matrix = parseCSV(sample);
-    setHeaders(matrix[0]); setRows(matrix.slice(1)); setStep(2);
+    setHeaders(matrix[0]); setRows(matrix.slice(1)); setMap(matrix[0].map(guessField)); setStep(2);
   };
 
-  // guess field mapping from header names
-  const guessField = (h) => {
-    const s = h.toLowerCase();
-    if (/(enunciad|pregunt|question|front)/.test(s)) return "Enunciado";
-    if (/(tipo|type)/.test(s)) return "Tipo";
-    if (/(respuesta|answer|correct|back)/.test(s)) return "Respuesta correcta";
-    if (/(dificult|difficul|nivel)/.test(s)) return "Dificultad";
-    if (/(etiq|tag|categor)/.test(s)) return "Etiquetas";
-    if (/(explica|explan)/.test(s)) return "Explicación";
-    return "Ignorar";
+  const qCol = map.indexOf("Enunciado");
+  const valid = nativeQs
+    ? nativeQs.filter((o) => o.q && String(o.q).length > 3).length
+    : rows.filter((r) => { const t = qCol >= 0 ? r[qCol] : r[0]; return t && t.length > 3; }).length;
+
+  // construye preguntas desde filas CSV/JSON genérico según el mapeo
+  const buildFromRows = () => {
+    const get = (r, name) => { const i = map.indexOf(name); return i >= 0 ? (r[i] || "").trim() : ""; };
+    return rows.map((r) => {
+      const q = get(r, "Enunciado"); if (!q || q.length <= 3) return null;
+      const opts = ["Opción A", "Opción B", "Opción C", "Opción D"].map((f) => get(r, f)).filter(Boolean);
+      const ansTxt = get(r, "Respuesta correcta");
+      let type = (get(r, "Tipo") || "").toUpperCase().trim();
+      let options, answer;
+      if (opts.length >= 2) {
+        options = opts;
+        const ix = opts.findIndex((o) => o.toLowerCase() === ansTxt.toLowerCase());
+        answer = ix >= 0 ? ix : 0;
+        type = type || "OM";
+      } else if (type === "VF" || /^(verdadero|falso)$/i.test(ansTxt)) {
+        options = ["Verdadero", "Falso"];
+        answer = /^falso$/i.test(ansTxt) ? 1 : 0;
+        type = "VF";
+      } else {
+        options = undefined; answer = ansTxt; type = type || "AB";
+      }
+      let dif = (get(r, "Dificultad") || "medio").toLowerCase();
+      if (!["fácil", "medio", "difícil"].includes(dif)) dif = "medio";
+      return { subject: destSubj, ord: destOrd, loc: "", type, dif, status: "nuevo",
+        tags: (get(r, "Etiquetas") || "").split(/[;,]/).map((s) => s.trim()).filter(Boolean),
+        q, options, answer, explain: get(r, "Explicación"), ref: get(r, "Referencia") };
+    }).filter(Boolean);
   };
-  const FIELDS = ["Enunciado", "Tipo", "Respuesta correcta", "Dificultad", "Etiquetas", "Explicación", "Ignorar"];
-  const valid = rows.filter((r) => r[0] && r[0].length > 3).length;
+
+  const doImport = () => {
+    const list = nativeQs
+      ? nativeQs.filter((o) => o.q && String(o.q).length > 3).map((o) => ({
+          subject: (o.subject && SUBJECTS.includes(o.subject)) ? o.subject : destSubj,
+          ord: o.ord || destOrd, loc: o.loc || "", type: o.type || "OM", dif: o.dif || "medio",
+          status: "nuevo", tags: o.tags || [], q: o.q, options: o.options, answer: o.answer,
+          explain: o.explain || "", ref: o.ref || "" }))
+      : buildFromRows();
+    const res = window.EPStore.addQuestions(list);
+    setResult({ detected: rows.length, valid: list.length, ...res });
+    setStep(4);
+    window.toast && window.toast(res.added + " preguntas importadas" + (res.skipped ? " · " + res.skipped + " duplicadas omitidas" : ""), "ok");
+  };
 
   return (
     <main className="main">
@@ -786,25 +855,6 @@ function Importar() {
             <button className="btn" onClick={loadSample}>Usar plantilla de ejemplo</button>
             <button className="btn btn-accent" onClick={() => fileRef.current && fileRef.current.click()}>Seleccionar archivo</button>
           </div>
-        </Panel>
-      )}
-
-      {step === 1 && (
-        <Panel idx="02" title="Importaciones recientes" meta="historial local">
-          <table className="tbl tbl-mini">
-            <thead><tr><th>Archivo</th><th>Materia</th><th className="ta-c">Detectadas</th><th className="ta-c">Importadas</th><th className="ta-r">Fecha</th></tr></thead>
-            <tbody>
-              {[["banco_legislacion.csv", "Legislación Militar", 150, 142, "hoy"], ["ciberseguridad.json", "Aspecto Técnico", 80, 80, "3 d"], ["normatividad.csv", "Normatividad Gub.", 96, 91, "1 sem"]].map((h, i) => (
-                <tr key={i}>
-                  <td className="t-q"><span className="imp-file">⎙</span>{h[0]}</td>
-                  <td className="t-mute">{h[1]}</td>
-                  <td className="ta-c"><b>{h[2]}</b></td>
-                  <td className="ta-c"><span className="st st-ok"><i className="st-dot"></i>{h[3]}</span></td>
-                  <td className="ta-r t-mute">{h[4]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
           <div className="imp-hint">⚠ Las preguntas duplicadas (mismo enunciado) se detectan y omiten automáticamente al importar.</div>
         </Panel>
       )}
@@ -816,7 +866,7 @@ function Importar() {
               <div className="map-row" key={i}>
                 <span className="map-src">{h} <em className="map-sample">{rows[0] && rows[0][i] ? "“" + rows[0][i].slice(0, 24) + "”" : ""}</em></span>
                 <span className="map-arrow">→</span>
-                <select className="input input-sm" defaultValue={guessField(h)}>
+                <select className="input input-sm" value={map[i] || "Ignorar"} onChange={(e) => setMap((m) => { const n = m.slice(); n[i] = e.target.value; return n; })}>
                   {FIELDS.map((f) => <option key={f}>{f}</option>)}
                 </select>
               </div>
@@ -828,21 +878,23 @@ function Importar() {
 
       {step === 3 && (
         <React.Fragment>
-          <Panel idx="03" title="Destino y previsualización" meta={rows.length + " filas · " + valid + " válidas"}>
+          <Panel idx="03" title="Destino y previsualización" meta={rows.length + " filas · " + valid + " válidas" + (nativeQs ? " · formato EstudioPro" : "")}>
             <div className="form-3">
-              <div className="field"><label>Categoría</label><select className="input"><option>Promoción 2026</option></select></div>
-              <div className="field"><label>Materia</label><select className="input">{Object.keys(window.SUBJECT_COLORS || {}).map((s) => <option key={s}>{s}</option>)}</select></div>
-              <div className="field"><label>Ordenamiento / Capítulo</label><select className="input"><option>Código de Justicia Militar · Libro Primero</option></select></div>
+              <div className="field"><label>Materia{nativeQs ? " (si la pregunta no trae)" : ""}</label>
+                <select className="input" value={destSubj} onChange={(e) => setDestSubj(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
+              <div className="field"><label>Ordenamiento / Manual</label>
+                <input className="input" placeholder="p. ej. Manual de Ciberseguridad y Ciberdefensa" value={destOrd} onChange={(e) => setDestOrd(e.target.value)} /></div>
+              <div className="field"><label>Estado inicial</label><select className="input" disabled><option>Nuevas (sin estudiar)</option></select></div>
             </div>
             <table className="tbl tbl-mini import-prev">
-              <thead><tr><th>Enunciado</th>{headers.slice(1).map((h, i) => <th key={i}>{h}</th>)}<th>Estado</th></tr></thead>
+              <thead><tr><th>Enunciado</th><th>Estado</th></tr></thead>
               <tbody>
                 {rows.slice(0, 6).map((r, i) => {
-                  const ok = r[0] && r[0].length > 3;
+                  const t = nativeQs ? r[0] : (qCol >= 0 ? r[qCol] : r[0]);
+                  const ok = t && t.length > 3;
                   return (
                     <tr key={i}>
-                      <td className="t-q">{r[0]}</td>
-                      {r.slice(1, headers.length).map((c, j) => <td key={j} className="t-mute">{c}</td>)}
+                      <td className="t-q">{t}</td>
                       <td><span className={"st st-" + (ok ? "ok" : "imp")}><i className="st-dot"></i>{ok ? "Válida" : "Revisar"}</span></td>
                     </tr>
                   );
@@ -851,22 +903,23 @@ function Importar() {
             </table>
             {rows.length > 6 && <div className="import-more">+ {rows.length - 6} filas más…</div>}
           </Panel>
-          <div className="form-actions"><button className="btn" onClick={() => setStep(2)}>‹ Atrás</button><button className="btn btn-accent" onClick={() => setStep(4)}>Importar {valid} preguntas ▸</button></div>
+          <div className="form-actions"><button className="btn" onClick={() => setStep(nativeQs ? 1 : 2)}>‹ Atrás</button><button className="btn btn-accent" onClick={doImport}>Importar {valid} preguntas ▸</button></div>
         </React.Fragment>
       )}
 
-      {step === 4 && (
+      {step === 4 && result && (
         <Panel idx="✓" title="Importación completada">
           <div className="import-done">
             <div className="import-done-ic">✓</div>
-            <div className="import-done-t">{valid} preguntas importadas</div>
+            <div className="import-done-t">{result.added} preguntas importadas</div>
             <div className="res-tags" style={{ justifyContent: "center", marginTop: "14px" }}>
-              <span className="res-pill"><b>{rows.length}</b> detectadas</span>
-              <span className="res-pill res-ok"><b>{valid}</b> válidas</span>
-              <span className="res-pill res-bad"><b>{rows.length - valid}</b> con errores</span>
+              <span className="res-pill"><b>{result.detected}</b> detectadas</span>
+              <span className="res-pill res-ok"><b>{result.added}</b> añadidas</span>
+              <span className="res-pill"><b>{result.skipped}</b> duplicadas omitidas</span>
+              <span className="res-pill res-bad"><b>{result.detected - result.valid}</b> con errores</span>
             </div>
             <div className="form-actions" style={{ justifyContent: "center", marginTop: "20px" }}>
-              <button className="btn" onClick={() => { setStep(1); setFileName(""); setHeaders([]); setRows([]); }}>Importar otro</button>
+              <button className="btn" onClick={() => { setStep(1); setFileName(""); setHeaders([]); setRows([]); setNativeQs(null); setResult(null); }}>Importar otro</button>
               <button className="btn btn-accent" onClick={() => go("banco")}>Ver en el banco ▸</button>
             </div>
           </div>
