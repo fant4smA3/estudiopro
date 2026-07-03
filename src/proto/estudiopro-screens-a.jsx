@@ -1,0 +1,879 @@
+/* EstudioPro · Prototipo — Pantallas A */
+const { useGo, Crumbs, PageHead, Panel, Diff, Switch } = window;
+
+/* ============================ INICIO ============================ */
+function Inicio() {
+  const go = useGo();
+  const st = window.useStore();
+  const plan = st.plan;
+  const goalPct = Math.min(100, Math.round(plan.doneToday / plan.dailyGoal * 100));
+  const dExam = window.daysToExam();
+  const nQ = st.questions.length, nC = st.cards.length;
+  const doneSessions = st.sessions.filter((s) => s.state === "done");
+  const avg = doneSessions.length ? (doneSessions.reduce((a, s) => a + (s.score || 0), 0) / doneSessions.length).toFixed(1) : "—";
+  // --- métricas reales derivadas del store ---
+  // las tarjetas SON el banco (una por pregunta); el avance = % de tarjetas dominadas
+  const dominadas = st.cards.filter((c) => c.nivel === "dominado").length;
+  const avancePct = nQ ? Math.round(dominadas / nQ * 100) : 0;
+  const falladas = st.questions.filter((q) => q.status === "fall").length;
+  const importantes = st.questions.filter((q) => q.status === "imp").length;
+  const enRepaso = st.cards.filter((c) => c.nivel === "medio").length;
+  const nuevasC = st.cards.filter((c) => c.nivel === "nuevo").length;
+  const vencenHoy = falladas + enRepaso + nuevasC;
+  const intelData = (window.intel && window.intel()) || { porMateria: [] };
+  const domBySubj = {}; intelData.porMateria.forEach((m) => { domBySubj[m.subj] = m.dominio; });
+  const recientesQ = st.questions.slice(0, 3);
+  const examFecha = (() => { try { return new Date(plan.examDate + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short" }); } catch (e) { return ""; } })();
+  const notaProy = intelData.nota != null ? intelData.nota : null;
+  const notaCls = notaProy == null ? "" : notaProy >= 8 ? "v-ok" : notaProy >= 6 ? "v-warn" : "v-bad";
+  const kpis = [
+    ["Preguntas", nQ.toLocaleString(), "en tu banco"],
+    ["Tarjetas", nC.toLocaleString(), "una por pregunta"],
+    ["Cuestionarios", String(st.sessions.length), "media " + avg + " / 10"],
+    ["Avance", avancePct + "%", dominadas.toLocaleString() + " dominadas"],
+  ];
+  const cats = [
+    ["Legislación Militar", 7, "380"],
+    ["Normatividad Gubernamental", 5, "240"],
+    ["Adiestramiento y Mando Militar", 2, "110"],
+  ];
+  const recientes = [
+    ["Legislación Militar", "Código de Justicia Militar", "Libro Primero · Cap. I", "hoy"],
+    ["Adiestramiento y Mando Militar", "Mando y Liderazgo · Cap. IX", "", "ayer"],
+    ["Aspecto Técnico", "Ciberseguridad · Cap. II Ciberespacio", "", "2 d"],
+  ];
+  const ring = (pct) => (119.4 * (1 - pct / 100)).toFixed(1);
+  if (st.questions.length === 0 && st.cards.length === 0) {
+    return (
+      <main className="main main-center">
+        <PageHead title="Bienvenido a EstudioPro" crumbs={["Inicio"]} />
+        <div className="onboard">
+          <div className="onboard-mark">EP</div>
+          <h2 className="onboard-h">Prepara tu examen de promoción</h2>
+          <p className="onboard-p">Aún no tienes contenido. Empieza importando tu banco de preguntas, creando preguntas y tarjetas, o explorando el temario de las 6 materias.</p>
+          <div className="onboard-steps">
+            <div className="onboard-step" onClick={() => go("importar")}><span className="onboard-num">1</span><div><div className="onboard-st">Importa tu banco</div><div className="onboard-sd">CSV o JSON con tus preguntas</div></div></div>
+            <div className="onboard-step" onClick={() => { window.__epEditQ = null; go("pregunta"); }}><span className="onboard-num">2</span><div><div className="onboard-st">Crea preguntas y tarjetas</div><div className="onboard-sd">Una por una, con validación</div></div></div>
+            <div className="onboard-step" onClick={() => go("materias")}><span className="onboard-num">3</span><div><div className="onboard-st">Explora el temario</div><div className="onboard-sd">6 materias · 21 ordenamientos</div></div></div>
+          </div>
+          <button className="btn btn-accent btn-lg" onClick={() => go("onboarding")}>Crear mi plan de estudio ▸</button>
+        </div>
+      </main>
+    );
+  }
+  // --- BENTO: banner de "siguiente paso" (reanudar cuestionario o sesión de hoy) ---
+  const tp = window.todayPlan && window.todayPlan();
+  const nextStep = (() => {
+    if (st.resume) {
+      const at = st.resume.at, total = st.resume.total || 1;
+      return {
+        badge: "Continúa donde quedaste",
+        title: st.resume.label,
+        desc: "Cuestionario en pausa · pregunta " + at + " de " + total,
+        done: Math.min(3, Math.max(1, Math.round(at / total * 3))), of: 3,
+        cta: "Reanudar ▸",
+        act: () => { window.__epSimulacro = false; window.__epSubject = st.resume.subject; window.EPStore.setNav({ subject: st.resume.subject, mode: "practica", at: st.resume.at }); go("quiz"); },
+      };
+    }
+    if (tp && tp.tipo === "simulacro") {
+      return { badge: "Hoy: simulacro", title: "Simulacro general · 200 preguntas", desc: "Examen completo cronometrado · ≈ " + (tp.min || 180) + " min", done: 0, of: 3, cta: "Ir al simulacro ▸", act: () => go("simulacro") };
+    }
+    if (tp) {
+      return {
+        badge: "Sesión de hoy", title: tp.subject,
+        desc: (tp.ord ? tp.ord + (tp.titulo ? " · " + tp.titulo : "") + " · " : "") + "3 pasos · ≈ " + tp.min + " min",
+        done: 1, of: 3, cta: "Empezar sesión ▸",
+        act: () => { window.__epSesion = { subject: tp.subject, ord: tp.ord, titulo: tp.titulo, step: 0 }; go("sesion"); },
+      };
+    }
+    return { badge: "Empieza hoy", title: "Practica " + vencenHoy + " tarjetas", desc: "Repaso espaciado priorizado para hoy", done: 0, of: 3, cta: "Iniciar repaso ▸", act: () => go("repaso") };
+  })();
+  const streakDays = plan.streak || 0;
+  const weekMark = Array.from({ length: 7 }, (_, i) => i < Math.min(7, streakDays));
+  // materias del examen (colores reales del sistema; se mantienen)
+  const mats = [
+    ["Legislación Militar", "⚖"], ["Operaciones Militares", "🎯"], ["Normatividad Gubernamental", "📋"],
+    ["Aspecto Administrativo", "🗂"], ["Adiestramiento y Mando Militar", "🎖"], ["Aspecto Técnico", "🛡"],
+  ].map(([n, ic]) => ({ n, ic, p: domBySubj[n] != null ? domBySubj[n] : 0 }));
+  return (
+    <main className="main">
+      <PageHead title="Resumen" sub="Viernes 20 jun · sesión local" crumbs={["Inicio"]} />
+
+      <div className="home-next" onClick={nextStep.act} role="button">
+        <div className="home-next-l">
+          <span className="home-next-badge">{nextStep.badge}</span>
+          <div className="home-next-t">{nextStep.title}</div>
+          <div className="home-next-d">{nextStep.desc}</div>
+          <div className="home-next-prog">{Array.from({ length: nextStep.of }, (_, i) => <i key={i} className={i < nextStep.done ? "on" : ""}></i>)}</div>
+        </div>
+        <button className="home-next-cta" onClick={(e) => { e.stopPropagation(); nextStep.act(); }}>{nextStep.cta}</button>
+      </div>
+
+      <div className="home-bento">
+        <div className="home-card home-hero" onClick={() => go("perfil")} role="button">
+          <div className="home-hero-l">Cuenta regresiva al examen</div>
+          <div className="home-hero-n">{dExam} días</div>
+          <div className="home-hero-s">{examFecha ? "Examen · " + examFecha : "Fija tu fecha en el perfil"}</div>
+        </div>
+        <div className="home-card home-goal">
+          <div className="resume-ring" aria-hidden="true">
+            <svg viewBox="0 0 44 44"><circle className="rr-bg" cx="22" cy="22" r="19"></circle><circle className="rr-fg" cx="22" cy="22" r="19" strokeDasharray="119.4" strokeDashoffset={ring(goalPct)}></circle></svg>
+            <span className="resume-ring-n">{goalPct}%</span>
+          </div>
+          <div>
+            <div className="home-goal-l">Meta de hoy</div>
+            <div className="home-goal-n">{plan.doneToday} / {plan.dailyGoal}</div>
+            <div className="home-goal-s">{plan.doneToday >= plan.dailyGoal ? "¡Meta cumplida! 🎯" : "preguntas resueltas"}</div>
+          </div>
+        </div>
+        <div className="home-card home-streak">
+          <div className="home-streak-n">{streakDays}</div>
+          <div className="home-streak-l">días de racha</div>
+          <div className="home-streak-week">{weekMark.map((on, i) => <i key={i} className={on ? "on" : ""}></i>)}</div>
+        </div>
+      </div>
+
+      <ActivityHeatmap />
+
+      <div className="home-sec">Tus materias <button className="link-btn" onClick={() => go("materias")}>Ver todas ▸</button></div>
+      <div className="home-mats">
+        {mats.map((m) => {
+          const c = window.subjColor(m.n);
+          return (
+            <button className="home-mat" key={m.n} style={{ "--c": c }} onClick={() => { window.__epSubject = m.n; go("materia"); }}>
+              <span className="home-mat-bar"></span>
+              <span className="home-mat-ic">{m.ic}</span>
+              <div className="home-mat-nm">{m.n}</div>
+              <div className="home-mat-mt">dominio del banco</div>
+              <div className="home-mat-track"><i style={{ width: m.p + "%" }}></i></div>
+              <div className="home-mat-row"><span className="home-mat-pct">{m.p}%</span><span className="home-mat-qz">Estudiar ▸</span></div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="grid-2">
+        <Panel idx="01" title="Categorías" meta="3" action="ver todas" onAction={() => go("categorias")}>
+          <div className="cat-list">
+            {cats.map(([n, m, q]) => {
+              const p = domBySubj[n] != null ? domBySubj[n] : 0;
+              return (
+              <div className="cat clickable" key={n} onClick={() => { window.__epSubject = n; go("materia"); }}>
+                <div className="cat-top">
+                  <span className="cat-name">{n}</span>
+                  <span className="cat-pct" style={{ color: window.subjColor(n) }}>{p}%</span>
+                </div>
+                <div className="mini-bar"><i style={{ width: p + "%", background: window.subjColor(n), color: window.subjColor(n) }}></i></div>
+                <div className="cat-meta">{m} materias · {q} preguntas</div>
+              </div>
+              );
+            })}
+          </div>
+        </Panel>
+
+        <Panel idx="02" title="Materias recientes" meta="3" action="ver todas" onAction={() => go("materias")}>
+          <div className="rows">
+            {recientes.map(([n, c, t, d]) => (
+              <div className="row3 clickable" key={n} onClick={() => { window.__epSubject = n; go("materia"); }}>
+                <span className="r-dot" style={{ background: window.subjColor(n) }}></span>
+                <div className="r-main">
+                  <div className="r-title">{n}</div>
+                  <div className="r-sub">{c}{t ? " · " + t : ""}</div>
+                </div>
+                <span className="r-when">{d}</span>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
+
+      <div className="grid-2">
+        <Panel idx="03" title="Preguntas recientes" meta={nQ.toLocaleString() + " totales"} action="banco ▸" onAction={() => go("banco")}>
+          <table className="tbl tbl-mini">
+            <tbody>
+              {recientesQ.map((q) => (
+                <tr key={q._id} className="clickable" onClick={() => { window.__epEditQ = q; go("pregunta"); }}>
+                  <td className="t-q">{q.q}</td>
+                  <td><span className="chip">{(window.TYPE_LABEL && window.TYPE_LABEL[q.type]) || q.type}</span></td>
+                  <td><Diff level={q.dif || "medio"} /></td>
+                </tr>
+              ))}
+              {recientesQ.length === 0 && <tr><td className="t-q t-mute" colSpan="3">Aún no tienes preguntas en el banco.</td></tr>}
+            </tbody>
+          </table>
+        </Panel>
+
+        <Panel idx="04" title="Repaso de hoy" meta={vencenHoy + " tarjetas"} action="prioritario ▸" onAction={() => go("repaso")}>
+          <div className="due">
+            <div className="due-n"><b>{vencenHoy}</b><span>vencen hoy</span></div>
+            <div className="due-split">
+              <div className="due-cell"><span className="due-c due-c-danger"></span>Falladas <b>{falladas}</b></div>
+              <div className="due-cell"><span className="due-c due-c-warn"></span>En repaso <b>{enRepaso}</b></div>
+              <div className="due-cell"><span className="due-c due-c-ok"></span>Nuevas <b>{nuevasC}</b></div>
+            </div>
+            <div className="quick-sessions">
+              <button className="btn btn-sm" disabled={!falladas} onClick={() => go("repaso")}>Solo falladas ({falladas})</button>
+              <button className="btn btn-sm" disabled={!importantes} onClick={() => go("repaso")}>Marcadas ({importantes})</button>
+            </div>
+            <button className="btn btn-accent" style={{ width: "100%", marginTop: "10px" }} onClick={() => go("tarjetas")}>Iniciar repaso ▸</button>
+          </div>
+        </Panel>
+      </div>
+    </main>
+  );
+}
+
+/* ========================== CATEGORÍAS ========================== */
+function Categorias() {
+  const go = useGo();
+  const { PromptDialog } = window;
+  const st = window.useStore();
+  const [open, setOpen] = React.useState(false);
+  const base = [
+    ["Promoción 2026", "Cap. 1/o. I.C.I. · Examen de promoción general. 6 materias evaluadas y 21 ordenamientos.", "#2F73CE", 6, "1,120", 19],
+  ];
+  const userCats = (st.userCats || []).map((c) => [c.name, c.desc || "Categoría personalizada.", c.color, 0, "0", 0]);
+  const cats = [...base, ...userCats];
+  return (
+    <main className="main">
+      <PageHead title="Categorías" sub={"Cap. 1/o. I.C.I. · " + cats.length + (cats.length === 1 ? " categoría · 6 materias" : " categorías")} crumbs={[["Inicio", "inicio"], "Categorías"]}
+        actions={<button className="btn btn-accent" onClick={() => setOpen(true)}>+ Nueva categoría</button>} />
+      <div className="cat-grid">
+        {cats.map(([n, d, c, m, q, p]) => (
+          <div className="catcard" key={n} onClick={() => go("materias")}>
+            <div className="catcard-top" style={{ background: c }}></div>
+            <div className="catcard-b">
+              <div className="catcard-name">{n}</div>
+              <div className="catcard-desc">{d}</div>
+              <div className="catcard-stats">
+                <span><b>{m}</b> materias</span>
+                <span><b>{q}</b> preguntas</span>
+              </div>
+              <div className="catcard-foot">
+                <div className="mini-bar"><i style={{ width: p + "%", background: c }}></i></div>
+                <span className="catcard-pct">{p}%</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <PromptDialog open={open} title="Nueva categoría" confirmLabel="Crear categoría"
+        fields={[
+          { key: "name", label: "Nombre de la categoría", placeholder: "p. ej. Promoción 2027", required: true },
+          { key: "desc", label: "Descripción", type: "textarea", placeholder: "Breve descripción del examen o convocatoria" },
+        ]}
+        onClose={() => setOpen(false)}
+        onConfirm={(v) => { window.EPStore.addCategory({ name: v.name.trim(), desc: (v.desc || "").trim() }); setOpen(false); window.toast && window.toast("Categoría creada", "ok"); }} />
+    </main>
+  );
+}
+
+/* =========================== MATERIAS =========================== */
+function Materias() {
+  const go = useGo();
+  const { PromptDialog } = window;
+  const st = window.useStore();
+  const [open, setOpen] = React.useState(false);
+  const PALETTE = ["#2F73CE", "#2A8A5E", "#A0742A", "#7A57C2", "#C2410C", "#0E7490", "#B83280", "#15803D"];
+  const base = [
+    ["Legislación Militar", "7 ordenamientos · CJM, LOEFAM, ISSFAM, disciplina, ascensos y deberes.", 7, 380, 120, 24, "#2F73CE"],
+    ["Operaciones Militares", "4 manuales · logística, operaciones, op. conjuntas y planeamiento.", 4, 220, 70, 12, "#2A8A5E"],
+    ["Normatividad Gubernamental", "5 ordenamientos · uso de la fuerza, transparencia, APF y DD.HH.", 5, 240, 80, 18, "#A0742A"],
+    ["Aspecto Administrativo", "2 obras · PMBOK 7a Ed. y Ley de Adquisiciones.", 2, 90, 30, 8, "#7A57C2"],
+    ["Adiestramiento y Mando Militar", "2 manuales · mando, liderazgo y adiestramiento.", 2, 110, 36, 15, "#C2410C"],
+    ["Aspecto Técnico", "1 manual · ciberseguridad y ciberdefensa.", 1, 80, 26, 5, "#0E7490"],
+  ];
+  const userMats = (st.userMats || []).map((m) => [m.name, m.desc || "Materia personalizada.", 0, 0, 0, 0, m.color]);
+  const mats = [...base, ...userMats];
+  return (
+    <main className="main">
+      <PageHead title="Materias" sub={"Promoción 2026 · " + mats.length + " materias"} crumbs={[["Inicio", "inicio"], ["Categorías", "categorias"], "Materias"]}
+        actions={<button className="btn btn-accent" onClick={() => setOpen(true)}>+ Nueva materia</button>} />
+      <div className="cat-grid">
+        {mats.map(([n, d, t, q, tj, p, c]) => (
+          <div className="catcard" key={n} onClick={() => { window.__epSubject = n; go("materia"); }}>
+            <div className="catcard-top" style={{ background: c }}></div>
+            <div className="catcard-b">
+              <div className="catcard-name">{n}</div>
+              <div className="catcard-desc">{d}</div>
+              <div className="catcard-stats">
+                <span><b>{t}</b> {t === 1 ? "ordenamiento" : "ordenamientos"}</span>
+                <span><b>{q}</b> preguntas</span>
+                <span><b>{tj}</b> tarjetas</span>
+              </div>
+              <div className="catcard-foot">
+                <div className="mini-bar"><i style={{ width: p + "%", background: c }}></i></div>
+                <span className="catcard-pct">{p}%</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <PromptDialog open={open} title="Nueva materia" confirmLabel="Crear materia"
+        fields={[
+          { key: "name", label: "Nombre de la materia", placeholder: "p. ej. Derecho Internacional Humanitario", required: true },
+          { key: "desc", label: "Descripción", type: "textarea", placeholder: "Qué cubre esta materia (ordenamientos, manuales…)" },
+        ]}
+        onClose={() => setOpen(false)}
+        onConfirm={(v) => { window.EPStore.addSubject({ name: v.name.trim(), desc: (v.desc || "").trim(), color: PALETTE[(st.userMats || []).length % PALETTE.length] }); setOpen(false); window.toast && window.toast("Materia creada", "ok"); }} />
+    </main>
+  );
+}
+
+/* ====================== DETALLE DE MATERIA ====================== */
+function MateriaDetalle() {
+  const go = useGo();
+  const { PromptDialog } = window;
+  const st = window.useStore();
+  const [open, setOpen] = React.useState(0);
+  const [ordOpen, setOrdOpen] = React.useState(false);
+  const DETAIL = window.MATERIA_DETAIL || {};
+  const SUBJECTS = {
+    "Legislación Militar": "Ordenamientos jurídico-militares: justicia, organización, disciplina, ascensos y deberes del Ejto. y F.A.M.",
+    "Operaciones Militares": "Doctrina de logística, operaciones, operaciones conjuntas y planeamiento operacional.",
+    "Normatividad Gubernamental": "Uso de la fuerza, transparencia, administración pública, responsabilidades y derechos humanos.",
+    "Aspecto Administrativo": "Dirección de proyectos (PMBOK) y contrataciones del sector público.",
+    "Adiestramiento y Mando Militar": "Mando, liderazgo y proceso de adiestramiento militar.",
+    "Aspecto Técnico": "Ciberseguridad, ciberdefensa y operaciones en el ciberespacio.",
+  };
+  const subject = (window.__epSubject && SUBJECTS[window.__epSubject]) ? window.__epSubject : "Legislación Militar";
+  const SUBJECT_COLOR = {
+    "Legislación Militar": "#2F73CE", "Operaciones Militares": "#2A8A5E",
+    "Normatividad Gubernamental": "#A0742A", "Aspecto Administrativo": "#7A57C2",
+    "Adiestramiento y Mando Militar": "#C2410C", "Aspecto Técnico": "#0E7490",
+  };
+  const color = SUBJECT_COLOR[subject] || "#2F73CE";
+  const whenAt = ["hoy", "ayer", "2 d", "3 d", "5 d", "1 sem"];
+  // each ordenamiento of this subject = a tree-tema; its títulos = cap-rows
+  const ords = Object.keys(DETAIL).filter((k) => DETAIL[k].cat === subject);
+  const temasBase = ords.map((ordName, oi) => {
+    const od = DETAIL[ordName];
+    const caps = od.titulos.map((tt, ti) => {
+      const capList = tt.caps.map((c) => c[0]).join(" · ");
+      const cq = 8 + ((oi * 3 + ti * 5) % 16);
+      const ct = 3 + ((oi + ti) % 6);
+      return [tt.n, capList, cq, ct, whenAt[(oi + ti) % whenAt.length]];
+    });
+    const q = caps.reduce((a, c) => a + c[2], 0);
+    const t = caps.reduce((a, c) => a + c[3], 0);
+    return { n: ordName, ref: od.desc, q, t, caps };
+  });
+  const userOrds = ((st.userOrds || {})[subject] || []).map((o) => ({ n: o.name, ref: o.desc || "Ordenamiento personalizado", q: 0, t: 0, caps: [], isNew: true }));
+  const temas = [...temasBase, ...userOrds];
+  const totQ = temas.reduce((a, t) => a + t.q, 0);
+  const totT = temas.reduce((a, t) => a + t.t, 0);
+  const avance = 6 + (subject.length % 24);
+  return (
+    <main className="main">
+      <header className="page-head-card subj" style={{ borderTop: "3px solid " + color }}>
+        <Crumbs path={[["Inicio", "inicio"], ["Promoción 2026", "categorias"], ["Materias", "materias"], subject]} />
+        <div className="subj-grid">
+          <div className="subj-l">
+            <h1 className="page-title">{subject}</h1>
+            <p className="subj-desc">{SUBJECTS[subject]}</p>
+            <div className="stat-chips">
+              <span className="sc"><b>{temas.length}</b> {temas.length === 1 ? "ordenamiento" : "ordenamientos"}</span>
+              <span className="sc"><b>{totQ}</b> preguntas</span>
+              <span className="sc"><b>{totT}</b> tarjetas</span>
+              <span className="sc"><b>{avance}%</b> avance</span>
+            </div>
+          </div>
+          <div className="subj-r">
+            <button className="btn btn-accent btn-lg" onClick={() => { window.__epSimulacro = false; window.__epSubject = subject; window.EPStore.setNav({ subject, mode: "practica" }); go("quiz"); }}>Estudiar ▸</button>
+            <div className="subj-actions">
+              <button className="btn" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ Pregunta</button>
+              <button className="btn" onClick={() => go("tarjeta")}>+ Tarjeta</button>
+              <button className="btn" onClick={() => setOrdOpen(true)}>+ Ordenamiento</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <Panel idx="—" title="Ordenamientos, títulos y capítulos" meta={temas.length + (temas.length === 1 ? " ordenamiento · " : " ordenamientos · ") + totQ + " preguntas"}>
+        <div className="tree">
+          {temas.map((tm, i) => {
+            const isOpen = open === i;
+            return (
+              <div className={"tree-tema" + (isOpen ? " is-open" : "")} key={tm.n}>
+                <div className="tema-row" onClick={() => setOpen(isOpen ? -1 : i)}>
+                  <span className="tw">{isOpen ? "▾" : "▸"}</span>
+                  <span className="tema-name">{tm.n}</span>
+                  <span className="tema-counts">{tm.q} preg · {tm.t} tarj</span>
+                  <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); window.__epSimulacro = false; window.__epSubject = subject; window.EPStore.setNav({ subject, ord: tm.n, mode: "practica" }); go("quiz"); }}>Estudiar</button>
+                </div>
+                {isOpen && tm.caps.map(([cn, cd, cq, ct, cu]) => (
+                  <div className="cap-row" key={cn}>
+                    <span className="cap-bar" aria-hidden="true"></span>
+                    <div className="cap-main">
+                      <div className="cap-name">{cn}</div>
+                      <div className="cap-desc">{cd}</div>
+                    </div>
+                    <div className="cap-counts">
+                      <span><b>{cq}</b> preg</span>
+                      <span><b>{ct}</b> tarj</span>
+                      <span className="cap-when">{cu}</span>
+                    </div>
+                    <div className="cap-acts">
+                      <button className="btn btn-sm" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ P</button>
+                      <button className="btn btn-sm" onClick={() => go("tarjeta")}>+ T</button>
+                      <button className="btn btn-sm btn-accent" onClick={() => { window.__epSimulacro = false; window.__epSubject = subject; window.EPStore.setNav({ subject, ord: tm.n, loc: cn, mode: "practica" }); go("quiz"); }}>Estudiar</button>
+                    </div>
+                  </div>
+                ))}
+                {isOpen && tm.caps.length === 0 && (
+                  <div className="cap-row cap-row-empty">
+                    <span className="cap-bar" aria-hidden="true"></span>
+                    <div className="cap-main">
+                      <div className="cap-desc">Aún sin títulos ni capítulos. Empieza a estudiar o agrega preguntas y tarjetas a este ordenamiento.</div>
+                    </div>
+                    <div className="cap-acts">
+                      <button className="btn btn-sm" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ P</button>
+                      <button className="btn btn-sm" onClick={() => go("tarjeta")}>+ T</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
+
+      <PromptDialog open={ordOpen} title={"Nuevo ordenamiento · " + subject} confirmLabel="Crear ordenamiento"
+        fields={[
+          { key: "name", label: "Nombre del ordenamiento", placeholder: "p. ej. Ley de Ascensos y Recompensas", required: true },
+          { key: "desc", label: "Referencia / descripción", placeholder: "Ref. legal o breve descripción" },
+        ]}
+        onClose={() => setOrdOpen(false)}
+        onConfirm={(v) => { window.EPStore.addOrdenamiento(subject, { name: v.name.trim(), desc: (v.desc || "").trim() }); setOrdOpen(false); setOpen(temas.length); window.toast && window.toast("Ordenamiento creado", "ok"); }} />
+
+      <NotasPanel keyName={"materia:" + subject} color={color} />
+    </main>
+  );
+}
+
+function NotasPanel({ keyName, color }) {
+  const st = window.useStore();
+  const saved = st.notes[keyName] || "";
+  const [val, setVal] = React.useState(saved);
+  const [editing, setEditing] = React.useState(false);
+  React.useEffect(() => { setVal(st.notes[keyName] || ""); }, [keyName]);
+  const save = () => { window.EPStore.setNote(keyName, val); setEditing(false); window.toast && window.toast("Apuntes guardados", "ok"); };
+  return (
+    <Panel idx="✎" title="Apuntes personales" meta={saved ? "guardados" : "vacío"}
+      action={editing ? "guardar" : "editar"} onAction={editing ? save : () => setEditing(true)}>
+      {editing ? (
+        <div className="notas-edit">
+          <textarea className="input textarea" style={{ minHeight: "120px" }} value={val} onChange={(e) => setVal(e.target.value)} placeholder="Escribe tus apuntes, mnemotecnias o dudas sobre esta materia…" autoFocus></textarea>
+          <div className="form-actions" style={{ marginTop: "10px" }}>
+            <button className="btn" onClick={() => { setVal(saved); setEditing(false); }}>Cancelar</button>
+            <button className="btn btn-accent" onClick={save}>Guardar apuntes</button>
+          </div>
+        </div>
+      ) : saved ? (
+        <div className="notas-view" style={{ borderLeft: "3px solid " + color }}>{saved}</div>
+      ) : (
+        <div className="notas-empty" onClick={() => setEditing(true)}>
+          <span className="notas-empty-ic">✎</span> Aún no tienes apuntes en esta materia. Haz clic para añadir.
+        </div>
+      )}
+    </Panel>
+  );
+}
+
+/* ========================= ESTADÍSTICAS ========================= */
+function Estadisticas() {
+  const go = useGo();
+  const st = window.useStore();
+  const week = [
+    ["L", 62], ["M", 88], ["X", 45], ["J", 96], ["V", 74], ["S", 120], ["D", 40],
+  ];
+  const maxW = 120;
+  const dominio = [
+    ["Dominadas", 1498, "var(--ok)"],
+    ["En repaso", 920, "var(--accent)"],
+    ["Falladas", 412, "var(--danger)"],
+    ["Sin estudiar", 354, "var(--mute)"],
+  ];
+  const totDom = dominio.reduce((a, b) => a + b[1], 0);
+  const weak = [
+    ["CJM · Insubordinación", 45], ["Op. Conjuntas · Niveles", 52], ["LGRA · Faltas graves", 61], ["Ciberdefensa · Sistema", 68],
+  ];
+  const porMateria = [
+    ["Legislación Militar", 24, 380, "#2F73CE"],
+    ["Operaciones Militares", 12, 220, "#2A8A5E"],
+    ["Normatividad Gubernamental", 18, 240, "#A0742A"],
+    ["Aspecto Administrativo", 8, 90, "#7A57C2"],
+    ["Adiestramiento y Mando Militar", 15, 110, "#C2410C"],
+    ["Aspecto Técnico", 5, 80, "#0E7490"],
+  ];
+  const streak = st.plan.streak || 12;
+  const heat = Array.from({ length: 91 }, (_, i) => {
+    const fromEnd = 90 - i; // 0 = hoy
+    if (fromEnd < streak) return 4 - Math.floor(fromEnd / (streak / 2 + 1)); // racha reciente intensa
+    return (i * 7 + 3) % 5 < 2 ? 0 : ((i * 13) % 4) + 1; // patrón estable pasado
+  });
+  const doneS = st.sessions.filter((x) => x.state === "done");
+  const avgScore = doneS.length ? (doneS.reduce((a, x) => a + (x.score || 0), 0) / doneS.length) : 0;
+  const kpis = [
+    ["Racha actual", (st.plan.streak || 12) + " días", "récord: 23"],
+    ["Cuestionarios", String(st.sessions.length), "media " + avgScore.toFixed(1) + " / 10"],
+    ["Acierto medio", Math.round(avgScore * 10) + "%", doneS.length + " completados"],
+    ["Banco", st.questions.length.toLocaleString(), "preguntas = tarjetas"],
+  ];
+  return (
+    <main className="main">
+      <PageHead title="Estadísticas" sub="Resumen de tu actividad de estudio" crumbs={[["Inicio", "inicio"], "Estadísticas"]} />
+
+      <div className="kpis">
+        {kpis.map(([k, v, s]) => (
+          <div className="kpi" key={k}>
+            <div className="kpi-k">{k}</div>
+            <div className="kpi-v">{v}</div>
+            <div className="kpi-s">{s}</div>
+          </div>
+        ))}
+      </div>
+
+      <Panel idx="02" title="Avance por materia" meta="6 materias del examen" action="ver materias ▸" onAction={() => go("materias")}>
+        <div className="matstats">
+          {porMateria.map(([n, p, tot, c]) => (
+            <div className="matstat-row" key={n} onClick={() => { window.__epSubject = n; go("materia"); }}>
+              <span className="matstat-dot" style={{ background: c }}></span>
+              <span className="matstat-name">{n}</span>
+              <div className="matstat-track"><i style={{ width: p + "%", background: c, color: c }}></i></div>
+              <span className="matstat-pct">{p}%</span>
+              <span className="matstat-tot">{Math.round(tot * p / 100)} / {tot}</span>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <div className="grid-2">
+        <Panel idx="03" title="Actividad semanal" meta="preguntas / día">
+          <div className="barchart">
+            {week.map(([d, v]) => (
+              <div className="barcol" key={d}>
+                <div className="bar-track"><div className="bar" style={{ height: (v / maxW * 100) + "%" }}></div></div>
+                <span className="bar-v">{v}</span>
+                <span className="bar-l">{d}</span>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel idx="04" title="Dominio del banco" meta={totDom.toLocaleString() + " preguntas"}>
+          <div className="stackbar">
+            {dominio.map(([n, v, c]) => (
+              <div key={n} className="stackseg" style={{ width: (v / totDom * 100) + "%", background: c }} title={n}></div>
+            ))}
+          </div>
+          <div className="stacklegend">
+            {dominio.map(([n, v, c]) => (
+              <div className="sl-row" key={n}>
+                <span className="sl-dot" style={{ background: c }}></span>
+                <span className="sl-name">{n}</span>
+                <span className="sl-v">{v.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
+
+      <div className="grid-2">
+        <Panel idx="05" title="Temas más débiles" action="ir al banco ▸" onAction={() => go("banco")}>
+          <div className="weak">
+            {weak.map(([n, p]) => (
+              <div className="weak-row" key={n}>
+                <span className="weak-name">{n}</span>
+                <div className="mini-bar mini-bar-thin"><i style={{ width: p + "%" }} className={p < 50 ? "i-danger" : "i-warn"}></i></div>
+                <span className="weak-pct">{p}%</span>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel idx="06" title="Constancia" meta="últimos 3 meses">
+          <div className="heat">
+            {heat.map((lv, i) => <span key={i} className={"heat-c heat-" + lv}></span>)}
+          </div>
+          <div className="heat-legend"><span>menos</span><span className="heat-c heat-0"></span><span className="heat-c heat-2"></span><span className="heat-c heat-4"></span><span>más</span></div>
+        </Panel>
+      </div>
+    </main>
+  );
+}
+
+/* ========================= CONFIGURACIÓN ======================== */
+function Config() {
+  const go = useGo();
+  const { ConfirmDialog } = window;
+  const st = window.useStore();
+  const [s, setS] = React.useState({ explica: true, mezclar: true, sonido: false, autoguardar: true });
+  const [confirmDel, setConfirmDel] = React.useState(false);
+  const [nombre, setNombre] = React.useState(st.plan.nombre || "Aspirante J. Ramírez");
+  const [fecha, setFecha] = React.useState(st.plan.examDate || "2026-07-27");
+  const DOW = [["L", 1], ["M", 2], ["X", 3], ["J", 4], ["V", 5], ["S", 6], ["D", 0]];
+  const [dias, setDias] = React.useState(st.plan.diasDisponibles || [1, 2, 3, 4, 5, 6]);
+  const toggleDia = (n) => setDias((p) => p.includes(n) ? p.filter((x) => x !== n) : [...p, n]);
+  const [canInstall, setCanInstall] = React.useState(!!window.__epInstallPrompt);
+  React.useEffect(() => { const h = () => setCanInstall(true); window.addEventListener("ep:can-install", h); return () => window.removeEventListener("ep:can-install", h); }, []);
+  const guardarAspirante = () => {
+    window.EPStore.setNombre(nombre); window.EPStore.setExamDate(fecha); window.EPStore.setDias(dias);
+    window.generarPlan(); window.toast && window.toast("Configuración guardada y plan recalculado", "ok");
+  };
+  const instalar = async () => { const p = window.__epInstallPrompt; if (!p) { window.toast && window.toast("La instalación no está disponible en este navegador", "warn"); return; } p.prompt(); try { await p.userChoice; } catch (e) {} window.__epInstallPrompt = null; setCanInstall(false); };
+  const t = (k) => setS((p) => ({ ...p, [k]: !p[k] }));
+  return (
+    <main className="main">
+      <PageHead title="Configuración" sub="Preferencias locales del sistema" crumbs={[["Inicio", "inicio"], "Configuración"]} />
+      <div className="cfg-metrics">
+        <div className="cfg-metric"><div className="cfg-metric-v">{st.questions.length}</div><div className="cfg-metric-k">Preguntas</div></div>
+        <div className="cfg-metric"><div className="cfg-metric-v">{st.cards.filter((c) => c.nivel === "dominado").length}</div><div className="cfg-metric-k">Dominadas</div></div>
+        <div className="cfg-metric"><div className="cfg-metric-v">{st.sessions.length}</div><div className="cfg-metric-k">Sesiones</div></div>
+        <div className="cfg-metric"><div className="cfg-metric-v">{st.plan.dias ? st.plan.dias.length : 0}</div><div className="cfg-metric-k">Días de plan</div></div>
+        <div className="cfg-metric"><div className="cfg-metric-v">v1.0</div><div className="cfg-metric-k">Local · SQLite</div></div>
+      </div>
+      <div className="settings">
+        <Panel idx="01" title="Aspirante y examen">
+          <div className="set-row"><div><div className="set-label">Nombre del aspirante</div><div className="set-desc">Aparece en tu perfil y respaldos.</div></div><input className="input input-sm" style={{ maxWidth: "240px" }} value={nombre} onChange={(e) => setNombre(e.target.value)} /></div>
+          <div className="set-row"><div><div className="set-label">Fecha del examen</div><div className="set-desc">Recalcula la cuenta regresiva y el plan.</div></div><input type="date" className="input input-sm" value={fecha} onChange={(e) => setFecha(e.target.value)} /></div>
+          <div className="set-row"><div><div className="set-label">Meta diaria de preguntas</div><div className="set-desc">Objetivo que verás en el panel de Inicio.</div></div><select className="input input-sm" value={st.plan.dailyGoal} onChange={(e) => window.EPStore.setGoal(+e.target.value)}><option>20</option><option>30</option><option>40</option><option>50</option></select></div>
+          <div className="set-row"><div><div className="set-label">Días disponibles</div><div className="set-desc">Días de la semana en que estudias.</div></div><div className="dow-pick">{DOW.map(([l, n]) => <button key={n} className={"dow-b" + (dias.includes(n) ? " is-on" : "")} onClick={() => toggleDia(n)}>{l}</button>)}</div></div>
+          <div className="set-row"><div><div className="set-label">Guardar y recalcular</div><div className="set-desc">Aplica los cambios y regenera el plan hasta el examen.</div></div><button className="btn btn-sm btn-accent" onClick={guardarAspirante}>Guardar cambios</button></div>
+        </Panel>
+
+        <Panel idx="02" title="Estudio">
+          <div className="set-row"><div><div className="set-label">Meta diaria de preguntas</div><div className="set-desc">Objetivo que verás en el panel de Inicio.</div></div><select className="input input-sm" value={st.plan.dailyGoal} onChange={(e) => window.EPStore.setGoal(+e.target.value)}><option>20</option><option>30</option><option>40</option><option>50</option></select></div>
+          <div className="set-row"><div><div className="set-label">Mostrar explicación tras responder</div><div className="set-desc">Revela la explicación al confirmar cada pregunta.</div></div><Switch on={s.explica} onClick={() => t("explica")} /></div>
+          <div className="set-row"><div><div className="set-label">Mezclar preguntas y respuestas</div><div className="set-desc">Orden aleatorio en cada sesión.</div></div><Switch on={s.mezclar} onClick={() => t("mezclar")} /></div>
+          <div className="set-row"><div><div className="set-label">Sonido de respuesta</div><div className="set-desc">Efecto al acertar o fallar.</div></div><Switch on={s.sonido} onClick={() => t("sonido")} /></div>
+        </Panel>
+
+        <Panel idx="03" title="Apariencia">
+          <div className="set-row"><div><div className="set-label">Idioma</div><div className="set-desc">Idioma de la interfaz.</div></div><select className="input input-sm"><option>Español</option><option>English</option></select></div>
+          <div className="set-row"><div><div className="set-label">Instalar como app (PWA)</div><div className="set-desc">Úsala como programa de escritorio, sin navegador.</div></div><button className="btn btn-sm" onClick={instalar} disabled={!canInstall}>{canInstall ? "Instalar app" : "No disponible aquí"}</button></div>
+        </Panel>
+
+        <Panel idx="04" title="Datos">
+          <div className="set-row"><div><div className="set-label">Autoguardado</div><div className="set-desc">Guarda el progreso automáticamente.</div></div><Switch on={s.autoguardar} onClick={() => t("autoguardar")} /></div>
+          <div className="set-row"><div><div className="set-label">Respaldo y exportación</div><div className="set-desc">Base de datos local (SQLite).</div></div>
+            <div className="set-btns"><button className="btn btn-sm" onClick={() => { const n = window.EPStore.exportJSON(); window.toast && window.toast("Respaldo exportado (" + n + " elementos)", "ok"); }}>Exportar JSON</button><button className="btn btn-sm" onClick={() => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); }}>Respaldar</button></div></div>
+          <div className="set-row"><div><div className="set-label">Importar banco</div><div className="set-desc">CSV, JSON o texto.</div></div><div className="set-btns"><button className="btn btn-sm" onClick={() => go("importar")}>Importar…</button><button className="btn btn-sm" onClick={() => go("importar-ia")}>Con IA</button></div></div>
+          <div className="set-row"><div><div className="set-label danger-text">Borrar todos los datos</div><div className="set-desc">Acción irreversible.</div></div><button className="btn btn-sm btn-danger" onClick={() => setConfirmDel(true)}>Borrar</button></div>
+        </Panel>
+      </div>
+
+      <ConfirmDialog open={confirmDel} danger confirmLabel="Sí, borrar todo"
+        title="¿Borrar todos los datos?"
+        body={<span>Se eliminarán <b>todas</b> tus preguntas, tarjetas, sesiones y apuntes. Esta acción no se puede deshacer.</span>}
+        onClose={() => setConfirmDel(false)} onConfirm={() => { window.EPStore.reset(); setConfirmDel(false); window.toast && window.toast("Datos borrados", "ok"); go("inicio"); }} />
+    </main>
+  );
+}
+
+/* ============================ IMPORTAR =========================== */
+function Importar() {
+  const go = useGo();
+  const [step, setStep] = React.useState(1);
+  const [fileName, setFileName] = React.useState("");
+  const [headers, setHeaders] = React.useState([]);
+  const [rows, setRows] = React.useState([]);
+  const [error, setError] = React.useState("");
+  const fileRef = React.useRef(null);
+  const steps = ["Archivo", "Columnas", "Destino", "Confirmar"];
+
+  // very small CSV parser (handles quoted fields + commas)
+  const parseCSV = (text) => {
+    const lines = text.replace(/\r/g, "").split("\n").filter((l) => l.trim() !== "");
+    const parseLine = (line) => {
+      const out = []; let cur = ""; let q = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { if (q && line[i + 1] === '"') { cur += '"'; i++; } else q = !q; }
+        else if (ch === "," && !q) { out.push(cur); cur = ""; }
+        else cur += ch;
+      }
+      out.push(cur); return out.map((s) => s.trim());
+    };
+    return lines.map(parseLine);
+  };
+
+  const handleFile = (file) => {
+    if (!file) return;
+    setError(""); setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = String(e.target.result || "");
+      try {
+        if (file.name.toLowerCase().endsWith(".json")) {
+          const data = JSON.parse(text);
+          const arr = Array.isArray(data) ? data : (data.preguntas || data.questions || []);
+          if (!arr.length) throw new Error("vacío");
+          const hs = Object.keys(arr[0]);
+          setHeaders(hs);
+          setRows(arr.map((o) => hs.map((h) => String(o[h] ?? ""))));
+        } else {
+          const matrix = parseCSV(text);
+          if (matrix.length < 2) throw new Error("vacío");
+          setHeaders(matrix[0]);
+          setRows(matrix.slice(1));
+        }
+        setStep(2);
+      } catch (err) {
+        setError("No se pudo leer el archivo. Verifica que sea un CSV o JSON válido con encabezados.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const loadSample = () => {
+    const sample = "enunciado,tipo,respuesta,dificultad,etiquetas\n" +
+      '"¿Cómo se clasifican los delitos según la voluntad del agente?",OM,"Intencionales y no intencionales",medio,"cjm;delitos"\n' +
+      '"El arresto es un correctivo disciplinario.",VF,Verdadero,fácil,"disciplina"\n' +
+      '"Explica el deber esencial de un jefe según el RGDM.",AB,"Velar por instrucción y disciplina",difícil,"rgdm;deberes"\n' +
+      '"Menciona un principio del uso de la fuerza.",OM,Proporcionalidad,medio,"uso-de-la-fuerza"';
+    setFileName("ejemplo_legislacion.csv");
+    const matrix = parseCSV(sample);
+    setHeaders(matrix[0]); setRows(matrix.slice(1)); setStep(2);
+  };
+
+  // guess field mapping from header names
+  const guessField = (h) => {
+    const s = h.toLowerCase();
+    if (/(enunciad|pregunt|question|front)/.test(s)) return "Enunciado";
+    if (/(tipo|type)/.test(s)) return "Tipo";
+    if (/(respuesta|answer|correct|back)/.test(s)) return "Respuesta correcta";
+    if (/(dificult|difficul|nivel)/.test(s)) return "Dificultad";
+    if (/(etiq|tag|categor)/.test(s)) return "Etiquetas";
+    if (/(explica|explan)/.test(s)) return "Explicación";
+    return "Ignorar";
+  };
+  const FIELDS = ["Enunciado", "Tipo", "Respuesta correcta", "Dificultad", "Etiquetas", "Explicación", "Ignorar"];
+  const valid = rows.filter((r) => r[0] && r[0].length > 3).length;
+
+  return (
+    <main className="main">
+      <PageHead title="Importar banco de preguntas" sub="CSV · JSON — o usa la plantilla de ejemplo" crumbs={[["Inicio", "inicio"], "Importar"]} />
+
+      <div className="stepper">
+        {steps.map((s, i) => (
+          <React.Fragment key={s}>
+            <div className={"step" + (i + 1 === step ? " is-on" : "") + (i + 1 < step ? " is-done" : "")} onClick={() => (i + 1 < step) && setStep(i + 1)}>
+              <span className="step-n">{i + 1 < step ? "✓" : i + 1}</span><span className="step-l">{s}</span>
+            </div>
+            {i < steps.length - 1 && <span className="step-line"></span>}
+          </React.Fragment>
+        ))}
+      </div>
+
+      {step === 1 && (
+        <Panel idx="01" title="Selecciona el archivo">
+          <input ref={fileRef} type="file" accept=".csv,.json,.txt" style={{ display: "none" }}
+            onChange={(e) => handleFile(e.target.files[0])} />
+          <div className="drop" onClick={() => fileRef.current && fileRef.current.click()}
+            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("is-over"); }}
+            onDragLeave={(e) => e.currentTarget.classList.remove("is-over")}
+            onDrop={(e) => { e.preventDefault(); e.currentTarget.classList.remove("is-over"); handleFile(e.dataTransfer.files[0]); }}>
+            <div className="drop-ic">⇪</div>
+            <div className="drop-t">Arrastra un archivo aquí o haz clic para seleccionar</div>
+            <div className="drop-s">Formatos: .csv · .json — la primera fila debe contener los encabezados</div>
+            <div className="drop-formats">
+              <span className="ffmt">CSV</span><span className="ffmt">JSON</span><span className="ffmt">Texto</span>
+            </div>
+          </div>
+          {error && <div className="import-error">⚠ {error}</div>}
+          <div className="form-actions" style={{ justifyContent: "space-between" }}>
+            <button className="btn" onClick={loadSample}>Usar plantilla de ejemplo</button>
+            <button className="btn btn-accent" onClick={() => fileRef.current && fileRef.current.click()}>Seleccionar archivo</button>
+          </div>
+        </Panel>
+      )}
+
+      {step === 1 && (
+        <Panel idx="02" title="Importaciones recientes" meta="historial local">
+          <table className="tbl tbl-mini">
+            <thead><tr><th>Archivo</th><th>Materia</th><th className="ta-c">Detectadas</th><th className="ta-c">Importadas</th><th className="ta-r">Fecha</th></tr></thead>
+            <tbody>
+              {[["banco_legislacion.csv", "Legislación Militar", 150, 142, "hoy"], ["ciberseguridad.json", "Aspecto Técnico", 80, 80, "3 d"], ["normatividad.csv", "Normatividad Gub.", 96, 91, "1 sem"]].map((h, i) => (
+                <tr key={i}>
+                  <td className="t-q"><span className="imp-file">⎙</span>{h[0]}</td>
+                  <td className="t-mute">{h[1]}</td>
+                  <td className="ta-c"><b>{h[2]}</b></td>
+                  <td className="ta-c"><span className="st st-ok"><i className="st-dot"></i>{h[3]}</span></td>
+                  <td className="ta-r t-mute">{h[4]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="imp-hint">⚠ Las preguntas duplicadas (mismo enunciado) se detectan y omiten automáticamente al importar.</div>
+        </Panel>
+      )}
+
+      {step === 2 && (
+        <Panel idx="02" title="Asignar columnas" meta={fileName + " · " + rows.length + " filas detectadas"}>
+          <div className="map-grid">
+            {headers.map((h, i) => (
+              <div className="map-row" key={i}>
+                <span className="map-src">{h} <em className="map-sample">{rows[0] && rows[0][i] ? "“" + rows[0][i].slice(0, 24) + "”" : ""}</em></span>
+                <span className="map-arrow">→</span>
+                <select className="input input-sm" defaultValue={guessField(h)}>
+                  {FIELDS.map((f) => <option key={f}>{f}</option>)}
+                </select>
+              </div>
+            ))}
+          </div>
+          <div className="form-actions"><button className="btn" onClick={() => setStep(1)}>‹ Atrás</button><button className="btn btn-accent" onClick={() => setStep(3)}>Continuar ▸</button></div>
+        </Panel>
+      )}
+
+      {step === 3 && (
+        <React.Fragment>
+          <Panel idx="03" title="Destino y previsualización" meta={rows.length + " filas · " + valid + " válidas"}>
+            <div className="form-3">
+              <div className="field"><label>Categoría</label><select className="input"><option>Promoción 2026</option></select></div>
+              <div className="field"><label>Materia</label><select className="input">{Object.keys(window.SUBJECT_COLORS || {}).map((s) => <option key={s}>{s}</option>)}</select></div>
+              <div className="field"><label>Ordenamiento / Capítulo</label><select className="input"><option>Código de Justicia Militar · Libro Primero</option></select></div>
+            </div>
+            <table className="tbl tbl-mini import-prev">
+              <thead><tr><th>Enunciado</th>{headers.slice(1).map((h, i) => <th key={i}>{h}</th>)}<th>Estado</th></tr></thead>
+              <tbody>
+                {rows.slice(0, 6).map((r, i) => {
+                  const ok = r[0] && r[0].length > 3;
+                  return (
+                    <tr key={i}>
+                      <td className="t-q">{r[0]}</td>
+                      {r.slice(1, headers.length).map((c, j) => <td key={j} className="t-mute">{c}</td>)}
+                      <td><span className={"st st-" + (ok ? "ok" : "imp")}><i className="st-dot"></i>{ok ? "Válida" : "Revisar"}</span></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {rows.length > 6 && <div className="import-more">+ {rows.length - 6} filas más…</div>}
+          </Panel>
+          <div className="form-actions"><button className="btn" onClick={() => setStep(2)}>‹ Atrás</button><button className="btn btn-accent" onClick={() => setStep(4)}>Importar {valid} preguntas ▸</button></div>
+        </React.Fragment>
+      )}
+
+      {step === 4 && (
+        <Panel idx="✓" title="Importación completada">
+          <div className="import-done">
+            <div className="import-done-ic">✓</div>
+            <div className="import-done-t">{valid} preguntas importadas</div>
+            <div className="res-tags" style={{ justifyContent: "center", marginTop: "14px" }}>
+              <span className="res-pill"><b>{rows.length}</b> detectadas</span>
+              <span className="res-pill res-ok"><b>{valid}</b> válidas</span>
+              <span className="res-pill res-bad"><b>{rows.length - valid}</b> con errores</span>
+            </div>
+            <div className="form-actions" style={{ justifyContent: "center", marginTop: "20px" }}>
+              <button className="btn" onClick={() => { setStep(1); setFileName(""); setHeaders([]); setRows([]); }}>Importar otro</button>
+              <button className="btn btn-accent" onClick={() => go("banco")}>Ver en el banco ▸</button>
+            </div>
+          </div>
+        </Panel>
+      )}
+    </main>
+  );
+}
+
+Object.assign(window, { Inicio, Categorias, Materias, MateriaDetalle, Estadisticas, Config, Importar });

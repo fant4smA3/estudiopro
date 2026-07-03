@@ -1,0 +1,907 @@
+/* EstudioPro · Prototipo — Pantallas B */
+const { useGo: useGoB, Crumbs: CrumbsB, PageHead: PageHeadB, Panel: PanelB, Diff: DiffB } = window;
+
+/* ====================== BANCO DE PREGUNTAS ====================== */
+function Banco() {
+  const go = useGoB();
+  const { EmptyState, ConfirmDialog, TYPE_LABEL, STATUS_LABEL, subjColor, SUBJECT_COLORS, useStore, EPStore } = window;
+  const st = useStore();
+  const bank = st.questions;
+  const subjects = ["Todas", ...Object.keys(SUBJECT_COLORS)];
+  const navInit = (window.EPStore.getNav && window.EPStore.getNav()) || {};
+  const [q, setQ] = React.useState(navInit.search || "");
+  React.useEffect(() => { if (navInit.search) window.EPStore.setNav({}); }, []);
+  const [subj, setSubj] = React.useState("Todas");
+  const [onlyFall, setOnlyFall] = React.useState(false);
+  const [delRow, setDelRow] = React.useState(null);
+  const [sel, setSel] = React.useState(() => new Set());
+  const [bulkDel, setBulkDel] = React.useState(false);
+  const [page, setPage] = React.useState(0);
+  const PER_PAGE = 25;
+  const toggleSel = (id) => setSel((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const clearSel = () => setSel(new Set());
+  const needle = q.trim().toLowerCase();
+  const rows = bank.filter((r) => {
+    if (subj !== "Todas" && r.subject !== subj) return false;
+    if (onlyFall && r.status !== "fall") return false;
+    if (needle && !(r.q + " " + r.subject + " " + r.ord + " " + r.tags.join(" ")).toLowerCase().includes(needle)) return false;
+    return true;
+  });
+  const whenAt = ["hoy", "ayer", "2 d", "3 d", "5 d", "1 sem"];
+  const totalPages = Math.max(1, Math.ceil(rows.length / PER_PAGE));
+  const curPage = Math.min(page, totalPages - 1);
+  React.useEffect(() => { setPage(0); }, [needle, subj, onlyFall]);
+  const pageRows = rows.slice(curPage * PER_PAGE, curPage * PER_PAGE + PER_PAGE);
+  const visibleIds = rows.map((r) => r._id);
+  const allSel = visibleIds.length > 0 && visibleIds.every((id) => sel.has(id));
+  const toggleAll = () => setSel((s) => { const n = new Set(s); allSel ? visibleIds.forEach((id) => n.delete(id)) : visibleIds.forEach((id) => n.add(id)); return n; });
+  const bulkMarkImp = () => { EPStore.markImportant([...sel], true); window.toast && window.toast(sel.size + " marcadas como importantes", "ok"); clearSel(); };
+  // todas las preguntas YA son tarjetas; esta acción solo lleva a repasarlas como tarjetas
+  const bulkToCards = () => {
+    const chosen = bank.filter((q) => sel.has(q._id));
+    if (!chosen.length) return;
+    window.__epSubject = chosen[0].subject;
+    window.__epCardVista = "estudiar";
+    clearSel();
+    go("tarjetas");
+  };
+  return (
+    <main className="main">
+      <PageHeadB title="Banco de preguntas" sub={bank.length + " preguntas · cada una es también una tarjeta de repaso"} crumbs={[["Inicio", "inicio"], "Banco de preguntas"]}
+        actions={<div className="qr-head-acts"><button className="btn" onClick={() => go("crear-rapido")}>✨ Creación rápida</button><button className="btn btn-accent" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ Nueva pregunta</button></div>} />
+
+      <div className="filterbar">
+        <div className="fb-search">
+          <span className="gsearch-key">/</span>
+          <input className="fb-search-in" placeholder="Buscar por enunciado, etiqueta o referencia…" value={q} onChange={(e) => setQ(e.target.value)} />
+          {q && <button className="fb-clear" onClick={() => setQ("")} aria-label="limpiar">✕</button>}
+        </div>
+        <div className="fb-selects fb-subjects">
+          {subjects.map((s) => (
+            <span key={s} className={"subjchip" + (s === subj ? " is-on" : "")} onClick={() => setSubj(s)}
+              style={s === subj && s !== "Todas" ? { background: subjColor(s), borderColor: subjColor(s), color: "#fff" } : (s !== "Todas" ? { borderColor: subjColor(s) } : {})}>
+              {s !== "Todas" && <i className="subjchip-dot" style={{ background: subjColor(s) }}></i>}{s}
+            </span>
+          ))}
+        </div>
+        <div className="fb-toggles">
+          <span className={"tg" + (onlyFall ? " is-on" : "")} onClick={() => setOnlyFall(!onlyFall)}>Solo falladas</span>
+        </div>
+      </div>
+
+      {rows.length === 0 ? (
+        <EmptyState icon="⌕" title="Sin resultados"
+          desc={'Ninguna pregunta coincide con los filtros actuales. Prueba con otra palabra o quita filtros.'}
+          actions={<button className="btn" onClick={() => { setQ(""); setSubj("Todas"); setOnlyFall(false); }}>Limpiar filtros</button>} />
+      ) : (
+      <div className="tbl-wrap">
+        <table className="tbl tbl-bank">
+          <thead>
+            <tr>
+              <th className="cb"><span className={"box" + (allSel ? " is-on" : "")} onClick={toggleAll} role="checkbox" aria-checked={allSel} aria-label="Seleccionar todas"></span></th>
+              <th>Pregunta</th><th>Tipo</th><th>Dificultad</th><th>Estado</th><th className="ta-c">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pageRows.map((r, i) => (
+              <tr key={r.id} className={"clickable" + (sel.has(r._id) ? " is-sel-row" : "")} onClick={() => { window.__epEditQ = r; go("pregunta"); }}>
+                <td className="cb" onClick={(e) => e.stopPropagation()}><span className={"box" + (sel.has(r._id) ? " is-on" : "")} onClick={() => toggleSel(r._id)} role="checkbox" aria-checked={sel.has(r._id)} aria-label="Seleccionar"></span></td>
+                <td className="t-q">
+                  <span className="t-q-bar" style={{ background: subjColor(r.subject) }}></span>
+                  <span className="t-q-body">
+                    <span className="t-q-text">{r.q}</span>
+                    <span className="t-q-loc">
+                      <span className="t-q-subj" style={{ color: subjColor(r.subject) }}>{r.subject}</span>
+                      <span className="t-q-path">· {r.ord} · {r.loc}</span>
+                      {r.tags.map((t) => <span className="tag" key={t}>#{t}</span>)}
+                    </span>
+                  </span>
+                </td>
+                <td><span className="type-tag">{r.type}</span></td>
+                <td><DiffB level={r.dif} /></td>
+                <td><span className={"st st-" + r.status}><i className="st-dot"></i>{STATUS_LABEL[r.status]}</span></td>
+                <td className="ta-c" onClick={(e) => e.stopPropagation()}>
+                  <div className="rowacts">
+                    <button className="ra-btn" title="Editar" onClick={() => { window.__epEditQ = r; go("pregunta"); }}>✎</button>
+                    <button className="ra-btn" title="Importante" onClick={() => EPStore.toggleImportant(r._id)}>{r.status === "imp" ? "★" : "☆"}</button>
+                    <button className="ra-btn" title="Duplicar" onClick={() => { EPStore.duplicateQuestion(r._id); window.toast && window.toast("Pregunta duplicada", "ok"); }}>⧉</button>
+                    <button className="ra-btn ra-del" title="Eliminar" onClick={() => setDelRow(r)}>✕</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {totalPages > 1 && (
+          <div className="pager">
+            <button className="btn btn-sm" disabled={curPage === 0} onClick={() => setPage(curPage - 1)}>‹ Anterior</button>
+            <span className="pager-info">Página {curPage + 1} de {totalPages} · {rows.length} preguntas</span>
+            <button className="btn btn-sm" disabled={curPage >= totalPages - 1} onClick={() => setPage(curPage + 1)}>Siguiente ›</button>
+          </div>
+        )}
+      </div>
+      )}
+
+      <div className="tbl-foot">
+        {sel.size > 0 ? (
+          <React.Fragment>
+            <span className="tf-l"><b>{sel.size}</b> seleccionada{sel.size === 1 ? "" : "s"} · <span className="clickable" style={{ color: "var(--accent)", fontWeight: 600 }} onClick={clearSel}>quitar selección</span></span>
+            <div className="tf-bulk">
+              <button className="btn btn-sm" onClick={bulkMarkImp}>★ Marcar importante</button>
+              <button className="btn btn-sm" onClick={bulkToCards}>Repasar como tarjetas ▸</button>
+              <button className="btn btn-sm btn-danger" onClick={() => setBulkDel(true)}>Eliminar</button>
+            </div>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <span className="tf-l">{rows.length} de {bank.length} preguntas{subj !== "Todas" ? " · " + subj : ""}</span>
+            <div className="tf-bulk">
+              <button className="btn btn-sm" onClick={() => go("cuestionarios")}>Configurar cuestionario</button>
+              <button className="btn btn-sm" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ Nueva pregunta</button>
+            </div>
+          </React.Fragment>
+        )}
+        <span className="tf-hint">Selecciona filas para acciones en lote</span>
+      </div>
+
+      <ConfirmDialog open={bulkDel} danger confirmLabel={"Eliminar " + sel.size + " pregunta" + (sel.size === 1 ? "" : "s")}
+        title="¿Eliminar las preguntas seleccionadas?"
+        body={<span>Se eliminarán <b>{sel.size}</b> pregunta{sel.size === 1 ? "" : "s"} del banco. Esta acción no se puede deshacer.</span>}
+        onClose={() => setBulkDel(false)} onConfirm={() => { EPStore.deleteQuestions([...sel]); setBulkDel(false); clearSel(); window.toast && window.toast("Preguntas eliminadas", "ok"); }} />
+
+      <ConfirmDialog open={!!delRow} danger confirmLabel="Eliminar pregunta"
+        title="¿Eliminar esta pregunta?"
+        body={delRow && <span>Se eliminará <b>“{delRow.q}”</b> del banco. Esta acción no se puede deshacer.</span>}
+        onClose={() => setDelRow(null)} onConfirm={() => { EPStore.deleteQuestion(delRow._id); setDelRow(null); }} />
+    </main>
+  );
+}
+
+/* ==================== CREAR / EDITAR PREGUNTA =================== */
+function PreguntaForm() {
+  const go = useGoB();
+  const { EPStore, SUBJECT_COLORS, toast } = window;
+  const editing = window.__epEditQ || null;
+  const SUBJECTS = Object.keys(SUBJECT_COLORS || {});
+  const tipoMap = { "Opción múltiple": "OM", "Verdadero / Falso": "VF", "Respuesta corta": "AB", "Abierta": "AB", "Relacionar": "REL", "Completar": "COMP" };
+  const tipoFromCode = { OM: "Opción múltiple", VF: "Verdadero / Falso", AB: "Abierta", REL: "Relacionar", COMP: "Completar" };
+  const tipos = ["Opción múltiple", "Verdadero / Falso", "Respuesta corta", "Relacionar", "Completar", "Abierta"];
+  const [tipo, setTipo] = React.useState(editing ? (tipoFromCode[editing.type] || "Opción múltiple") : "Opción múltiple");
+  const [subject, setSubject] = React.useState(editing ? editing.subject : SUBJECTS[0]);
+  const [correcta, setCorrecta] = React.useState(editing && typeof editing.answer === "number" ? editing.answer : 0);
+  const [dif, setDif] = React.useState(editing ? editing.dif : "medio");
+  const [tags, setTags] = React.useState(editing ? (editing.tags || []) : []);
+  const [enunciado, setEnunciado] = React.useState(editing ? editing.q : "");
+  const [opciones, setOpciones] = React.useState(editing && editing.options ? editing.options.slice() : ["", "", "", ""]);
+  const [respuesta, setRespuesta] = React.useState(editing && typeof editing.answer === "string" ? editing.answer : "");
+  const [explica, setExplica] = React.useState(editing ? (editing.explain || "") : "");
+  const [ref, setRef] = React.useState(editing ? (editing.ref || "") : "");
+  const [importante, setImportante] = React.useState(editing ? editing.status === "imp" : false);
+  const [tried, setTried] = React.useState(false);
+  const isChoice = tipo === "Opción múltiple" || tipo === "Verdadero / Falso";
+  const choiceList = tipo === "Verdadero / Falso" ? ["Verdadero", "Falso"] : opciones;
+  const errEnunciado = tried && !enunciado.trim();
+  const errOpts = tried && tipo === "Opción múltiple" && choiceList.filter((o) => o.trim()).length < 2;
+  const errResp = tried && !isChoice && !respuesta.trim();
+  const setOpt = (i, v) => setOpciones((a) => a.map((x, k) => (k === i ? v : x)));
+  const build = () => ({
+    subject, ord: "", loc: "",
+    type: tipoMap[tipo] || "OM", dif, status: importante ? "imp" : "nuevo", tags,
+    q: enunciado.trim(),
+    options: isChoice ? choiceList : undefined,
+    answer: isChoice ? correcta : respuesta.trim(),
+    explain: explica.trim(), ref: ref.trim(),
+  });
+  const validate = () => {
+    if (!enunciado.trim()) return false;
+    if (tipo === "Opción múltiple" && choiceList.filter((o) => o.trim()).length < 2) return false;
+    if (!isChoice && !respuesta.trim()) return false;
+    return true;
+  };
+  const reset = () => { setEnunciado(""); setOpciones(["", "", "", ""]); setRespuesta(""); setExplica(""); setTags([]); setImportante(false); setCorrecta(0); setTried(false); };
+  const save = (again) => {
+    if (!validate()) { setTried(true); toast && toast("Revisa los campos obligatorios", "danger"); return; }
+    if (editing) { EPStore.updateQuestion(editing._id, build()); window.__epEditQ = null; toast && toast("Pregunta actualizada", "ok"); go("banco"); return; }
+    EPStore.addQuestion(build());
+    toast && toast("Pregunta guardada en el banco", "ok");
+    if (again) reset(); else go("banco");
+  };
+  return (
+    <main className="main">
+      <PageHeadB title={editing ? "Editar pregunta" : "Nueva pregunta"} sub={editing ? "Modifica y guarda los cambios" : "Registra una pregunta en el banco"} crumbs={[["Inicio", "inicio"], ["Banco de preguntas", "banco"], editing ? "Editar" : "Nueva pregunta"]} />
+
+      <div className="form">
+        <PanelB idx="01" title="Clasificación">
+          <div className="form-3">
+            <div className="field"><label>Categoría</label><select className="input"><option>Promoción 2026</option></select></div>
+            <div className="field"><label>Materia</label><select className="input" value={subject} onChange={(e) => setSubject(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
+            <div className="field"><label>Ordenamiento / Capítulo</label><select className="input"><option>Código de Justicia Militar · Libro Primero</option></select></div>
+          </div>
+        </PanelB>
+
+        <PanelB idx="02" title="Tipo de pregunta">
+          <div className="seg">
+            {tipos.map((t) => (
+              <span key={t} className={"segchip" + (t === tipo ? " is-on" : "")} onClick={() => setTipo(t)}>{t}</span>
+            ))}
+          </div>
+        </PanelB>
+
+        <PanelB idx="03" title="Contenido">
+          <div className="field">
+            <label>Enunciado <span className="req">*</span></label>
+            <textarea className={"input textarea" + (errEnunciado ? " input-err" : "")} value={enunciado} onChange={(e) => setEnunciado(e.target.value)} placeholder="Escribe el enunciado de la pregunta…"></textarea>
+            {errEnunciado && <span className="field-err">El enunciado es obligatorio.</span>}
+          </div>
+
+          {isChoice && (
+            <div className="field">
+              <label>Opciones · marca la correcta {tipo === "Opción múltiple" && <span className="req">*</span>}</label>
+              <div className="opt-edit-list">
+                {choiceList.map((o, i) => (
+                  <div className={"opt-edit" + (correcta === i ? " is-correct" : "")} key={i}>
+                    <button className="opt-radio-btn" onClick={() => setCorrecta(i)} aria-label="correcta"></button>
+                    {tipo === "Verdadero / Falso"
+                      ? <input className="input opt-input" value={o} readOnly />
+                      : <input className="input opt-input" value={o} onChange={(e) => setOpt(i, e.target.value)} placeholder={"Opción " + String.fromCharCode(65 + i)} />}
+                    {tipo === "Opción múltiple" && opciones.length > 2 && <button className="opt-del" aria-label="eliminar" onClick={() => setOpciones(opciones.filter((_, k) => k !== i))}>✕</button>}
+                  </div>
+                ))}
+              </div>
+              {errOpts && <span className="field-err">Agrega al menos 2 opciones.</span>}
+              {tipo === "Opción múltiple" && opciones.length < 6 && <button className="btn btn-sm" style={{ marginTop: "8px" }} onClick={() => setOpciones([...opciones, ""])}>+ Añadir opción</button>}
+            </div>
+          )}
+          {!isChoice && (
+            <div className="field"><label>Respuesta correcta <span className="req">*</span></label><input className={"input" + (errResp ? " input-err" : "")} value={respuesta} onChange={(e) => setRespuesta(e.target.value)} placeholder="Escribe la respuesta esperada" />{errResp && <span className="field-err">La respuesta es obligatoria.</span>}</div>
+          )}
+
+          <div className="field"><label>Explicación <span className="opt-note">(opcional)</span></label><textarea className="input textarea" value={explica} onChange={(e) => setExplica(e.target.value)} placeholder="Aparece tras responder, si está activada."></textarea></div>
+        </PanelB>
+
+        <PanelB idx="04" title="Metadatos">
+          <div className="form-2">
+            <div className="field">
+              <label>Dificultad</label>
+              <div className="seg">
+                {["fácil", "medio", "difícil"].map((d) => (
+                  <span key={d} className={"segchip seg-" + d + (dif === d ? " is-on" : "")} onClick={() => setDif(d)}>{d}</span>
+                ))}
+              </div>
+            </div>
+            <div className="field"><label>Fuente / referencia</label><input className="input" value={ref} onChange={(e) => setRef(e.target.value)} placeholder="p. ej. CJM, Libro Primero, Cap. I" /></div>
+          </div>
+          <div className="field">
+            <label>Etiquetas</label>
+            <div className="taginput">
+              {tags.map((t) => (
+                <span className="tagchip" key={t}>#{t}<button onClick={() => setTags(tags.filter((x) => x !== t))} aria-label="quitar">✕</button></span>
+              ))}
+              <input className="taginput-in" placeholder="añadir etiqueta…" onKeyDown={(e) => { if (e.key === "Enter" && e.target.value) { setTags([...tags, e.target.value]); e.target.value = ""; } }} />
+            </div>
+          </div>
+        </PanelB>
+
+        <div className="form-actions form-actions-sticky">
+          <label className={"flag-chk" + (importante ? " is-on" : "")} onClick={() => setImportante(!importante)}><span className="box"></span> Marcar como importante</label>
+          <span style={{ flex: 1 }}></span>
+          <button className="btn" onClick={() => { window.__epEditQ = null; go("banco"); }}>Cancelar</button>
+          {!editing && <button className="btn" onClick={() => save(true)}>Guardar y crear otra</button>}
+          <button className="btn btn-accent" onClick={() => save(false)}>{editing ? "Guardar cambios" : "Guardar pregunta"}</button>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+/* ===================== TARJETAS · ESTUDIO + GESTIÓN ====================== */
+function Tarjetas() {
+  const go = useGoB();
+  const { EmptyState, ConfirmDialog, SUBJECT_COLORS, subjColor, useStore, EPStore } = window;
+  const st = useStore();
+  const [vista, setVista] = React.useState(window.__epCardVista || "estudiar"); // estudiar | gestionar
+  React.useEffect(() => { window.__epCardVista = vista; }, [vista]);
+  const subject = (window.__epSubject && SUBJECT_COLORS[window.__epSubject]) ? window.__epSubject : "Legislación Militar";
+  const setSubject = (s) => { window.__epSubject = s; setI(0); setFlip(false); setDone(false); setResultados({ facil: 0, medio: 0, dificil: 0, otra: 0 }); };
+  const color = subjColor(subject);
+  const SUBJECTS = Object.keys(SUBJECT_COLORS);
+
+  // filtro de la sesión de estudio: hoy (vencen · SM-2) | todas | nuevas | repaso
+  const [filtro, setFiltro] = React.useState(window.__epCardFilter || "hoy");
+  React.useEffect(() => { window.__epCardFilter = null; }, []);
+  const allCards = st.cards.filter((c) => c.subject === subject);
+  const deck = allCards.filter((c) => filtro === "nuevas" ? c.nivel === "nuevo" : filtro === "repaso" ? c.nivel !== "dominado" : filtro === "hoy" ? c.isDue : true);
+
+  const [i, setI] = React.useState(0);
+  const [flip, setFlip] = React.useState(false);
+  const [done, setDone] = React.useState(false);
+  const [resultados, setResultados] = React.useState({ facil: 0, medio: 0, dificil: 0, otra: 0 });
+  const [delCard, setDelCard] = React.useState(null);
+  const total = deck.length;
+  const card = deck[Math.min(i, Math.max(0, total - 1))];
+
+  const FILTROS = [["hoy", "Vencen hoy", allCards.filter((c) => c.isDue).length], ["todas", "Todas", allCards.length], ["repaso", "Por repasar", allCards.filter((c) => c.nivel !== "dominado").length], ["nuevas", "Nuevas", allCards.filter((c) => c.nivel === "nuevo").length]];
+  const counters = {
+    repaso: allCards.filter((c) => c.nivel === "medio").length,
+    nuevas: allCards.filter((c) => c.nivel === "nuevo").length,
+    dominadas: allCards.filter((c) => c.nivel === "dominado").length,
+  };
+
+  const grade = (g) => {
+    const preview = card ? window.srsPreview(card._id) : null;
+    if (card) EPStore.gradeCard(card._id, g);
+    setResultados((r) => ({ ...r, [g]: (r[g] || 0) + 1 }));
+    const txt = preview ? preview[g] : "";
+    window.toast && window.toast(g === "otra" ? "Vuelve hoy en 10 min" : "Próxima revisión en " + txt, g === "otra" ? "warn" : "ok");
+    if (i >= total - 1) { setDone(true); return; }
+    setFlip(false); setI(i + 1);
+  };
+  const reiniciar = () => { setDone(false); setI(0); setFlip(false); setResultados({ facil: 0, medio: 0, dificil: 0, otra: 0 }); };
+
+  // atajos de teclado: Espacio = voltear · 1 otra vez · 2 difícil · 3 bien · 4 fácil
+  React.useEffect(() => {
+    if (vista !== "estudiar" || done) return;
+    const onKey = (e) => {
+      const tag = (e.target.tagName || "").toLowerCase();
+      if (tag === "input" || tag === "textarea") return;
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); setFlip((f) => !f); }
+      else if (flip && ["1", "2", "3", "4"].includes(e.key)) { grade({ "1": "otra", "2": "dificil", "3": "medio", "4": "facil" }[e.key]); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  // gestos táctiles (iPhone): con reverso visible, desliza → «Bien» · ← «Otra vez»; sin voltear, desliza para voltear
+  const touchRef = React.useRef(null);
+  const onTouchStart = (e) => { touchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; };
+  const onTouchEnd = (e) => {
+    const t0 = touchRef.current; touchRef.current = null;
+    if (!t0) return;
+    const dx = e.changedTouches[0].clientX - t0.x, dy = e.changedTouches[0].clientY - t0.y;
+    if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return; // no fue un swipe horizontal
+    if (!flip) { setFlip(true); return; }
+    grade(dx > 0 ? "medio" : "otra");
+  };
+
+  // ----- cabecera con conmutador de vista + selector de materia -----
+  const Header = ({ progLabel, progPct }) => (
+    <header className="page-head-card" style={{ borderTop: "3px solid " + color }}>
+      <CrumbsB path={[["Inicio", "inicio"], "Tarjetas"]} />
+      <div className="study-top">
+        <div className="study-meta">
+          <span className="study-meta-tag" style={{ color }}>{vista === "estudiar" ? "Repaso de tarjetas" : "Gestión de tarjetas"}</span>
+          <span className="study-meta-name">{subject}</span>
+        </div>
+        <div className="seg seg-tabs">
+          <span className={"segchip" + (vista === "estudiar" ? " is-on" : "")} onClick={() => setVista("estudiar")}>Estudiar</span>
+          <span className={"segchip" + (vista === "gestionar" ? " is-on" : "")} onClick={() => setVista("gestionar")}>Gestionar</span>
+        </div>
+        {vista === "estudiar" && total > 0 && (
+          <div className="study-prog">
+            <span className="sp-n">{progLabel}</span>
+            <div className="mini-bar mini-bar-wide"><i style={{ width: progPct + "%", background: color }}></i></div>
+          </div>
+        )}
+      </div>
+      <div className="chiprow" style={{ marginTop: "2px" }}>
+        {SUBJECTS.map((s) => (
+          <span key={s} className={"subjchip" + (s === subject ? " is-on" : "")} onClick={() => setSubject(s)}
+            style={s === subject ? { background: subjColor(s), borderColor: subjColor(s), color: "#fff" } : { borderColor: subjColor(s) }}>
+            <i className="subjchip-dot" style={{ background: subjColor(s) }}></i>{s.split(" ")[0]}
+          </span>
+        ))}
+      </div>
+    </header>
+  );
+
+  /* ============ VISTA GESTIONAR ============ */
+  if (vista === "gestionar") {
+    return (
+      <main className="main">
+        <Header />
+        <Panel idx="—" title={"Tarjetas de " + subject} meta={allCards.length + (allCards.length === 1 ? " tarjeta" : " tarjetas")}
+          action="+ nueva tarjeta" onAction={() => { window.__epEditC = null; go("tarjeta"); }}>
+          {allCards.length === 0 ? (
+            <EmptyState icon="🃏" title="Sin tarjetas en esta materia"
+              desc="Crea tu primera tarjeta para empezar a repasar con repetición espaciada."
+              actions={<button className="btn btn-accent" onClick={() => { window.__epEditC = null; go("tarjeta"); }}>+ Nueva tarjeta</button>} />
+          ) : (
+            <div className="cardman-list">
+              {allCards.map((c) => (
+                <div className="cardman-row" key={c._id} style={{ borderLeft: "3px solid " + color }}>
+                  <div className="cardman-main">
+                    <div className="cardman-front">{c.front}</div>
+                    <div className="cardman-back">{c.back}</div>
+                    <div className="cardman-tags">{(c.tags || []).map((t) => <span className="tag" key={t}>#{t}</span>)}</div>
+                  </div>
+                  <span className={"st st-" + (c.nivel === "dominado" ? "ok" : c.nivel === "nuevo" ? "nuevo" : "imp")}><i className="st-dot"></i>{c.nivel}</span>
+                  <div className="rowacts">
+                    <button className="ra-btn" title="Editar" onClick={() => { window.__epEditC = c; go("tarjeta"); }}>✎</button>
+                    <button className="ra-btn ra-del" title="Eliminar" onClick={() => setDelCard(c)}>✕</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Panel>
+        <ConfirmDialog open={!!delCard} danger confirmLabel="Eliminar tarjeta"
+          title="¿Eliminar esta tarjeta?"
+          body={delCard && <span>Se eliminará <b>“{delCard.front}”</b>. Esta acción no se puede deshacer.</span>}
+          onClose={() => setDelCard(null)} onConfirm={() => { EPStore.deleteCard(delCard._id); setDelCard(null); window.toast && window.toast("Tarjeta eliminada", "ok"); }} />
+      </main>
+    );
+  }
+
+  /* ============ VISTA ESTUDIAR · fin de sesión ============ */
+  if (done) {
+    const repasadas = resultados.facil + resultados.medio + resultados.dificil + (resultados.otra || 0);
+    const acertadas = resultados.facil + resultados.medio + resultados.dificil;
+    const reten = repasadas ? Math.round(acertadas / repasadas * 100) : 0;
+    return (
+      <main className="main main-center">
+        <Header progLabel={total + " / " + total} progPct={100} />
+        <div className="card-stage">
+          <EmptyState tone="ok" icon="✓" title="¡Repaso completado!"
+            desc={"Calificaste " + repasadas + " tarjeta(s) de " + subject + ". Su próxima revisión ya se ajustó según tu desempeño (repetición espaciada)."}
+            actions={<React.Fragment>
+              <button className="btn" onClick={reiniciar}>Repasar de nuevo</button>
+              <button className="btn" onClick={() => setVista("gestionar")}>Gestionar tarjetas</button>
+              <button className="btn btn-accent" onClick={() => go("inicio")}>Volver al inicio ▸</button>
+            </React.Fragment>} />
+        </div>
+        <div className="study-rail">
+          <div className="sr-cell"><b>{repasadas}</b><span>repasadas</span></div>
+          <div className="sr-cell"><b>{acertadas}</b><span>acertadas</span></div>
+          <div className="sr-cell"><b>{resultados.otra || 0}</b><span>para reforzar</span></div>
+          <div className="sr-cell"><b>{reten}%</b><span>retención</span></div>
+        </div>
+      </main>
+    );
+  }
+
+  /* ============ VISTA ESTUDIAR · mazo vacío ============ */
+  if (total === 0) {
+    return (
+      <main className="main main-center">
+        <Header />
+        <div className="chiprow" style={{ justifyContent: "center" }}>
+          {FILTROS.map(([k, label, n]) => (
+            <span key={k} className={"fchip" + (filtro === k ? " is-on" : "")} onClick={() => { setFiltro(k); setI(0); }}>{label} · {n}</span>
+          ))}
+        </div>
+        <div className="card-stage">
+          <EmptyState icon="🃏" title={filtro === "todas" ? "Sin tarjetas en esta materia" : "Nada que repasar con este filtro"}
+            desc={filtro === "todas" ? "Crea tarjetas o cambia de materia para empezar a repasar." : "Prueba con el filtro «Todas» o cambia de materia."}
+            actions={<React.Fragment>
+              {filtro !== "todas" && <button className="btn" onClick={() => setFiltro("todas")}>Ver todas</button>}
+              <button className="btn btn-accent" onClick={() => { window.__epEditC = null; go("tarjeta"); }}>+ Nueva tarjeta</button>
+            </React.Fragment>} />
+        </div>
+      </main>
+    );
+  }
+
+  /* ============ VISTA ESTUDIAR · sesión activa ============ */
+  return (
+    <main className="main main-center">
+      <Header progLabel={(i + 1) + " / " + total} progPct={(i + 1) / total * 100} />
+
+      <div className="chiprow" style={{ justifyContent: "center" }}>
+        {FILTROS.map(([k, label, n]) => (
+          <span key={k} className={"fchip" + (filtro === k ? " is-on" : "")} onClick={() => { setFiltro(k); setI(0); setFlip(false); }}>{label} · {n}</span>
+        ))}
+      </div>
+
+      <div className="card-stage">
+        <div className={"flashcard" + (flip ? " is-flip" : "")} onClick={() => setFlip(!flip)}
+          onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+          <div className="fc-corner fc-tl">{flip ? "REVERSO" : "FRENTE"}</div>
+          <div className="fc-corner fc-tr">{i + 1} / {total}</div>
+          <div className="fc-body">
+            <div className="fc-q">{flip ? card.back : card.front}</div>
+            <div className="fc-hint">{flip ? "¿Qué tal lo recordaste?" : "Haz clic para revelar el reverso"}</div>
+          </div>
+          <div className="fc-foot">
+            {(card.tags || []).map((t) => <span className="tag" key={t}>#{t}</span>)}
+            <span className="fc-domain">dominio: {card.nivel}</span>
+          </div>
+        </div>
+      </div>
+
+      {flip ? (
+        <div className="study-controls">
+          {(() => { const p = window.srsPreview(card._id); return (
+            <React.Fragment>
+              <button className="btn study-btn study-danger" onClick={() => grade("otra")}>Otra vez<small>{p.otra}</small></button>
+              <button className="btn study-btn study-warn" onClick={() => grade("dificil")}>Difícil<small>{p.dificil}</small></button>
+              <button className="btn study-btn study-ok" onClick={() => grade("medio")}>Bien<small>{p.medio}</small></button>
+              <button className="btn study-btn study-ok" onClick={() => grade("facil")}>Fácil<small>{p.facil}</small></button>
+            </React.Fragment>
+          ); })()}
+        </div>
+      ) : (
+        <div className="study-controls study-controls-1">
+          <button className="btn btn-accent btn-lg" onClick={() => setFlip(true)}>Revelar respuesta</button>
+        </div>
+      )}
+
+      <div className="study-rail">
+        <div className="sr-cell"><b>{counters.repaso}</b><span>en repaso</span></div>
+        <div className="sr-cell"><b>{counters.nuevas}</b><span>nuevas</span></div>
+        <div className="sr-cell"><b>{counters.dominadas}</b><span>dominadas</span></div>
+        <div className="sr-cell sr-cell-act"><button className="btn btn-sm" onClick={() => { window.__epEditC = null; go("tarjeta"); }}>+ Nueva tarjeta</button></div>
+      </div>
+    </main>
+  );
+}
+
+/* ==================== CREAR / EDITAR TARJETA =================== */
+function TarjetaForm() {
+  const go = useGoB();
+  const { EPStore, SUBJECT_COLORS, toast } = window;
+  const editing = window.__epEditC || null;
+  const SUBJECTS = Object.keys(SUBJECT_COLORS || {});
+  const [front, setFront] = React.useState(editing ? editing.front : "");
+  const [back, setBack] = React.useState(editing ? editing.back : "");
+  const [subject, setSubject] = React.useState(editing ? editing.subject : SUBJECTS[0]);
+  const [side, setSide] = React.useState("front");
+  const [nivel, setNivel] = React.useState(editing ? (editing.nivel || "nuevo") : "nuevo");
+  const [tags, setTags] = React.useState(editing ? (editing.tags || []) : []);
+  const [tried, setTried] = React.useState(false);
+  const errFront = tried && !front.trim();
+  const errBack = tried && !back.trim();
+  const validate = () => front.trim() && back.trim();
+  const reset = () => { setFront(""); setBack(""); setTags([]); setNivel("nuevo"); setSide("front"); setTried(false); };
+  const save = (again) => {
+    if (!validate()) { setTried(true); toast && toast("El frente y el reverso son obligatorios", "danger"); return; }
+    if (editing) { EPStore.updateCard(editing._id, { subject, front: front.trim(), back: back.trim(), tags, nivel }); window.__epEditC = null; toast && toast("Tarjeta actualizada", "ok"); go("tarjetas"); return; }
+    EPStore.addCard({ subject, front: front.trim(), back: back.trim(), tags, nivel });
+    toast && toast("Tarjeta guardada", "ok");
+    if (again) reset(); else go("tarjetas");
+  };
+  return (
+    <main className="main">
+      <PageHeadB title={editing ? "Editar tarjeta" : "Nueva tarjeta"} sub={editing ? "Los cambios se reflejan también en el banco de preguntas" : "Se añadirá al banco como pregunta abierta (frente → enunciado, reverso → respuesta)"} crumbs={[["Inicio", "inicio"], ["Tarjetas", "tarjetas"], editing ? "Editar" : "Nueva tarjeta"]} />
+
+      <div className="form-split">
+        <div className="form">
+          <PanelB idx="01" title="Contenido">
+            <div className="field"><label>Frente <span className="req">*</span></label><textarea className={"input textarea" + (errFront ? " input-err" : "")} value={front} onChange={(e) => setFront(e.target.value)} placeholder="Pregunta o concepto…"></textarea>{errFront && <span className="field-err">El frente es obligatorio.</span>}</div>
+            <div className="field"><label>Reverso <span className="req">*</span></label><textarea className={"input textarea" + (errBack ? " input-err" : "")} value={back} onChange={(e) => setBack(e.target.value)} placeholder="Respuesta o definición…"></textarea>{errBack && <span className="field-err">El reverso es obligatorio.</span>}</div>
+          </PanelB>
+          <PanelB idx="02" title="Clasificación">
+            <div className="form-3">
+              <div className="field"><label>Categoría</label><select className="input"><option>Promoción 2026</option></select></div>
+              <div className="field"><label>Materia</label><select className="input" value={subject} onChange={(e) => setSubject(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
+              <div className="field"><label>Ordenamiento / Capítulo</label><select className="input"><option>Código de Justicia Militar · Libro Primero</option></select></div>
+            </div>
+            <div className="form-2">
+              <div className="field">
+                <label>Nivel de dominio</label>
+                <div className="seg">
+                  {["nuevo", "medio", "dominado"].map((n) => (
+                    <span key={n} className={"segchip" + (nivel === n ? " is-on" : "")} onClick={() => setNivel(n)}>{n}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="field"><label>Próxima revisión</label><input className="input" defaultValue="en 1 día" /></div>
+            </div>
+            <div className="field">
+              <label>Etiquetas</label>
+              <div className="taginput">
+                {tags.map((t) => (
+                  <span className="tagchip" key={t}>#{t}<button onClick={() => setTags(tags.filter((x) => x !== t))} aria-label="quitar">✕</button></span>
+                ))}
+                <input className="taginput-in" placeholder="añadir…" onKeyDown={(e) => { if (e.key === "Enter" && e.target.value) { setTags([...tags, e.target.value]); e.target.value = ""; } }} />
+              </div>
+            </div>
+          </PanelB>
+        </div>
+
+        <div className="form-preview">
+          <div className="preview-label">Previsualización</div>
+          <div className="flashcard fc-preview" style={{ borderTop: "3px solid " + window.subjColor(subject) }} onClick={() => setSide(side === "front" ? "back" : "front")}>
+            <div className="fc-corner fc-tl">{side === "front" ? "FRENTE" : "REVERSO"}</div>
+            <div className="fc-body"><div className="fc-q">{side === "front" ? (front || "Frente de la tarjeta…") : (back || "Reverso de la tarjeta…")}</div></div>
+            <div className="fc-foot">{tags.map((t) => <span className="tag" key={t}>#{t}</span>)}</div>
+          </div>
+          <div className="preview-flip">
+            <button className="btn btn-sm" onClick={() => setSide(side === "front" ? "back" : "front")}>Voltear ⟲</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="form-actions form-actions-sticky">
+        <button className="btn" onClick={() => go("tarjetas")}>Cancelar</button>
+        <button className="btn" onClick={() => save(true)}>Guardar y crear otra</button>
+        <button className="btn btn-accent" onClick={() => save(false)}>Guardar tarjeta</button>
+      </div>
+    </main>
+  );
+}
+
+/* ======================== CUESTIONARIO ========================= */
+function Quiz() {
+  const go = useGoB();
+  const { QUESTION_BANK, TYPE_LABEL, subjColor, ConfirmDialog } = window;
+  const nav = (window.EPStore && window.EPStore.getNav && window.EPStore.getNav()) || {};
+  const isSim = !!window.__epSimulacro;
+  const strict = nav.mode === "examen";
+  const subject = isSim ? "Simulacro general" : ((window.__epSubject && window.SUBJECT_COLORS[window.__epSubject]) ? window.__epSubject : "Legislación Militar");
+  const color = isSim ? "var(--accent)" : subjColor(subject);
+  const qs = React.useMemo(() => {
+    if (isSim) {
+      // mezcla las 6 materias, una pasada equilibrada
+      const bySubj = {};
+      QUESTION_BANK.forEach((x) => { (bySubj[x.subject] = bySubj[x.subject] || []).push(x); });
+      const subs = Object.keys(bySubj);
+      const out = []; let added = true; let r = 0;
+      while (added) { added = false; subs.forEach((s) => { if (bySubj[s][r]) { out.push(bySubj[s][r]); added = true; } }); r++; }
+      return out;
+    }
+    let pool = QUESTION_BANK.filter((x) => x.subject === subject);
+    if (nav.loc) { const byLoc = pool.filter((x) => x.loc === nav.loc); if (byLoc.length) pool = byLoc; }
+    if (nav.filter === "fall") { const f = pool.filter((x) => x.status === "fall"); if (f.length) pool = f; }
+    if (nav.filter === "imp") { const f = pool.filter((x) => x.status === "imp"); if (f.length) pool = f; }
+    if (pool.length < 4) pool = QUESTION_BANK.slice();
+    return pool;
+  }, [subject, isSim]);
+  const N = qs.length;
+  const [cur, setCur] = React.useState(Math.min((nav.at ? nav.at - 1 : 0), Math.max(0, (qs.length || 1) - 1)));
+  const [answers, setAnswers] = React.useState(() => qs.map(() => null));
+  const [revealed, setRevealed] = React.useState(() => qs.map(() => false));
+  const [flags, setFlags] = React.useState(() => qs.map(() => false));
+  const [secs, setSecs] = React.useState(20 * 60);
+  const [showPause, setShowPause] = React.useState(false);
+  React.useEffect(() => {
+    const t = setInterval(() => setSecs((s) => (s > 0 ? s - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const q = qs[cur];
+  const sel = answers[cur];
+  const isOpen = q.type === "AB";
+  const checked = revealed[cur];
+  const correct = q.answer;
+  const mmss = String(Math.floor(secs / 60)).padStart(2, "0") + ":" + String(secs % 60).padStart(2, "0");
+  const setAns = (i) => { if (checked || isOpen) return; setAnswers((a) => a.map((v, k) => (k === cur ? i : v))); };
+  const comprobar = () => setRevealed((r) => r.map((v, k) => (k === cur ? true : v)));
+  const toggleFlag = () => setFlags((f) => f.map((v, k) => (k === cur ? !v : v)));
+  const goto = (n) => setCur(n);
+  const answeredCount = answers.filter((a) => a !== null).length;
+  const navState = (n) => (n === cur ? "cur" : flags[n] ? "flag" : answers[n] !== null ? "done" : "");
+  const finish = () => {
+    const correctCount = qs.reduce((a, qq, k) => a + (qq.type !== "AB" && answers[k] === qq.answer ? 1 : 0), 0);
+    const graded = qs.filter((qq) => qq.type !== "AB").length || 1;
+    const missed = qs.map((qq, k) => ({ q: qq.q, loc: qq.loc, ord: qq.ord, ok: qq.type !== "AB" && answers[k] === qq.answer }))
+      .filter((m) => !m.ok);
+    const elapsed = 20 * 60 - secs;
+    const time = String(Math.floor(elapsed / 60)).padStart(2, "0") + ":" + String(elapsed % 60).padStart(2, "0");
+    const score = +(correctCount / graded * 10).toFixed(1);
+    const byChapter = {};
+    qs.forEach((qq, k) => {
+      const key = isSim ? qq.subject : (qq.loc || qq.ord || "General");
+      if (!byChapter[key]) byChapter[key] = { ok: 0, total: 0 };
+      if (qq.type !== "AB") { byChapter[key].total++; if (answers[k] === qq.answer) byChapter[key].ok++; }
+    });
+    window.EPStore.setLastResult({ subject, total: graded, correct: correctCount, wrong: graded - correctCount, time, score, missed, byChapter, isSim });
+    // marca el banco real: aciertos → dominada, errores → fallada (alimenta repaso e inteligencia)
+    const results = [];
+    qs.forEach((qq, k) => { if (qq.type !== "AB" && qq.id) results.push({ id: qq.id, correct: answers[k] === qq.answer }); });
+    window.EPStore.applyQuizResults(results);
+    window.EPStore.addSession({ subject: isSim ? "Normatividad Gubernamental" : subject, label: isSim ? "Simulacro general" : (subject + " · práctica"), n: N, time, score, when: "hoy", state: "done" });
+    window.EPStore.bumpToday(answeredCount);
+    if (!isSim) window.EPStore.clearResume();
+    go("resultado");
+  };
+  const next = () => { if (cur >= N - 1) { finish(); return; } setCur(cur + 1); };
+  const doPause = () => {
+    if (!isSim) window.EPStore.setResume({ subject, label: subject + " — " + (nav.ord || "en curso"), at: cur + 1, total: N, missed: 18 });
+    go("inicio");
+  };
+  const skip = () => { if (cur < N - 1) setCur(cur + 1); };
+  // keyboard shortcuts: 1-9 select option, Enter comprobar/siguiente, F flag, ←/→ nav
+  React.useEffect(() => {
+    const onKey = (e) => {
+      if (showPause) return;
+      if (e.key >= "1" && e.key <= "9" && !isOpen && !checked) { const i = +e.key - 1; if (i < q.options.length) setAns(i); }
+      else if (e.key === "Enter") { e.preventDefault(); if (!checked) { if (isOpen || sel !== null) comprobar(); } else next(); }
+      else if (e.key.toLowerCase() === "f") toggleFlag();
+      else if (e.key === "ArrowLeft" && cur > 0) setCur(cur - 1);
+      else if (e.key === "ArrowRight" && cur < N - 1) setCur(cur + 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+  const optClass = (i) => {
+    if (!checked) return sel === i ? " is-sel" : "";
+    if (i === correct) return " is-correct";
+    if (i === sel) return " is-wrong";
+    return " is-dim";
+  };
+  return (
+    <main className="main main-flush">
+      <header className="page-head-card" style={{ borderTop: "3px solid " + color }}>
+        <CrumbsB path={[["Inicio", "inicio"], [subject, "materia"], "Cuestionario"]} />
+        <div className="quiz-bar">
+          <div className="quiz-headline">
+            <span className="quiz-headline-tag" style={{ color }}>{isSim ? "Simulacro general · cronometrado" : strict ? "Cuestionario · modo examen" : "Cuestionario · modo práctica"}</span>
+            <span className="quiz-headline-name">{isSim ? "Examen de promoción · 6 materias" : subject}</span>
+          </div>
+          <div className="quiz-meta">
+            <span className="quiz-prog">Pregunta <b>{cur + 1}</b> / {N}</span>
+            <span className={"quiz-timer" + (secs < 120 ? " is-low" : "")}>⏱ {mmss}</span>
+            <button className="btn btn-sm" onClick={() => setShowPause(true)}>Pausar</button>
+            <button className="btn btn-sm btn-accent" onClick={finish}>Finalizar</button>
+          </div>
+        </div>
+      </header>
+
+      <div className="quiz-grid">
+        <section className="quiz-main">
+          <div className="q-head">
+            <span className="type-tag">{TYPE_LABEL[q.type] || q.type}</span>
+            <DiffB level={q.dif} />
+            {isSim
+              ? <span className="q-tag" style={{ color: subjColor(q.subject), fontWeight: 700 }}>{q.subject}</span>
+              : <span className="q-tag">{q.ord} · {q.loc}</span>}
+            {flags[cur] && <span className="q-flagged" style={{ color }}>★ marcada</span>}
+          </div>
+          <div className="q-text">{q.q}</div>
+
+          {isOpen ? (
+            <div className="opts">
+              <textarea className="input textarea" placeholder="Escribe tu respuesta…" disabled={checked}></textarea>
+            </div>
+          ) : (
+            <div className="opts">
+              {q.options.map((t, i) => (
+                <label className={"opt" + optClass(i)} key={i} onClick={() => setAns(i)}>
+                  <span className="opt-k">{String.fromCharCode(65 + i)}</span>
+                  <span className="opt-t">{t}</span>
+                  {checked && i === correct && <span className="opt-mark opt-mark-ok">✓</span>}
+                  {checked && i === sel && i !== correct && <span className="opt-mark opt-mark-bad">✕</span>}
+                  {!checked && <span className="opt-radio" aria-hidden="true"></span>}
+                </label>
+              ))}
+            </div>
+          )}
+
+          {checked && !strict && (
+            <div className={"explain" + (isOpen ? " explain-ok" : sel === correct ? " explain-ok" : " explain-bad")}>
+              <div className="explain-h">{isOpen ? "Respuesta modelo" : sel === correct ? "✓ Correcto" : "✕ Incorrecto"}</div>
+              {isOpen && <p className="explain-p"><b>{q.answer}</b></p>}
+              <p className="explain-p">{q.explain}</p>
+              <span className="explain-ref explain-ref-link" onClick={() => { window.__epSubject = q.subject || subject; go("materia"); }} role="button" title="Ver en el temario">Fuente: {q.ref || [q.ord, q.loc].filter(Boolean).join(" · ") || "temario"} ▸</span>
+            </div>
+          )}
+
+          <div className="q-foot">
+            <button className="btn" disabled={cur === 0} onClick={() => setCur(Math.max(0, cur - 1))}>‹ Anterior</button>
+            <label className={"flag-chk" + (flags[cur] ? " is-on" : "")} onClick={toggleFlag}><span className="box"></span> Marcar para revisar</label>
+            <span style={{ flex: 1 }}></span>
+            {strict ? (
+              <button className="btn btn-accent" onClick={next}>{cur >= N - 1 ? "Finalizar ▸" : "Siguiente ▸"}</button>
+            ) : (!checked
+              ? <React.Fragment><button className="btn" onClick={skip}>Saltar</button><button className="btn btn-accent" disabled={!isOpen && sel === null} onClick={comprobar}>Comprobar</button></React.Fragment>
+              : <button className="btn btn-accent" onClick={next}>{cur >= N - 1 ? "Finalizar ▸" : "Siguiente ▸"}</button>)}
+          </div>
+        </section>
+
+        <aside className="quiz-rail">
+          <div className="rail-h">Navegador · {answeredCount}/{N} contestadas</div>
+          <div className="qnav">
+            {qs.map((_, n) => (
+              <span key={n} className={"qn qn-" + navState(n)} onClick={() => goto(n)}
+                style={navState(n) === "cur" ? { background: color, borderColor: color, color: "#fff" } : {}}>{n + 1}</span>
+            ))}
+          </div>
+          <div className="rail-legend">
+            <div><span className="qn qn-done"></span> Contestada</div>
+            <div><span className="qn qn-flag"></span> Para revisar</div>
+            <div><span className="qn qn-cur"></span> Actual</div>
+            <div><span className="qn"></span> Sin contestar</div>
+          </div>
+          <div className="rail-cfg">
+            <div className="rail-cfg-h">configuración</div>
+            <div className="cfg-row"><span>Materia</span><b style={{ color }}>{subject.split(" ")[0]}</b></div>
+            <div className="cfg-row"><span>Mostrar respuestas</span><b>tras responder</b></div>
+            <div className="cfg-row"><span>Tiempo límite</span><b>20:00</b></div>
+          </div>
+        </aside>
+      </div>
+
+      <ConfirmDialog open={showPause} confirmLabel="Pausar y salir"
+        title="¿Pausar el cuestionario?"
+        body={<span>Tu progreso (<b>{answeredCount} de {N}</b> contestadas) se guardará y podrás reanudarlo desde Inicio.</span>}
+        onClose={() => setShowPause(false)} onConfirm={doPause} />
+    </main>
+  );
+}
+
+/* ========================== RESULTADO ========================== */
+function Resultado() {
+  const go = useGoB();
+  const { subjColor } = window;
+  const r = window.EPStore.get().lastResult;
+  if (!r) {
+    return (
+      <main className="main main-center">
+        <CrumbsB path={[["Inicio", "inicio"], ["Cuestionarios", "cuestionarios"], "Resultado"]} />
+        <div className="card-stage">
+          <window.EmptyState icon="◎" title="Aún no hay resultados"
+            desc="Completa un cuestionario para ver aquí tu nota, aciertos y temas a reforzar."
+            actions={<button className="btn btn-accent" onClick={() => go("cuestionarios")}>Iniciar cuestionario ▸</button>} />
+        </div>
+      </main>
+    );
+  }
+  const color = subjColor(r.subject);
+  const pct = Math.round(r.correct / r.total * 100);
+  const chapters = Object.entries(r.byChapter).map(([k, v]) => [k, v.total ? Math.round(v.ok / v.total * 100) : 0]).sort((a, b) => a[1] - b[1]);
+  const weak = chapters.filter((c) => c[1] < 100).slice(0, 4);
+  const scoreClass = r.score >= 8 ? "rs-ok" : r.score >= 6 ? "rs-warn" : "rs-bad";
+  return (
+    <main className="main main-center">
+      <CrumbsB path={[["Inicio", "inicio"], [r.subject, "materia"], ["Cuestionario", "cuestionarios"], "Resultado"]} />
+
+      <div className="res-hero" style={{ borderTop: "3px solid " + color }}>
+        <div className={"res-score " + scoreClass}>
+          <div className="res-score-n">{r.score}</div>
+          <div className="res-score-d">/ 10</div>
+        </div>
+        <div className="res-headline">
+          <div className="res-title">Cuestionario completado</div>
+          <div className="res-sub"><span style={{ color, fontWeight: 700 }}>{r.subject}</span> · {r.total} preguntas · {r.time}</div>
+          <div className="res-tags">
+            <span className="res-pill res-ok"><b>{r.correct}</b> correctas</span>
+            <span className="res-pill res-bad"><b>{r.wrong}</b> incorrectas</span>
+            <span className="res-pill"><b>{pct}%</b> de acierto</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid-2">
+        <PanelB idx="01" title="Desempeño por capítulo" meta="prioriza los más bajos">
+          {chapters.length === 0 ? <p className="reco-p">Sin desglose disponible.</p> : (
+            <div className="weak">
+              {chapters.map(([n, p]) => (
+                <div className="weak-row" key={n}>
+                  <span className="weak-name">{n}</span>
+                  <div className="mini-bar mini-bar-thin"><i style={{ width: p + "%" }} className={p < 50 ? "i-danger" : p < 80 ? "i-warn" : ""}></i></div>
+                  <span className="weak-pct">{p}%</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </PanelB>
+
+        <PanelB idx="02" title={"Preguntas falladas (" + r.missed.length + ")"}>
+          {r.missed.length === 0
+            ? <p className="reco-p">¡Sin errores! Dominaste todas las preguntas evaluadas de esta sesión.</p>
+            : (
+              <div className="missed-list">
+                {r.missed.slice(0, 4).map((m, i) => (
+                  <div className="missed-row" key={i}>
+                    <span className="missed-x">✕</span>
+                    <div><div className="missed-q">{m.q}</div><div className="missed-loc">{m.ord || ""} {m.loc ? "· " + m.loc : ""}</div></div>
+                  </div>
+                ))}
+                <div className="reco-acts" style={{ marginTop: "12px" }}>
+                  <button className="btn btn-accent" onClick={() => { window.__epSimulacro = false; window.__epSubject = r.subject; window.EPStore.setNav({ subject: r.subject, mode: "practica", filter: "fall" }); go("quiz"); }}>Reintentar falladas ({r.missed.length})</button>
+                  <button className="btn" onClick={() => { window.__epSubject = r.subject; window.__epCardVista = "estudiar"; go("tarjetas"); }}>Repasar como tarjetas ▸</button>
+                </div>
+              </div>
+            )}
+        </PanelB>
+      </div>
+
+      <div className="res-foot">
+        <button className="btn" onClick={() => go("inicio")}>‹ Volver al inicio</button>
+        <button className="btn" onClick={() => go("cuestionarios")}>Ver historial</button>
+        <button className="btn btn-accent" onClick={() => { window.__epSubject = r.subject; go("quiz"); }}>Nuevo cuestionario ▸</button>
+      </div>
+    </main>
+  );
+}
+
+Object.assign(window, { Banco, PreguntaForm, Tarjetas, TarjetaForm, Quiz, Resultado });

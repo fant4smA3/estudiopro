@@ -1,0 +1,31 @@
+{
+  "name": "estudiopro",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b --noCheck || true && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fontsource/hanken-grotesk": "^5.2.8",
+    "dexie": "^4.0.8",
+    "magic-string": "^0.30.21",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.0",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "happy-dom": "^20.10.6",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.3",
+    "vite-plugin-pwa": "^0.20.5",
+    "vitest": "^2.0.5"
+  }
+}
