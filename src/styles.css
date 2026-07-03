@@ -1045,10 +1045,10 @@
   /* modal */
   .modal-scrim { position: fixed; inset: 0; background: color-mix(in srgb, var(--ink) 42%, transparent); display: grid; place-items: center; z-index: 50; padding: 24px; animation: scrim-in .12s ease; }
   @keyframes scrim-in { from { opacity: 0; } }
-  .modal { width: 440px; max-width: 100%; background: var(--surface); border: 1px solid var(--soft-line); border-radius: var(--r); box-shadow: 0 24px 64px -16px rgba(20,30,48,.5); overflow: hidden; animation: modal-in .14s ease; }
+  .modal { width: 440px; max-width: 100%; max-height: calc(100dvh - 48px); display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--soft-line); border-radius: var(--r); box-shadow: 0 24px 64px -16px rgba(20,30,48,.5); overflow: hidden; animation: modal-in .14s ease; outline: none; }
   @keyframes modal-in { from { transform: translateY(8px); opacity: 0; } }
   .modal-h { font-size: 15px; font-weight: 700; padding: 16px 20px; border-bottom: 1px solid var(--soft-line); }
-  .modal-b { padding: 18px 20px; font-size: 13px; color: var(--ink-soft); line-height: 1.55; }
+  .modal-b { padding: 18px 20px; font-size: 13px; color: var(--ink-soft); line-height: 1.55; overflow-y: auto; }
   .modal-f { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--soft-line); background: var(--surface-2); }
   .btn-danger-solid { background: var(--danger); border-color: var(--danger); color: #fff; }
   .btn-danger-solid:hover { background: color-mix(in srgb, var(--danger) 85%, #000); border-color: color-mix(in srgb, var(--danger) 85%, #000); }
@@ -1960,3 +1960,20 @@ html, body { overscroll-behavior: none; }
 
   /* AA: en claro los enlaces usan accent-press; en oscuro el acento base ya contrasta */
   .theme-dark .panel-act, .theme-dark .link-btn, .theme-dark .home-sec .link-btn { color: var(--accent); }
+
+  /* ===== Móvil: objetivos táctiles ≥44px y font-size 16px en campos (evita auto-zoom iOS) ===== */
+  @media (max-width: 720px) {
+    .proapp .input, .proapp select.input, .proapp textarea.input,
+    .fb-search-in, .gsearch-in, .taginput-in, .tutor-input .input { font-size: 16px; }
+    .proapp .btn, .proapp .btn-sm { min-height: 44px; }
+    .topbar-ico, .topbar-av, .qbar .btn { min-width: 44px; min-height: 44px; }
+    .ra-btn { width: 40px; height: 40px; font-size: 15px; }
+    .rowacts { gap: 6px; }
+    .step-btn { width: 44px; height: 44px; }
+    .dow-b { width: 40px; height: 40px; }
+    .proapp .link-btn { min-height: 44px; display: inline-flex; align-items: center; }
+    .segchip, .subjchip, .fchip, .tg { min-height: 40px; display: inline-flex; align-items: center; }
+    .qn { width: 38px; height: 38px; }
+  }
+  .th-sort { cursor: pointer; user-select: none; }
+  .th-sort:hover { color: var(--ink); }

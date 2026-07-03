@@ -167,6 +167,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       if (patch.back !== undefined) qp.answer = patch.back;
       if (patch.subject !== undefined) qp.subject = patch.subject;
       if (patch.tags !== undefined) qp.tags = patch.tags;
+      if (patch.ord !== undefined) qp.ord = patch.ord;
       if (Object.keys(qp).length) store.questions = store.questions.map((q) => q._id === id ? { ...q, ...qp } : q);
       if (patch.nivel !== undefined) store.cardSrs = { ...store.cardSrs, [id]: { ...(store.cardSrs[id] || {}), nivel: patch.nivel } };
       emit();
@@ -338,6 +339,15 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     const exam = new Date(s.plan.examDate + "T00:00:00");
     const now = new Date();
     return Math.max(0, Math.ceil((exam - now) / 86400000));
+  };
+
+  // ordenamientos disponibles para una materia: temario fijo + creados por el usuario + presentes en el banco
+  window.ordsFor = function (subject) {
+    const D = window.MATERIA_DETAIL || {};
+    const base = Object.keys(D).filter((k) => D[k].cat === subject);
+    const user = ((store.userOrds || {})[subject] || []).map((o) => o.name);
+    const fromBank = (store.questions || []).filter((q) => q.subject === subject).map((q) => q.ord).filter(Boolean);
+    return Array.from(new Set([...base, ...user, ...fromBank]));
   };
 
   // racha real: días consecutivos con actividad registrada (hoy cuenta si ya estudiaste;

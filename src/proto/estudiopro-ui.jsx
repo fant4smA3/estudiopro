@@ -260,12 +260,25 @@ function EmptyState({ icon, title, desc, actions, tone }) {
   );
 }
 
-/* Modal dialog (confirm, etc.) */
+/* Modal dialog (confirm, etc.) — cierra con Escape y devuelve el foco al abrir/cerrar */
 function Modal({ open, onClose, children }) {
+  const boxRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!open) return;
+    const prev = document.activeElement;
+    const onKey = (e) => { if (e.key === "Escape") { e.stopPropagation(); onClose && onClose(); } };
+    window.addEventListener("keydown", onKey);
+    // foco inicial dentro del diálogo (primer control o el contenedor)
+    const t = setTimeout(() => {
+      const el = boxRef.current && (boxRef.current.querySelector("input, textarea, select, button") || boxRef.current);
+      if (el && el.focus) el.focus();
+    }, 30);
+    return () => { window.removeEventListener("keydown", onKey); clearTimeout(t); if (prev && prev.focus) prev.focus(); };
+  }, [open]);
   if (!open) return null;
   return (
     <div className="modal-scrim" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+      <div className="modal" ref={boxRef} tabIndex={-1} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
         {children}
       </div>
     </div>

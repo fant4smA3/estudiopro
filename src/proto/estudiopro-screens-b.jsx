@@ -20,6 +20,7 @@ function Banco() {
   const PER_PAGE = 25;
   const toggleSel = (id) => setSel((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const clearSel = () => setSel(new Set());
+  const [sort, setSort] = React.useState(null); // { col, dir }
   const needle = q.trim().toLowerCase();
   const rows = bank.filter((r) => {
     if (subj !== "Todas" && r.subject !== subj) return false;
@@ -27,12 +28,21 @@ function Banco() {
     if (needle && !(r.q + " " + r.subject + " " + r.ord + " " + r.tags.join(" ")).toLowerCase().includes(needle)) return false;
     return true;
   });
-  const whenAt = ["hoy", "ayer", "2 d", "3 d", "5 d", "1 sem"];
-  const totalPages = Math.max(1, Math.ceil(rows.length / PER_PAGE));
+  const DIF_ORD = { "fácil": 0, medio: 1, "difícil": 2 };
+  const sorted = React.useMemo(() => {
+    if (!sort) return rows;
+    const key = { pregunta: (r) => (r.q || "").toLowerCase(), tipo: (r) => r.type || "", dificultad: (r) => DIF_ORD[r.dif] ?? 1, estado: (r) => r.status || "" }[sort.col];
+    if (!key) return rows;
+    return [...rows].sort((a, b) => { const x = key(a), y = key(b); return (x < y ? -1 : x > y ? 1 : 0) * (sort.dir === "desc" ? -1 : 1); });
+  }, [rows, sort]);
+  const toggleSort = (col) => setSort((s) => (!s || s.col !== col) ? { col, dir: "asc" } : s.dir === "asc" ? { col, dir: "desc" } : null);
+  const sortMark = (col) => (sort && sort.col === col ? (sort.dir === "asc" ? " ▲" : " ▼") : "");
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
   const curPage = Math.min(page, totalPages - 1);
   React.useEffect(() => { setPage(0); }, [needle, subj, onlyFall]);
-  const pageRows = rows.slice(curPage * PER_PAGE, curPage * PER_PAGE + PER_PAGE);
-  const visibleIds = rows.map((r) => r._id);
+  const pageRows = sorted.slice(curPage * PER_PAGE, curPage * PER_PAGE + PER_PAGE);
+  // "seleccionar todas" opera solo sobre la página visible (evita borrar filas fuera de vista)
+  const visibleIds = pageRows.map((r) => r._id);
   const allSel = visibleIds.length > 0 && visibleIds.every((id) => sel.has(id));
   const toggleAll = () => setSel((s) => { const n = new Set(s); allSel ? visibleIds.forEach((id) => n.delete(id)) : visibleIds.forEach((id) => n.add(id)); return n; });
   const bulkMarkImp = () => { EPStore.markImportant([...sel], true); window.toast && window.toast(sel.size + " marcadas como importantes", "ok"); clearSel(); };
@@ -78,13 +88,17 @@ function Banco() {
         <table className="tbl tbl-bank">
           <thead>
             <tr>
-              <th className="cb"><span className={"box" + (allSel ? " is-on" : "")} onClick={toggleAll} role="checkbox" aria-checked={allSel} aria-label="Seleccionar todas"></span></th>
-              <th>Pregunta</th><th>Tipo</th><th>Dificultad</th><th>Estado</th><th className="ta-c">Acciones</th>
+              <th className="cb"><span className={"box" + (allSel ? " is-on" : "")} onClick={toggleAll} role="checkbox" aria-checked={allSel} aria-label="Seleccionar las de esta página"></span></th>
+              <th className="th-sort" onClick={() => toggleSort("pregunta")} role="button" title="Ordenar">Pregunta{sortMark("pregunta")}</th>
+              <th className="th-sort" onClick={() => toggleSort("tipo")} role="button" title="Ordenar">Tipo{sortMark("tipo")}</th>
+              <th className="th-sort" onClick={() => toggleSort("dificultad")} role="button" title="Ordenar">Dificultad{sortMark("dificultad")}</th>
+              <th className="th-sort" onClick={() => toggleSort("estado")} role="button" title="Ordenar">Estado{sortMark("estado")}</th>
+              <th className="ta-c">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {pageRows.map((r, i) => (
-              <tr key={r.id} className={"clickable" + (sel.has(r._id) ? " is-sel-row" : "")} onClick={() => { window.__epEditQ = r; go("pregunta"); }}>
+              <tr key={r._id} className={"clickable" + (sel.has(r._id) ? " is-sel-row" : "")} onClick={() => { window.__epEditQ = r; go("pregunta"); }}>
                 <td className="cb" onClick={(e) => e.stopPropagation()}><span className={"box" + (sel.has(r._id) ? " is-on" : "")} onClick={() => toggleSel(r._id)} role="checkbox" aria-checked={sel.has(r._id)} aria-label="Seleccionar"></span></td>
                 <td className="t-q">
                   <span className="t-q-bar" style={{ background: subjColor(r.subject) }}></span>
@@ -168,6 +182,8 @@ function PreguntaForm() {
   const tipos = ["Opción múltiple", "Verdadero / Falso", "Respuesta corta", "Relacionar", "Completar", "Abierta"];
   const [tipo, setTipo] = React.useState(editing ? (tipoFromCode[editing.type] || "Opción múltiple") : "Opción múltiple");
   const [subject, setSubject] = React.useState(editing ? editing.subject : SUBJECTS[0]);
+  const [ord, setOrd] = React.useState(editing ? (editing.ord || "") : "");
+  const ordOpts = (window.ordsFor && window.ordsFor(subject)) || [];
   const [correcta, setCorrecta] = React.useState(editing && typeof editing.answer === "number" ? editing.answer : 0);
   const [dif, setDif] = React.useState(editing ? editing.dif : "medio");
   const [tags, setTags] = React.useState(editing ? (editing.tags || []) : []);
@@ -185,7 +201,7 @@ function PreguntaForm() {
   const errResp = tried && !isChoice && !respuesta.trim();
   const setOpt = (i, v) => setOpciones((a) => a.map((x, k) => (k === i ? v : x)));
   const build = () => ({
-    subject, ord: "", loc: "",
+    subject, ord, loc: editing ? (editing.loc || "") : "",
     type: tipoMap[tipo] || "OM", dif, status: importante ? "imp" : "nuevo", tags,
     q: enunciado.trim(),
     options: isChoice ? choiceList : undefined,
@@ -214,8 +230,13 @@ function PreguntaForm() {
         <PanelB idx="01" title="Clasificación">
           <div className="form-3">
             <div className="field"><label>Categoría</label><select className="input" aria-label="Categoría"><option>Promoción 2026</option></select></div>
-            <div className="field"><label>Materia</label><select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
-            <div className="field"><label>Ordenamiento / Capítulo</label><select className="input" aria-label="Ordenamiento o capítulo"><option>Código de Justicia Militar · Libro Primero</option></select></div>
+            <div className="field"><label>Materia</label><select className="input" aria-label="Materia" value={subject} onChange={(e) => { setSubject(e.target.value); setOrd(""); }}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
+            <div className="field"><label>Ordenamiento / Capítulo</label>
+              <select className="input" aria-label="Ordenamiento o capítulo" value={ord} onChange={(e) => setOrd(e.target.value)}>
+                <option value="">— Sin ordenamiento —</option>
+                {ordOpts.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
           </div>
         </PanelB>
 
@@ -277,7 +298,7 @@ function PreguntaForm() {
               {tags.map((t) => (
                 <span className="tagchip" key={t}>#{t}<button onClick={() => setTags(tags.filter((x) => x !== t))} aria-label="quitar">✕</button></span>
               ))}
-              <input className="taginput-in" placeholder="añadir etiqueta…" onKeyDown={(e) => { if (e.key === "Enter" && e.target.value) { setTags([...tags, e.target.value]); e.target.value = ""; } }} />
+              <input className="taginput-in" placeholder="añadir etiqueta…" onKeyDown={(e) => { if (e.key === "Enter" && e.target.value.trim()) { const v = e.target.value.trim(); setTags((p) => p.includes(v) ? p : [...p, v]); e.target.value = ""; } }} />
             </div>
           </div>
         </PanelB>
@@ -544,6 +565,8 @@ function TarjetaForm() {
   const [front, setFront] = React.useState(editing ? editing.front : "");
   const [back, setBack] = React.useState(editing ? editing.back : "");
   const [subject, setSubject] = React.useState(editing ? editing.subject : SUBJECTS[0]);
+  const [ord, setOrd] = React.useState(editing ? (editing.ord || "") : "");
+  const ordOpts = (window.ordsFor && window.ordsFor(subject)) || [];
   const [side, setSide] = React.useState("front");
   const [nivel, setNivel] = React.useState(editing ? (editing.nivel || "nuevo") : "nuevo");
   const [tags, setTags] = React.useState(editing ? (editing.tags || []) : []);
@@ -554,8 +577,8 @@ function TarjetaForm() {
   const reset = () => { setFront(""); setBack(""); setTags([]); setNivel("nuevo"); setSide("front"); setTried(false); };
   const save = (again) => {
     if (!validate()) { setTried(true); toast && toast("El frente y el reverso son obligatorios", "danger"); return; }
-    if (editing) { EPStore.updateCard(editing._id, { subject, front: front.trim(), back: back.trim(), tags, nivel }); window.__epEditC = null; toast && toast("Tarjeta actualizada", "ok"); go("tarjetas"); return; }
-    EPStore.addCard({ subject, front: front.trim(), back: back.trim(), tags, nivel });
+    if (editing) { EPStore.updateCard(editing._id, { subject, front: front.trim(), back: back.trim(), tags, nivel, ord }); window.__epEditC = null; toast && toast("Tarjeta actualizada", "ok"); go("tarjetas"); return; }
+    EPStore.addCard({ subject, front: front.trim(), back: back.trim(), tags, nivel, ord });
     toast && toast("Tarjeta guardada", "ok");
     if (again) reset(); else go("tarjetas");
   };
@@ -572,8 +595,13 @@ function TarjetaForm() {
           <PanelB idx="02" title="Clasificación">
             <div className="form-3">
               <div className="field"><label>Categoría</label><select className="input" aria-label="Categoría"><option>Promoción 2026</option></select></div>
-              <div className="field"><label>Materia</label><select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
-              <div className="field"><label>Ordenamiento / Capítulo</label><select className="input" aria-label="Ordenamiento o capítulo"><option>Código de Justicia Militar · Libro Primero</option></select></div>
+              <div className="field"><label>Materia</label><select className="input" aria-label="Materia" value={subject} onChange={(e) => { setSubject(e.target.value); setOrd(""); }}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
+              <div className="field"><label>Ordenamiento / Capítulo</label>
+                <select className="input" aria-label="Ordenamiento o capítulo" value={ord} onChange={(e) => setOrd(e.target.value)}>
+                  <option value="">— Sin ordenamiento —</option>
+                  {ordOpts.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
             </div>
             <div className="form-2">
               <div className="field">
@@ -584,7 +612,7 @@ function TarjetaForm() {
                   ))}
                 </div>
               </div>
-              <div className="field"><label>Próxima revisión</label><input className="input" defaultValue="en 1 día" /></div>
+              <div className="field"><label>Próxima revisión</label><span className="opt-note" style={{ display: "block", paddingTop: "8px" }}>La fija el repaso espaciado (SM-2) según tus calificaciones.</span></div>
             </div>
             <div className="field">
               <label>Etiquetas</label>
@@ -592,7 +620,7 @@ function TarjetaForm() {
                 {tags.map((t) => (
                   <span className="tagchip" key={t}>#{t}<button onClick={() => setTags(tags.filter((x) => x !== t))} aria-label="quitar">✕</button></span>
                 ))}
-                <input className="taginput-in" placeholder="añadir…" onKeyDown={(e) => { if (e.key === "Enter" && e.target.value) { setTags([...tags, e.target.value]); e.target.value = ""; } }} />
+                <input className="taginput-in" placeholder="añadir…" onKeyDown={(e) => { if (e.key === "Enter" && e.target.value.trim()) { const v = e.target.value.trim(); setTags((p) => p.includes(v) ? p : [...p, v]); e.target.value = ""; } }} />
               </div>
             </div>
           </PanelB>
@@ -729,7 +757,7 @@ function Quiz() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  });
+  }, [showPause, isOpen, checked, sel, cur, N, q]);
   const optClass = (i) => {
     if (!checked) return sel === i ? " is-sel" : "";
     if (i === correct) return " is-correct";
@@ -937,7 +965,7 @@ function Resultado() {
 
       <div className="res-foot">
         <button className="btn" onClick={() => go("inicio")}>‹ Volver al inicio</button>
-        <button className="btn" onClick={() => go("cuestionarios")}>Ver historial</button>
+        <button className="btn" onClick={() => { window.__epQTab = "historial"; go("cuestionarios"); }}>Ver historial</button>
         <button className="btn btn-accent" onClick={() => { window.__epSubject = r.subject; go("quiz"); }}>Nuevo cuestionario ▸</button>
       </div>
     </main>

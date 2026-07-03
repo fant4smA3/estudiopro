@@ -4,7 +4,7 @@ const { useGo: useGoC, PageHead: PageHeadC, Panel: PanelC, Diff: DiffC, EmptySta
 function Cuestionarios() {
   const go = useGoC();
   const st = window.useStore();
-  const [tab, setTab] = React.useState("config");
+  const [tab, setTab] = React.useState(() => { const t = window.__epQTab; window.__epQTab = null; return t === "historial" ? "historial" : "config"; });
   const [modo, setModo] = React.useState("practica");
   const [origen, setOrigen] = React.useState("Legislación Militar");
   const [n, setN] = React.useState(20);

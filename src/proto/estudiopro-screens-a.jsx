@@ -690,9 +690,9 @@ function Config() {
         <Panel idx="01" title="Aspirante y examen">
           <div className="set-row"><div><div className="set-label">Nombre del aspirante</div><div className="set-desc">Aparece en tu perfil y respaldos.</div></div><input className="input input-sm" aria-label="Nombre del aspirante" style={{ maxWidth: "240px" }} value={nombre} onChange={(e) => setNombre(e.target.value)} /></div>
           <div className="set-row"><div><div className="set-label">Fecha del examen</div><div className="set-desc">Recalcula la cuenta regresiva y el plan.</div></div><input type="date" className="input input-sm" aria-label="Fecha del examen" value={fecha} onChange={(e) => setFecha(e.target.value)} /></div>
-          <div className="set-row"><div><div className="set-label">Meta diaria de preguntas</div><div className="set-desc">Objetivo que verás en el panel de Inicio.</div></div><select className="input input-sm" aria-label="Meta diaria de preguntas" value={st.plan.dailyGoal} onChange={(e) => window.EPStore.setGoal(+e.target.value)}><option>20</option><option>30</option><option>40</option><option>50</option></select></div>
           <div className="set-row"><div><div className="set-label">Días disponibles</div><div className="set-desc">Días de la semana en que estudias.</div></div><div className="dow-pick">{DOW.map(([l, n]) => <button key={n} className={"dow-b" + (dias.includes(n) ? " is-on" : "")} onClick={() => toggleDia(n)}>{l}</button>)}</div></div>
           <div className="set-row"><div><div className="set-label">Guardar y recalcular</div><div className="set-desc">Aplica los cambios y regenera el plan hasta el examen.</div></div><button className="btn btn-sm btn-accent" onClick={guardarAspirante}>Guardar cambios</button></div>
+          <div className="set-row"><div><div className="set-label">Asistente inicial</div><div className="set-desc">Vuelve a configurar examen, materias y ritmo paso a paso.</div></div><button className="btn btn-sm" onClick={() => go("onboarding")}>Abrir asistente ▸</button></div>
         </Panel>
 
         <Panel idx="02" title="Estudio">
@@ -704,7 +704,7 @@ function Config() {
 
         <Panel idx="03" title="Apariencia">
           <div className="set-row"><div><div className="set-label">Idioma</div><div className="set-desc">Idioma de la interfaz.</div></div><select className="input input-sm" aria-label="Idioma"><option>Español</option><option>English</option></select></div>
-          <div className="set-row"><div><div className="set-label">Instalar como app (PWA)</div><div className="set-desc">Úsala como programa de escritorio, sin navegador.</div></div><button className="btn btn-sm" onClick={instalar} disabled={!canInstall}>{canInstall ? "Instalar app" : "No disponible aquí"}</button></div>
+          <div className="set-row"><div><div className="set-label">Instalar como app (PWA)</div><div className="set-desc">{canInstall ? "Úsala como programa de escritorio, sin navegador." : "En iPhone: Safari → Compartir → Agregar a pantalla de inicio. En escritorio, tu navegador la ofrecerá al usarla."}</div></div><button className="btn btn-sm" onClick={instalar} disabled={!canInstall} title={canInstall ? undefined : "Este navegador no expone el aviso de instalación"}>{canInstall ? "Instalar app" : "Instalación manual"}</button></div>
         </Panel>
 
         <Panel idx="04" title="Datos">
