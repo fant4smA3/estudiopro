@@ -1974,6 +1974,16 @@ html, body { overscroll-behavior: none; }
     .proapp .link-btn { min-height: 44px; display: inline-flex; align-items: center; }
     .segchip, .subjchip, .fchip, .tg { min-height: 40px; display: inline-flex; align-items: center; }
     .qn { width: 38px; height: 38px; }
+    /* botones de icono reales que quedaban por debajo del mínimo táctil */
+    .plan-ed-done { min-width: 44px; min-height: 44px; }
+    .cron-x { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .rep-tab { min-height: 40px; }
+    .switch { min-height: 30px; }
+    /* pager ‹ › : ampliar ancho táctil sin cambiar el alto */
+    .pager .btn-sm { min-width: 44px; }
+    /* enlaces de texto (breadcrumbs, acciones de panel): área táctil ≥36px, muy por encima del mínimo AA de 24 */
+    .crumb-link { min-height: 36px; display: inline-flex; align-items: center; }
+    .panel-act { min-height: 36px; display: inline-flex; align-items: center; }
   }
   .th-sort { cursor: pointer; user-select: none; }
   .th-sort:hover { color: var(--ink); }

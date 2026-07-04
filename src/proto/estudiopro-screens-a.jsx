@@ -114,14 +114,15 @@ function Inicio() {
     <main className="main">
       <PageHead title="Resumen" sub={(() => { const t = new Date().toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "short" }); return t.charAt(0).toUpperCase() + t.slice(1) + " · sesión local"; })()} crumbs={["Inicio"]} />
 
-      <div className="home-next" onClick={nextStep.act} role="button">
+      {/* La tarjeta es clicable por conveniencia (mouse); el control accesible por teclado es el botón CTA. */}
+      <div className="home-next" onClick={nextStep.act}>
         <div className="home-next-l">
           <span className="home-next-badge">{nextStep.badge}</span>
           <div className="home-next-t">{nextStep.title}</div>
           <div className="home-next-d">{nextStep.desc}</div>
           <div className="home-next-prog">{Array.from({ length: nextStep.of }, (_, i) => <i key={i} className={i < nextStep.done ? "on" : ""}></i>)}</div>
         </div>
-        <button className="home-next-cta" onClick={(e) => { e.stopPropagation(); nextStep.act(); }}>{nextStep.cta}</button>
+        <button className="home-next-cta" onClick={(e) => { e.stopPropagation(); nextStep.act(); }} aria-label={nextStep.badge + ": " + nextStep.title}>{nextStep.cta}</button>
       </div>
 
       <div className="home-bento">
@@ -573,7 +574,7 @@ function Estadisticas() {
     ["Banco", st.questions.length.toLocaleString(), "preguntas = tarjetas"],
   ];
   return (
-    <main className="main">
+    <main className="main" tabIndex={0} aria-label="Estadísticas de estudio, región desplazable">
       <PageHead title="Estadísticas" sub="Resumen de tu actividad de estudio" crumbs={[["Inicio", "inicio"], "Estadísticas"]} />
 
       <div className="kpis">
