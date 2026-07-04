@@ -79,7 +79,7 @@ function Calendario() {
                 onClick={() => openDay(dd)} role={d ? "button" : undefined}>
                 <span className="cal-num">{dd}{isExam && <span className="cal-examflag">EXAMEN</span>}</span>
                 {d && d.tipo === "simulacro" && <span className="cal-chip cal-chip-sim">Simulacro 200</span>}
-                {d && d.tipo === "estudio" && <span className="cal-chip" style={{ background: c + "22", color: c }}><i className="cal-dot" style={{ background: c }}></i>{d.subject.split(" ")[0]}</span>}
+                {d && d.tipo === "estudio" && <span className="cal-chip" style={{ background: c + "22", color: window.subjTextColor(d.subject) }}><i className="cal-dot" style={{ background: c }}></i>{d.subject.split(" ")[0]}</span>}
                 {d && d.tipo === "repaso" && <span className="cal-chip cal-chip-rep">Repaso</span>}
                 {d && d.titulo && d.tipo !== "simulacro" && <span className="cal-cap">{d.titulo.replace(/^(Cap\.|Libro|Título)\s*/, "")}</span>}
                 {d && <span className={"cal-state " + (estadoCls[d.estado] || "")}></span>}
@@ -117,13 +117,19 @@ window.Calendario = Calendario;
 /* ====================== SIMULACRO (config + bloques) ====================== */
 function Simulacro() {
   const go = useGoD();
+  const st = window.useStore();
   const subjColor = window.subjColor;
   const SUBJECTS = Object.keys(window.SUBJECT_COLORS || {});
   const DEF = { "Legislación Militar": 40, "Operaciones Militares": 35, "Normatividad Gubernamental": 35, "Aspecto Administrativo": 25, "Adiestramiento y Mando Militar": 30, "Aspecto Técnico": 35 };
   const [dist, setDist] = React.useState(DEF);
   const [modo, setModo] = React.useState("aleatorio");
   const [filtro, setFiltro] = React.useState("ninguno");
+  // disponibilidad real por materia en el banco (sólo preguntas calificables, no abiertas)
+  const gradable = (st.questions || []).filter((q) => q.type !== "AB");
+  const avail = {}; SUBJECTS.forEach((s) => { avail[s] = gradable.filter((q) => q.subject === s).length; });
+  const eff = {}; SUBJECTS.forEach((s) => { eff[s] = Math.min(dist[s] || 0, avail[s]); });
   const total = SUBJECTS.reduce((a, s) => a + (dist[s] || 0), 0);
+  const effTotal = SUBJECTS.reduce((a, s) => a + eff[s], 0);
   const ok = total === 200;
   const setN = (s, v) => setDist((d) => ({ ...d, [s]: Math.max(0, Math.min(80, v || 0)) }));
   const repartirPorPeso = () => setDist(DEF);
@@ -139,11 +145,11 @@ function Simulacro() {
               {SUBJECTS.map((s) => (
                 <div className="sim-dist-row" key={s}>
                   <span className="matstat-dot" style={{ background: subjColor(s) }}></span>
-                  <span className="sim-dist-name">{s}</span>
+                  <span className="sim-dist-name">{s} <span className="opt-note">· {avail[s]} disp.</span></span>
                   <div className="sim-stepper">
-                    <button className="step-btn" onClick={() => setN(s, dist[s] - 5)}>−</button>
-                    <input className="sim-num" value={dist[s]} onChange={(e) => setN(s, parseInt(e.target.value.replace(/\D/g, "")) || 0)} />
-                    <button className="step-btn" onClick={() => setN(s, dist[s] + 5)}>+</button>
+                    <button className="step-btn" onClick={() => setN(s, dist[s] - 5)} aria-label={"Menos preguntas de " + s}>−</button>
+                    <input className="sim-num" value={dist[s]} onChange={(e) => setN(s, parseInt(e.target.value.replace(/\D/g, "")) || 0)} aria-label={"Preguntas de " + s} />
+                    <button className="step-btn" onClick={() => setN(s, dist[s] + 5)} aria-label={"Más preguntas de " + s}>+</button>
                   </div>
                 </div>
               ))}
@@ -196,9 +202,11 @@ function Simulacro() {
             <div className="qc-sum-row"><span>Modo</span><b>{modo === "aleatorio" ? "Aleatorio" : "Filtros"}</b></div>
             {modo === "filtros" && filtro !== "ninguno" && <div className="qc-sum-row"><span>Filtro</span><b>{filtro}</b></div>}
             <div className="qc-sum-row"><span>Tiempo</span><b>4 h 15 min</b></div>
-            <div className="qc-sum-row"><span>Estructura</span><b>100 + 100</b></div>
-            <div className="qc-sum-est">{ok ? "Listo para iniciar" : "Ajusta a 200 preguntas"}</div>
-            <button className="btn btn-accent btn-lg" style={{ width: "100%" }} disabled={!ok} onClick={() => go("simrun")}>Iniciar simulacro ▸</button>
+            <div className="qc-sum-row"><span>Estructura</span><b>{Math.ceil(effTotal / 2)} + {Math.floor(effTotal / 2)}</b></div>
+            {effTotal < total && <div className="qc-sum-row"><span>Disponibles</span><b>{effTotal} en tu banco</b></div>}
+            <div className="qc-sum-est">{effTotal === 0 ? "Tu banco no tiene preguntas para esta selección" : (ok && effTotal === 200 ? "Listo para iniciar" : effTotal < total ? "Se usarán las " + effTotal + " disponibles" : "Ajusta a 200 preguntas")}</div>
+            <button className="btn btn-accent btn-lg" style={{ width: "100%" }} disabled={effTotal === 0}
+              onClick={() => { window.EPStore.setNav({ simDist: dist, simFiltro: modo === "filtros" ? filtro : "ninguno" }); go("simrun"); }}>Iniciar simulacro ▸</button>
           </div>
         </aside>
       </div>
@@ -210,22 +218,36 @@ window.Simulacro = Simulacro;
 /* ====================== SIMULACRO en curso (2 bloques + descanso) ====================== */
 function SimRun() {
   const go = useGoD();
-  const { QUESTION_BANK, TYPE_LABEL, ConfirmDialog } = window;
-  // construye 200 "slots" repitiendo el banco real (representativo)
+  const { TYPE_LABEL, ConfirmDialog } = window;
+  // pool real: preguntas del banco según la distribución configurada, sin repetición
   const pool = React.useMemo(() => {
-    const out = []; let i = 0;
-    while (out.length < 200) { out.push({ ...QUESTION_BANK[i % QUESTION_BANK.length], _slot: out.length }); i++; }
-    return out;
+    const nav = (window.EPStore.getNav && window.EPStore.getNav()) || {};
+    const dist = nav.simDist || { "Legislación Militar": 40, "Operaciones Militares": 35, "Normatividad Gubernamental": 35, "Aspecto Administrativo": 25, "Adiestramiento y Mando Militar": 30, "Aspecto Técnico": 35 };
+    const filtro = nav.simFiltro || "ninguno";
+    const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    let bank = (window.EPStore.get().questions || []).filter((q) => q.type !== "AB");
+    if (filtro === "solo falladas") bank = bank.filter((q) => q.status === "fall");
+    else if (filtro === "importantes") bank = bank.filter((q) => q.status === "imp");
+    else if (filtro === "difíciles") bank = bank.filter((q) => q.dif === "difícil");
+    const out = [];
+    Object.keys(dist).forEach((s) => {
+      const qs = shuffle(bank.filter((q) => q.subject === s)).slice(0, dist[s] || 0);
+      out.push(...qs);
+    });
+    return shuffle(out).map((q, i) => ({ ...q, _slot: i }));
   }, []);
+  const total = pool.length;
+  const half = Math.ceil(total / 2);
   const [phase, setPhase] = React.useState("b1"); // b1 | rest | b2 | done
   const [cur, setCur] = React.useState(0);
   const [answers, setAnswers] = React.useState(() => pool.map(() => null));
   const [flags, setFlags] = React.useState(() => pool.map(() => false));
   const [secs, setSecs] = React.useState(120 * 60);
   const [showExit, setShowExit] = React.useState(false);
-  const range = phase === "b2" ? [100, 200] : [0, 100];
+  const elapsedRef = React.useRef(0); // segundos consumidos en bloques anteriores
+  const range = phase === "b2" ? [half, total] : [0, half];
   React.useEffect(() => {
-    if (phase === "done") return;
+    if (phase === "done" || total === 0) return;
     const t = setInterval(() => setSecs((s) => {
       if (s <= 1) { advancePhase(); return 0; }
       return s - 1;
@@ -233,9 +255,13 @@ function SimRun() {
     return () => clearInterval(t);
   }, [phase]);
   const advancePhase = () => {
-    if (phase === "b1") { setPhase("rest"); setSecs(15 * 60); setCur(100); }
-    else if (phase === "rest") { setPhase("b2"); setSecs(120 * 60); setCur(100); }
-    else if (phase === "b2") { finish(); }
+    if (phase === "b1") {
+      elapsedRef.current += 120 * 60 - secs;
+      if (half >= total) { finish(); return; } // no hay segundo bloque
+      setPhase("rest"); setSecs(15 * 60); setCur(half);
+    }
+    else if (phase === "rest") { setPhase("b2"); setSecs(120 * 60); setCur(half); }
+    else if (phase === "b2") { elapsedRef.current += 120 * 60 - secs; finish(); }
   };
   const mmss = String(Math.floor(secs / 60)).padStart(2, "0") + ":" + String(secs % 60).padStart(2, "0");
   const q = pool[cur];
@@ -248,20 +274,39 @@ function SimRun() {
     pool.forEach((qq, k) => {
       if (!byMat[qq.subject]) byMat[qq.subject] = { ok: 0, total: 0 };
       byMat[qq.subject].total++;
-      if (qq.type !== "AB" && answers[k] === qq.answer) { correct++; byMat[qq.subject].ok++; }
+      if (answers[k] === qq.answer) { correct++; byMat[qq.subject].ok++; }
     });
-    const score = +(correct / 200 * 10).toFixed(1);
+    const score = total ? +(correct / total * 10).toFixed(1) : 0;
     // registra el simulacro en el histórico de Evolución (global + por materia)
     const byS = {}; Object.entries(byMat).forEach(([k, v]) => { byS[k] = v.total ? +(v.ok / v.total * 10).toFixed(1) : 0; });
     window.EPStore.addSimResult({ global: score, byS });
-    // marca el banco real con el desempeño del simulacro (última respuesta por pregunta gana)
-    const seen = {}; pool.forEach((qq, k) => { if (qq.type !== "AB" && qq.id) seen[qq.id] = { id: qq.id, correct: answers[k] === qq.answer }; });
+    // marca el banco real con el desempeño del simulacro
+    const seen = {}; pool.forEach((qq, k) => { if (qq._id) seen[qq._id] = { id: qq._id, correct: answers[k] === qq.answer }; });
     window.EPStore.applyQuizResults(Object.values(seen));
-    window.EPStore.setLastResult({ subject: "Simulacro general", total: 200, correct, wrong: 200 - correct, time: "240:00", score, isSim: true,
-      byChapter: Object.fromEntries(Object.entries(byMat).map(([k, v]) => [k, v])), missed: [] });
-    window.EPStore.addSession({ subject: "Normatividad Gubernamental", label: "Simulacro general · 200 preg", n: 200, time: "4h 15m", score, when: "hoy", state: "done" });
+    const el = elapsedRef.current;
+    const time = String(Math.floor(el / 60)).padStart(2, "0") + ":" + String(el % 60).padStart(2, "0");
+    const missed = pool.map((qq, k) => ({ q: qq.q, loc: qq.loc, ord: qq.ord, ok: answers[k] === qq.answer })).filter((m) => !m.ok);
+    window.EPStore.setLastResult({ subject: "Simulacro general", total, correct, wrong: total - correct, time, score, isSim: true,
+      byChapter: Object.fromEntries(Object.entries(byMat).map(([k, v]) => [k, v])), missed });
+    window.EPStore.addSession({ subject: "Simulacro general", label: "Simulacro general · " + total + " preg", n: total, time, score, date: new Date().toISOString().slice(0, 10), state: "done" });
+    window.EPStore.bumpToday(answers.filter((a) => a !== null).length);
     setPhase("done");
   };
+  // banco sin preguntas para la selección: estado vacío en lugar de sesión
+  if (total === 0) {
+    return (
+      <main className="main main-center">
+        <div className="card-stage">
+          <window.EmptyState icon="⌕" title="No hay preguntas para el simulacro"
+            desc="Tu banco no tiene preguntas calificables para la distribución elegida. Importa o crea preguntas primero."
+            actions={<React.Fragment>
+              <button className="btn" onClick={() => go("simulacro")}>‹ Ajustar simulacro</button>
+              <button className="btn btn-accent" onClick={() => go("importar")}>Importar preguntas ▸</button>
+            </React.Fragment>} />
+        </div>
+      </main>
+    );
+  }
 
   if (phase === "rest") {
     return (
@@ -284,7 +329,7 @@ function SimRun() {
           <div className="rest-ic" style={{ background: "var(--ok-tint)", color: "var(--ok)" }}>✓</div>
           <div className="rest-h">Simulacro completado</div>
           <div className="res-score" style={{ justifyContent: "center", border: 0 }}><div className="res-score-n">{r.score}</div><div className="res-score-d">/ 10</div></div>
-          <div className="rest-sub">{r.correct} correctas · {r.wrong} incorrectas de 200. Las falladas se enviaron a tu repaso prioritario.</div>
+          <div className="rest-sub">{r.correct} correctas · {r.wrong} incorrectas de {r.total}. Las falladas se enviaron a tu repaso prioritario.</div>
           <div className="form-actions" style={{ justifyContent: "center" }}>
             <button className="btn" onClick={() => go("inicio")}>Volver al inicio</button>
             <button className="btn btn-accent" onClick={() => go("resultado")}>Ver resultado detallado ▸</button>
@@ -300,10 +345,10 @@ function SimRun() {
         <div className="quiz-bar">
           <div className="quiz-headline">
             <span className="quiz-headline-tag">Simulacro · {phase === "b1" ? "Bloque 1" : "Bloque 2"} · modo examen</span>
-            <span className="quiz-headline-name">Pregunta {cur + 1} de 200</span>
+            <span className="quiz-headline-name">Pregunta {cur + 1} de {total}</span>
           </div>
           <div className="quiz-meta">
-            <span className="quiz-prog">{answered} / 100 contestadas</span>
+            <span className="quiz-prog">{answered} / {range[1] - range[0]} contestadas</span>
             <span className={"quiz-timer" + (secs < 300 ? " is-low" : "")}>⏱ {mmss}</span>
             <button className="btn btn-sm" onClick={() => setShowExit(true)}>Salir</button>
             <button className="btn btn-sm btn-accent" onClick={advancePhase}>{phase === "b1" ? "Terminar Bloque 1 ▸" : "Finalizar ▸"}</button>
@@ -316,7 +361,7 @@ function SimRun() {
           <div className="q-head">
             <span className="type-tag">{TYPE_LABEL[q.type] || q.type}</span>
             <DiffD level={q.dif} />
-            <span className="q-tag" style={{ color: window.subjColor(q.subject), fontWeight: 700 }}>{q.subject}</span>
+            <span className="q-tag" style={{ color: window.subjTextColor(q.subject), fontWeight: 700 }}>{q.subject}</span>
             {flags[cur] && <span className="q-flagged">★ marcada</span>}
           </div>
           <div className="q-text">{q.q}</div>
@@ -424,10 +469,10 @@ function Alertas() {
             <div className="set-row" key={k}>
               <div><div className="set-label">{ic} {title}</div><div className="set-desc">{msg}</div></div>
               <div className="alert-cfg-r">
-                <select className="input input-sm" defaultValue={when} disabled={!cfg[k]}>
+                <select className="input input-sm" defaultValue={when} disabled={!cfg[k]} aria-label={"Horario · " + title}>
                   <option>{when}</option><option>7:00 a.m.</option><option>8:00 a.m.</option><option>12:00 p.m.</option><option>6:00 p.m.</option><option>9:00 p.m.</option>
                 </select>
-                <Switch on={cfg[k]} onClick={() => t(k)} />
+                <Switch on={cfg[k]} onClick={() => t(k)} label={title} />
               </div>
             </div>
           ))}
@@ -496,7 +541,7 @@ function RepasoPrioritario() {
                   <div className="rp-item" key={i}>
                     <span className="rp-item-bar" style={{ background: subjColor(it.subject) }}></span>
                     <span className="rp-item-q">{it.q || it.front}</span>
-                    <span className="rp-item-subj" style={{ color: subjColor(it.subject) }}>{(it.subject || "").split(" ")[0]}</span>
+                    <span className="rp-item-subj" style={{ color: subjTextColor(it.subject) }}>{(it.subject || "").split(" ")[0]}</span>
                   </div>
                 ))}
                 {t.items.length > 3 && <div className="rp-more">+ {t.items.length - 3} más en esta categoría</div>}
@@ -537,7 +582,7 @@ function SesionHoy() {
         <CrumbsD path={[["Inicio", "inicio"], "Sesión de hoy"]} />
         <div className="study-top">
           <div className="study-meta">
-            <span className="study-meta-tag" style={{ color }}>Sesión de estudio · modo enfoque</span>
+            <span className="study-meta-tag" style={{ color: window.subjTextColor(ses.subject) }}>Sesión de estudio · modo enfoque</span>
             <span className="study-meta-name">{ses.subject} · {ses.titulo}</span>
           </div>
           <div className="sesion-prog"><span className="sp-n">{Math.min(step, 3)} / 3</span><div className="mini-bar mini-bar-wide" style={{ width: "180px" }}><i style={{ width: (Math.min(step, 3) / 3 * 100) + "%", background: color }}></i></div></div>
@@ -714,7 +759,7 @@ function Inteligencia() {
               <div className="intel-bar-row" key={m.subj} onClick={() => { window.__epSubject = m.subj; go("materia"); }}>
                 <span className="intel-bar-name">{m.subj}</span>
                 <div className="intel-bar-track"><i style={{ width: m.dominio + "%", background: subjColor(m.subj) }}></i></div>
-                <span className="intel-bar-pct" style={{ color: subjColor(m.subj) }}>{m.dominio}%</span>
+                <span className="intel-bar-pct" style={{ color: subjTextColor(m.subj) }}>{m.dominio}%</span>
               </div>
             ))}
           </div>
@@ -740,17 +785,21 @@ function Inteligencia() {
           <div className="intel-focus">
             <div className="intel-focus-row">
               <span className="intel-focus-k">Punto débil</span>
-              <span className="intel-focus-v" style={{ color: subjColor(x.debil.subj) }}>{x.debil.subj}</span>
+              <span className="intel-focus-v" style={{ color: subjTextColor(x.debil.subj) }}>{x.debil.subj}</span>
               <span className="intel-focus-n">{x.debil.dominio}%</span>
             </div>
             <div className="intel-focus-row">
               <span className="intel-focus-k">Más olvidado</span>
-              <span className="intel-focus-v" style={{ color: subjColor(x.olvidado.subj) }}>{x.olvidado.subj}</span>
-              <span className="intel-focus-n">{x.olvidado.dias} d sin repasar</span>
+              {x.olvidado
+                ? <React.Fragment>
+                    <span className="intel-focus-v" style={{ color: subjTextColor(x.olvidado.subj) }}>{x.olvidado.subj}</span>
+                    <span className="intel-focus-n">{x.olvidado.dias} d sin repasar</span>
+                  </React.Fragment>
+                : <span className="intel-focus-n">sin datos aún · registra sesiones o tiempo</span>}
             </div>
             <div className="intel-focus-row">
               <span className="intel-focus-k">Más fuerte</span>
-              <span className="intel-focus-v" style={{ color: subjColor(x.fuerte.subj) }}>{x.fuerte.subj}</span>
+              <span className="intel-focus-v" style={{ color: subjTextColor(x.fuerte.subj) }}>{x.fuerte.subj}</span>
               <span className="intel-focus-n">{x.fuerte.dominio}%</span>
             </div>
             <div className="intel-focus-row">
@@ -790,7 +839,7 @@ function Inteligencia() {
                 <tr key={cap} className="clickable" onClick={() => { window.__epSubject = subj; go("materia"); }}>
                   <td className="t-q"><span className="t-q-bar" style={{ background: subjColor(subj), display: "inline-block", width: "3px", height: "14px", verticalAlign: "middle", marginRight: "8px", borderRadius: "2px" }}></span>{cap}</td>
                   <td style={{ width: "90px" }}><div className="mini-bar mini-bar-thin"><i style={{ width: p + "%", background: subjColor(subj) }}></i></div></td>
-                  <td className="ta-r" style={{ width: "36px", fontWeight: 700, color: subjColor(subj) }}>{p}%</td>
+                  <td className="ta-r" style={{ width: "36px", fontWeight: 700, color: subjTextColor(subj) }}>{p}%</td>
                 </tr>
               ))}
             </tbody>

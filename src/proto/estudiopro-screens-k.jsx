@@ -148,7 +148,7 @@ function Confusiones() {
       <section className="panel cf-peak" style={{ borderLeft: "3px solid var(--danger)" }}>
         <div className="cf-peak-ic">🎯</div>
         <div><div className="cf-peak-t">Tu mayor fuga de puntos</div>
-          <div className="cf-peak-d"><b style={{ color: subjColor(m.peak.subj) }}>{m.peak.subj}</b> · {m.peak.col.toLowerCase()}</div></div>
+          <div className="cf-peak-d"><b style={{ color: subjTextColor(m.peak.subj) }}>{m.peak.subj}</b> · {m.peak.col.toLowerCase()}</div></div>
         <button className="btn btn-accent" onClick={() => { window.__epSubject = m.peak.subj; go("repaso"); }}>Practicar esto ▸</button>
       </section>
       <section className="panel">
@@ -194,7 +194,7 @@ function Metas() {
             <div className="mt-ring-c"><div className="mt-ring-n">{w.active}<span>/{w.goal}</span></div><div className="mt-ring-l">días activos</div></div>
           </div>
           <div className="mt-goal-row"><span>Meta semanal</span>
-            <select className="input input-sm" value={w.goal} onChange={(e) => window.EPStore.setWeeklyGoal(+e.target.value)}>{[3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n} días</option>)}</select>
+            <select className="input input-sm" aria-label="Meta semanal de días" value={w.goal} onChange={(e) => window.EPStore.setWeeklyGoal(+e.target.value)}>{[3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n} días</option>)}</select>
           </div>
           <div className="mt-week">
             {w.days.map((d, i) => (
@@ -206,8 +206,8 @@ function Metas() {
           </div>
         </section>
         <div className="mt-side">
-          <PanelK idx="🔥" title="Racha" meta={st.plan.streak + " días"}>
-            <div className="mt-streak"><div className="mt-streak-n">{st.plan.streak}</div><div className="mt-streak-l">días seguidos</div></div>
+          <PanelK idx="🔥" title="Racha" meta={(window.realStreak ? window.realStreak() : 0) + " días"}>
+            <div className="mt-streak"><div className="mt-streak-n">{window.realStreak ? window.realStreak() : 0}</div><div className="mt-streak-l">días seguidos</div></div>
             <div className="mt-freeze">
               <div className="mt-freeze-h"><span>❄ Comodines de racha</span><b>{w.freezes} disponibles</b></div>
               <p className="mt-freeze-d">Úsalos en un día justificado (guardia, comisión) para no perder la racha.</p>
@@ -279,10 +279,10 @@ function Podcast() {
         crumbs={[["Inicio", "inicio"], "Podcast de repaso"]} />
       {!supported && <div className="audio-warn">⚠ Tu navegador no soporta voz; el podcast avanzará por temporizador sin audio.</div>}
       <div className="audio-bar">
-        <select className="input" value={fuente} onChange={(e) => setFuente(e.target.value)} style={{ maxWidth: "200px" }}>
+        <select className="input" aria-label="Fuente" value={fuente} onChange={(e) => setFuente(e.target.value)} style={{ maxWidth: "200px" }}>
           <option value="falladas">Solo falladas</option><option value="importantes">Importantes</option><option value="todas">Todas</option>
         </select>
-        <select className="input" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}>
+        <select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}>
           <option value="todas">Todas las materias</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}
         </select>
         <label className="audio-rate">Velocidad<input type="range" min="0.7" max="1.5" step="0.1" value={rate} onChange={(e) => setRate(+e.target.value)} /><b>{rate.toFixed(1)}×</b></label>
@@ -326,7 +326,7 @@ function Glosario() {
         actions={<button className="btn btn-accent" onClick={() => setAdding(true)}>+ Nuevo término</button>} />
       <div className="notas-hub-bar">
         <input className="input search-input" placeholder="Buscar término…" value={q} onChange={(e) => setQ(e.target.value)} />
-        <select className="input" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}><option value="todas">Todas</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>
+        <select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}><option value="todas">Todas</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>
         <span className="notas-hub-count">{terms.length} término(s)</span>
       </div>
       {terms.length === 0
@@ -336,7 +336,7 @@ function Glosario() {
               <section className="gl-card" key={t.id} style={{ borderTop: "3px solid " + subjColor(t.subject) }}>
                 <div className="gl-card-h"><span className="gl-term">{t.term}</span><button className="cron-x" onClick={() => window.EPStore.deleteGlossary(t.id)} aria-label="Eliminar">×</button></div>
                 <p className="gl-def">{t.def}</p>
-                <div className="gl-foot"><span className="gl-subj" style={{ color: subjColor(t.subject) }}>{t.subject}</span>{t.ref && <span className="gl-ref">{t.ref}</span>}</div>
+                <div className="gl-foot"><span className="gl-subj" style={{ color: subjTextColor(t.subject) }}>{t.subject}</span>{t.ref && <span className="gl-ref">{t.ref}</span>}</div>
               </section>
             ))}
           </div>}

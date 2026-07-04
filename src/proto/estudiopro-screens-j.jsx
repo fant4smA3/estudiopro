@@ -78,7 +78,7 @@ function ImportarIA() {
     <main className="main">
       <PageHeadJ title="Importar con IA" sub="Sube el manual o una foto y extrae preguntas automáticamente"
         crumbs={[["Importar", "importar"], "Importar con IA"]} />
-      {!aiReady && <div className="audio-warn">⚠ La IA no está disponible aquí; se muestra el flujo. La extracción real requiere conexión.</div>}
+      {!aiReady && <div className="audio-warn">⚠ La extracción con IA no está disponible en esta instalación. Usa <b>Importar</b> (CSV/JSON) o <b>Crear preguntas</b> para cargar tu material.</div>}
       <div className="gen-grid">
         <section className="panel">
           <div className="panel-h"><div className="panel-h-l"><span className="panel-idx">1</span><span className="panel-title">Material fuente</span></div></div>
@@ -96,7 +96,7 @@ function ImportarIA() {
               <label className="gen-f"><span>Máx. reactivos</span><select className="input" value={n} onChange={(e) => setN(+e.target.value)}>{[5, 8, 12, 16].map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
             </div>
             {err && <div className="gen-err">{err}</div>}
-            <button className="btn btn-accent btn-lg gen-go" onClick={extraer} disabled={loading}>{loading ? "Extrayendo…" : "✨ Extraer reactivos"}</button>
+            <button className="btn btn-accent btn-lg gen-go" onClick={extraer} disabled={loading || !aiReady} title={!aiReady ? "IA no disponible en esta instalación" : undefined}>{loading ? "Extrayendo…" : "✨ Extraer reactivos"}</button>
           </div>
         </section>
         <section className="panel gen-out">
@@ -217,7 +217,7 @@ function RetoDiario() {
         crumbs={[["Inicio", "inicio"], "Reto diario"]} />
       <div className="reto-prog"><div className="reto-prog-bar" style={{ width: ((i) / pool.length * 100) + "%", background: color }}></div></div>
       <section className="panel reto-card" style={{ borderTop: "3px solid " + color }}>
-        <div className="q-head"><span className="reto-n">Pregunta {i + 1} de {pool.length}</span><span className="q-tag" style={{ color, fontWeight: 700 }}>{q.subject}</span></div>
+        <div className="q-head"><span className="reto-n">Pregunta {i + 1} de {pool.length}</span><span className="q-tag" style={{ color: window.subjTextColor(q.subject), fontWeight: 700 }}>{q.subject}</span></div>
         <div className="q-text">{q.q}</div>
         <div className="opts">
           {q.options.map((t, k) => {

@@ -68,7 +68,7 @@ function Generador() {
     <main className="main">
       <PageHeadG title="Generador de reactivos con IA" sub="Pega un artículo o tema y genera preguntas con fuente"
         crumbs={[["Banco de preguntas", "banco"], "Generador IA"]} />
-      {!aiReady && <div className="audio-warn">⚠ La IA no está disponible en este entorno. La pantalla muestra el flujo, pero la generación real requiere conexión.</div>}
+      {!aiReady && <div className="audio-warn">⚠ La generación con IA no está disponible en esta instalación. Usa <b>Importar</b> (CSV/JSON) o <b>Crear preguntas</b> para cargar reactivos.</div>}
       <div className="gen-grid">
         <section className="panel gen-in">
           <div className="panel-h"><div className="panel-h-l"><span className="panel-idx">1</span><span className="panel-title">Texto fuente</span></div>
@@ -78,27 +78,27 @@ function Generador() {
               placeholder="Pega aquí el artículo del ordenamiento, el resumen del capítulo o el tema a examinar…"></textarea>
             <div className="gen-cfg">
               <label className="gen-f"><span>Materia</span>
-                <select className="input" value={subject} onChange={(e) => setSubject(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>
+                <select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>
               </label>
               <label className="gen-f"><span>Ordenamiento (opcional)</span>
                 <input className="input" value={ord} onChange={(e) => setOrd(e.target.value)} placeholder="p. ej. CJM · Libro Primero" />
               </label>
               <label className="gen-f"><span>Reactivos</span>
-                <select className="input" value={n} onChange={(e) => setN(+e.target.value)}>{[4, 6, 8, 10].map((x) => <option key={x} value={x}>{x}</option>)}</select>
+                <select className="input" aria-label="Número de reactivos" value={n} onChange={(e) => setN(+e.target.value)}>{[4, 6, 8, 10].map((x) => <option key={x} value={x}>{x}</option>)}</select>
               </label>
               <label className="gen-f"><span>Tipo</span>
-                <select className="input" value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                <select className="input" aria-label="Tipo de reactivo" value={tipo} onChange={(e) => setTipo(e.target.value)}>
                   <option value="OM">Opción múltiple</option><option value="VF">Verdadero / Falso</option><option value="AB">Abierta</option>
                 </select>
               </label>
               <label className="gen-f"><span>Dificultad</span>
-                <select className="input" value={dif} onChange={(e) => setDif(e.target.value)}>
+                <select className="input" aria-label="Dificultad" value={dif} onChange={(e) => setDif(e.target.value)}>
                   <option value="fácil">Fácil</option><option value="medio">Medio</option><option value="difícil">Difícil</option>
                 </select>
               </label>
             </div>
             {err && <div className="gen-err">{err}</div>}
-            <button className="btn btn-accent btn-lg gen-go" onClick={generar} disabled={loading}>
+            <button className="btn btn-accent btn-lg gen-go" onClick={generar} disabled={loading || !aiReady} title={!aiReady ? "IA no disponible en esta instalación" : undefined}>
               {loading ? "Generando…" : "✨ Generar reactivos"}</button>
           </div>
         </section>
@@ -162,6 +162,7 @@ function Tutor() {
   const send = async (textArg) => {
     const q = (textArg != null ? textArg : input).trim();
     if (!q || loading) return;
+    if (!aiReady) { window.toast && window.toast("La IA no está disponible en esta instalación", "warn"); return; }
     const next = [...msgs, { role: "user", content: q }];
     setMsgs(next); setInput(""); setLoading(true);
     const ctx = subject === "general" ? "el temario del ascenso militar mexicano (Cap. 1/o. I.C.I., Promoción 2026)" : "la materia \"" + subject + "\" del ascenso militar mexicano";
@@ -183,11 +184,12 @@ function Tutor() {
     <main className="main">
       <PageHeadG title="Tutor de dudas" sub="Pregunta cualquier concepto del temario y recibe explicación con fuente"
         crumbs={[["Banco de preguntas", "banco"], "Tutor de dudas"]}
-        actions={<select className="input" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}>
+        actions={<select className="input" aria-label="Contexto del tutor" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}>
           <option value="general">Contexto: general</option>
           {SUBJECTS.map((s) => <option key={s}>{s}</option>)}
         </select>} />
       <div className="tutor-wrap">
+        {!aiReady && <div className="audio-warn">⚠ El tutor con IA no está disponible en esta instalación. Consulta el <b>Glosario</b> o tus <b>Apuntes</b> mientras tanto.</div>}
         <div className="tutor-chat" ref={scrollRef}>
           {msgs.length === 0 && (
             <div className="tutor-intro">
@@ -221,7 +223,7 @@ function Tutor() {
           <textarea className="input" rows="1" placeholder="Escribe tu duda…" value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}></textarea>
-          <button className="btn btn-accent" onClick={() => send()} disabled={loading || !input.trim()}>Enviar</button>
+          <button className="btn btn-accent" onClick={() => send()} disabled={loading || !input.trim() || !aiReady} title={!aiReady ? "IA no disponible en esta instalación" : undefined}>Enviar</button>
         </div>
       </div>
     </main>

@@ -32,16 +32,31 @@ function Inicio() {
     ["Cuestionarios", String(st.sessions.length), "media " + avg + " / 10"],
     ["Avance", avancePct + "%", dominadas.toLocaleString() + " dominadas"],
   ];
-  const cats = [
-    ["Legislación Militar", 7, "380"],
-    ["Normatividad Gubernamental", 5, "240"],
-    ["Adiestramiento y Mando Militar", 2, "110"],
-  ];
-  const recientes = [
-    ["Legislación Militar", "Código de Justicia Militar", "Libro Primero · Cap. I", "hoy"],
-    ["Adiestramiento y Mando Militar", "Mando y Liderazgo · Cap. IX", "", "ayer"],
-    ["Aspecto Técnico", "Ciberseguridad · Cap. II Ciberespacio", "", "2 d"],
-  ];
+  // top 3 materias por volumen real de preguntas (ordenamientos y conteos del banco)
+  const cats = Object.keys(window.SUBJECT_COLORS || {})
+    .map((s) => {
+      const qs = st.questions.filter((q) => q.subject === s);
+      return [s, new Set(qs.map((q) => q.ord).filter(Boolean)).size, qs.length];
+    })
+    .filter(([, , q]) => q > 0)
+    .sort((a, b) => b[2] - a[2])
+    .slice(0, 3);
+  // materias con actividad real más reciente (sesiones y tiempo registrado)
+  const recientes = (() => {
+    const last = {};
+    [...st.sessions.filter((x) => x.date), ...st.timeLog].forEach((x) => {
+      if (!x.subject || !x.date) return;
+      if (!last[x.subject] || x.date > last[x.subject].date) last[x.subject] = { date: x.date, label: x.label || "" };
+    });
+    const rel = (date) => {
+      const d = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(date + "T00:00:00")) / 86400000);
+      return d <= 0 ? "hoy" : d === 1 ? "ayer" : d < 7 ? d + " d" : Math.floor(d / 7) + " sem";
+    };
+    return Object.entries(last)
+      .sort((a, b) => (a[1].date < b[1].date ? 1 : -1))
+      .slice(0, 3)
+      .map(([s, v]) => [s, v.label, "", rel(v.date)]);
+  })();
   const ring = (pct) => (119.4 * (1 - pct / 100)).toFixed(1);
   if (st.questions.length === 0 && st.cards.length === 0) {
     return (
@@ -88,7 +103,7 @@ function Inicio() {
     }
     return { badge: "Empieza hoy", title: "Practica " + vencenHoy + " tarjetas", desc: "Repaso espaciado priorizado para hoy", done: 0, of: 3, cta: "Iniciar repaso ▸", act: () => go("repaso") };
   })();
-  const streakDays = plan.streak || 0;
+  const streakDays = window.realStreak ? window.realStreak() : 0;
   const weekMark = Array.from({ length: 7 }, (_, i) => i < Math.min(7, streakDays));
   // materias del examen (colores reales del sistema; se mantienen)
   const mats = [
@@ -97,16 +112,17 @@ function Inicio() {
   ].map(([n, ic]) => ({ n, ic, p: domBySubj[n] != null ? domBySubj[n] : 0 }));
   return (
     <main className="main">
-      <PageHead title="Resumen" sub="Viernes 20 jun · sesión local" crumbs={["Inicio"]} />
+      <PageHead title="Resumen" sub={(() => { const t = new Date().toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "short" }); return t.charAt(0).toUpperCase() + t.slice(1) + " · sesión local"; })()} crumbs={["Inicio"]} />
 
-      <div className="home-next" onClick={nextStep.act} role="button">
+      {/* La tarjeta es clicable por conveniencia (mouse); el control accesible por teclado es el botón CTA. */}
+      <div className="home-next" onClick={nextStep.act}>
         <div className="home-next-l">
           <span className="home-next-badge">{nextStep.badge}</span>
           <div className="home-next-t">{nextStep.title}</div>
           <div className="home-next-d">{nextStep.desc}</div>
           <div className="home-next-prog">{Array.from({ length: nextStep.of }, (_, i) => <i key={i} className={i < nextStep.done ? "on" : ""}></i>)}</div>
         </div>
-        <button className="home-next-cta" onClick={(e) => { e.stopPropagation(); nextStep.act(); }}>{nextStep.cta}</button>
+        <button className="home-next-cta" onClick={(e) => { e.stopPropagation(); nextStep.act(); }} aria-label={nextStep.badge + ": " + nextStep.title}>{nextStep.cta}</button>
       </div>
 
       <div className="home-bento">
@@ -153,26 +169,28 @@ function Inicio() {
       </div>
 
       <div className="grid-2">
-        <Panel idx="01" title="Categorías" meta="3" action="ver todas" onAction={() => go("categorias")}>
+        <Panel idx="01" title="Materias con más contenido" meta={String(cats.length)} action="ver todas" onAction={() => go("categorias")}>
           <div className="cat-list">
+            {cats.length === 0 && <p className="reco-p">Aún no hay preguntas en el banco.</p>}
             {cats.map(([n, m, q]) => {
               const p = domBySubj[n] != null ? domBySubj[n] : 0;
               return (
               <div className="cat clickable" key={n} onClick={() => { window.__epSubject = n; go("materia"); }}>
                 <div className="cat-top">
                   <span className="cat-name">{n}</span>
-                  <span className="cat-pct" style={{ color: window.subjColor(n) }}>{p}%</span>
+                  <span className="cat-pct" style={{ color: window.subjTextColor(n) }}>{p}%</span>
                 </div>
-                <div className="mini-bar"><i style={{ width: p + "%", background: window.subjColor(n), color: window.subjColor(n) }}></i></div>
-                <div className="cat-meta">{m} materias · {q} preguntas</div>
+                <div className="mini-bar"><i style={{ width: p + "%", background: window.subjColor(n), color: window.subjTextColor(n) }}></i></div>
+                <div className="cat-meta">{m} ordenamiento{m === 1 ? "" : "s"} · {q} preguntas</div>
               </div>
               );
             })}
           </div>
         </Panel>
 
-        <Panel idx="02" title="Materias recientes" meta="3" action="ver todas" onAction={() => go("materias")}>
+        <Panel idx="02" title="Materias recientes" meta={String(recientes.length)} action="ver todas" onAction={() => go("materias")}>
           <div className="rows">
+            {recientes.length === 0 && <p className="reco-p">Sin actividad aún. Completa un cuestionario o registra tiempo de estudio.</p>}
             {recientes.map(([n, c, t, d]) => (
               <div className="row3 clickable" key={n} onClick={() => { window.__epSubject = n; go("materia"); }}>
                 <span className="r-dot" style={{ background: window.subjColor(n) }}></span>
@@ -229,8 +247,11 @@ function Categorias() {
   const { PromptDialog } = window;
   const st = window.useStore();
   const [open, setOpen] = React.useState(false);
+  const nQ = st.questions.length;
+  const nDom = st.cards.filter((c) => c.nivel === "dominado").length;
+  const nMats = Object.keys(window.SUBJECT_COLORS || {}).length;
   const base = [
-    ["Promoción 2026", "Cap. 1/o. I.C.I. · Examen de promoción general. 6 materias evaluadas y 21 ordenamientos.", "#2F73CE", 6, "1,120", 19],
+    ["Promoción 2026", "Cap. 1/o. I.C.I. · Examen de promoción general. " + nMats + " materias evaluadas y " + Object.keys(window.MATERIA_DETAIL || {}).length + " ordenamientos.", "#2F73CE", nMats, nQ.toLocaleString(), nQ ? Math.round(nDom / nQ * 100) : 0],
   ];
   const userCats = (st.userCats || []).map((c) => [c.name, c.desc || "Categoría personalizada.", c.color, 0, "0", 0]);
   const cats = [...base, ...userCats];
@@ -275,14 +296,22 @@ function Materias() {
   const st = window.useStore();
   const [open, setOpen] = React.useState(false);
   const PALETTE = ["#2F73CE", "#2A8A5E", "#A0742A", "#7A57C2", "#C2410C", "#0E7490", "#B83280", "#15803D"];
-  const base = [
-    ["Legislación Militar", "7 ordenamientos · CJM, LOEFAM, ISSFAM, disciplina, ascensos y deberes.", 7, 380, 120, 24, "#2F73CE"],
-    ["Operaciones Militares", "4 manuales · logística, operaciones, op. conjuntas y planeamiento.", 4, 220, 70, 12, "#2A8A5E"],
-    ["Normatividad Gubernamental", "5 ordenamientos · uso de la fuerza, transparencia, APF y DD.HH.", 5, 240, 80, 18, "#A0742A"],
-    ["Aspecto Administrativo", "2 obras · PMBOK 7a Ed. y Ley de Adquisiciones.", 2, 90, 30, 8, "#7A57C2"],
-    ["Adiestramiento y Mando Militar", "2 manuales · mando, liderazgo y adiestramiento.", 2, 110, 36, 15, "#C2410C"],
-    ["Aspecto Técnico", "1 manual · ciberseguridad y ciberdefensa.", 1, 80, 26, 5, "#0E7490"],
-  ];
+  // descripciones del temario (contenido fijo) + conteos y avance reales del banco
+  const DESC = {
+    "Legislación Militar": "CJM, LOEFAM, ISSFAM, disciplina, ascensos y deberes.",
+    "Operaciones Militares": "Logística, operaciones, op. conjuntas y planeamiento.",
+    "Normatividad Gubernamental": "Uso de la fuerza, transparencia, APF y DD.HH.",
+    "Aspecto Administrativo": "PMBOK 7a Ed. y Ley de Adquisiciones.",
+    "Adiestramiento y Mando Militar": "Mando, liderazgo y adiestramiento.",
+    "Aspecto Técnico": "Ciberseguridad y ciberdefensa.",
+  };
+  const DETAIL = window.MATERIA_DETAIL || {};
+  const base = Object.keys(window.SUBJECT_COLORS || {}).map((s) => {
+    const qs = st.questions.filter((q) => q.subject === s);
+    const dom = st.cards.filter((c) => c.subject === s && c.nivel === "dominado").length;
+    const nOrds = Object.keys(DETAIL).filter((k) => DETAIL[k].cat === s).length;
+    return [s, DESC[s] || "", nOrds, qs.length, qs.length, qs.length ? Math.round(dom / qs.length * 100) : 0, window.subjColor(s)];
+  });
   const userMats = (st.userMats || []).map((m) => [m.name, m.desc || "Materia personalizada.", 0, 0, 0, 0, m.color]);
   const mats = [...base, ...userMats];
   return (
@@ -343,26 +372,29 @@ function MateriaDetalle() {
     "Adiestramiento y Mando Militar": "#C2410C", "Aspecto Técnico": "#0E7490",
   };
   const color = SUBJECT_COLOR[subject] || "#2F73CE";
-  const whenAt = ["hoy", "ayer", "2 d", "3 d", "5 d", "1 sem"];
   // each ordenamiento of this subject = a tree-tema; its títulos = cap-rows
+  // conteos reales del banco: preguntas cuyo `ord` coincide con el ordenamiento (y `loc` con el título)
+  const subjQs = st.questions.filter((x) => x.subject === subject);
   const ords = Object.keys(DETAIL).filter((k) => DETAIL[k].cat === subject);
-  const temasBase = ords.map((ordName, oi) => {
-    const od = DETAIL[ordName];
-    const caps = od.titulos.map((tt, ti) => {
+  const temasBase = ords.map((ordName) => {
+    const ordQs = subjQs.filter((x) => x.ord === ordName);
+    const caps = DETAIL[ordName].titulos.map((tt) => {
       const capList = tt.caps.map((c) => c[0]).join(" · ");
-      const cq = 8 + ((oi * 3 + ti * 5) % 16);
-      const ct = 3 + ((oi + ti) % 6);
-      return [tt.n, capList, cq, ct, whenAt[(oi + ti) % whenAt.length]];
+      const cq = ordQs.filter((x) => (x.loc || "").startsWith(tt.n)).length;
+      return [tt.n, capList, cq, cq, ""];
     });
-    const q = caps.reduce((a, c) => a + c[2], 0);
-    const t = caps.reduce((a, c) => a + c[3], 0);
-    return { n: ordName, ref: od.desc, q, t, caps };
+    const q = ordQs.length;
+    return { n: ordName, ref: DETAIL[ordName].desc, q, t: q, caps };
   });
-  const userOrds = ((st.userOrds || {})[subject] || []).map((o) => ({ n: o.name, ref: o.desc || "Ordenamiento personalizado", q: 0, t: 0, caps: [], isNew: true }));
+  const userOrds = ((st.userOrds || {})[subject] || []).map((o) => {
+    const q = subjQs.filter((x) => x.ord === o.name).length;
+    return { n: o.name, ref: o.desc || "Ordenamiento personalizado", q, t: q, caps: [], isNew: true };
+  });
   const temas = [...temasBase, ...userOrds];
-  const totQ = temas.reduce((a, t) => a + t.q, 0);
-  const totT = temas.reduce((a, t) => a + t.t, 0);
-  const avance = 6 + (subject.length % 24);
+  const totQ = subjQs.length;
+  const totT = subjQs.length;
+  const domS = st.cards.filter((c) => c.subject === subject && c.nivel === "dominado").length;
+  const avance = totQ ? Math.round(domS / totQ * 100) : 0;
   return (
     <main className="main">
       <header className="page-head-card subj" style={{ borderTop: "3px solid " + color }}>
@@ -484,44 +516,65 @@ function NotasPanel({ keyName, color }) {
 function Estadisticas() {
   const go = useGo();
   const st = window.useStore();
-  const week = [
-    ["L", 62], ["M", 88], ["X", 45], ["J", 96], ["V", 74], ["S", 120], ["D", 40],
-  ];
-  const maxW = 120;
+  // actividad real de los últimos 7 días (unidades ≈ min: tarjetas, cuestionarios y tiempo registrado)
+  const week = (() => {
+    const act = st.activity || {};
+    const byDate = { ...act };
+    (st.timeLog || []).forEach((t) => { byDate[t.date] = (byDate[t.date] || 0) + Math.round((t.seconds || 0) / 60); });
+    const DOW = ["D", "L", "M", "X", "J", "V", "S"];
+    const out = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      out.push([DOW[d.getDay()], byDate[d.toISOString().slice(0, 10)] || 0]);
+    }
+    return out;
+  })();
+  const maxW = Math.max(1, ...week.map(([, v]) => v));
+  // dominio real del banco por nivel SRS + falladas por estado
+  const cardsAll = st.cards;
+  const nDominadas = cardsAll.filter((c) => c.nivel === "dominado").length;
+  const nRepaso = cardsAll.filter((c) => c.nivel === "medio").length;
+  const nFall = st.questions.filter((q) => q.status === "fall").length;
+  const nSin = Math.max(0, cardsAll.length - nDominadas - nRepaso - nFall);
   const dominio = [
-    ["Dominadas", 1498, "var(--ok)"],
-    ["En repaso", 920, "var(--accent)"],
-    ["Falladas", 412, "var(--danger)"],
-    ["Sin estudiar", 354, "var(--mute)"],
+    ["Dominadas", nDominadas, "var(--ok)"],
+    ["En repaso", nRepaso, "var(--accent)"],
+    ["Falladas", nFall, "var(--danger)"],
+    ["Sin estudiar", nSin, "var(--mute)"],
   ];
-  const totDom = dominio.reduce((a, b) => a + b[1], 0);
-  const weak = [
-    ["CJM · Insubordinación", 45], ["Op. Conjuntas · Niveles", 52], ["LGRA · Faltas graves", 61], ["Ciberdefensa · Sistema", 68],
-  ];
-  const porMateria = [
-    ["Legislación Militar", 24, 380, "#2F73CE"],
-    ["Operaciones Militares", 12, 220, "#2A8A5E"],
-    ["Normatividad Gubernamental", 18, 240, "#A0742A"],
-    ["Aspecto Administrativo", 8, 90, "#7A57C2"],
-    ["Adiestramiento y Mando Militar", 15, 110, "#C2410C"],
-    ["Aspecto Técnico", 5, 80, "#0E7490"],
-  ];
-  const streak = st.plan.streak || 12;
-  const heat = Array.from({ length: 91 }, (_, i) => {
-    const fromEnd = 90 - i; // 0 = hoy
-    if (fromEnd < streak) return 4 - Math.floor(fromEnd / (streak / 2 + 1)); // racha reciente intensa
-    return (i * 7 + 3) % 5 < 2 ? 0 : ((i * 13) % 4) + 1; // patrón estable pasado
+  const totDom = Math.max(1, dominio.reduce((a, b) => a + b[1], 0));
+  // temas débiles reales: ordenamientos con menor % de dominio (mín. 1 pregunta)
+  const weak = (() => {
+    const byOrd = {};
+    st.cards.forEach((c) => {
+      const k = c.ord || "General";
+      if (!byOrd[k]) byOrd[k] = { dom: 0, total: 0 };
+      byOrd[k].total++;
+      if (c.nivel === "dominado") byOrd[k].dom++;
+    });
+    return Object.entries(byOrd)
+      .map(([k, v]) => [k, Math.round(v.dom / v.total * 100)])
+      .sort((a, b) => a[1] - b[1])
+      .slice(0, 4);
+  })();
+  const porMateria = Object.keys(window.SUBJECT_COLORS || {}).map((s) => {
+    const cs = st.cards.filter((c) => c.subject === s);
+    const dom = cs.filter((c) => c.nivel === "dominado").length;
+    return [s, cs.length ? Math.round(dom / cs.length * 100) : 0, cs.length, window.subjColor(s)];
   });
+  const streak = window.realStreak ? window.realStreak() : 0;
+  // constancia real (últimos 91 días) desde el mapa de actividad
+  const heat = (window.activityMap ? window.activityMap().cells.slice(-91) : []).map((c) => c.level);
   const doneS = st.sessions.filter((x) => x.state === "done");
   const avgScore = doneS.length ? (doneS.reduce((a, x) => a + (x.score || 0), 0) / doneS.length) : 0;
   const kpis = [
-    ["Racha actual", (st.plan.streak || 12) + " días", "récord: 23"],
-    ["Cuestionarios", String(st.sessions.length), "media " + avgScore.toFixed(1) + " / 10"],
-    ["Acierto medio", Math.round(avgScore * 10) + "%", doneS.length + " completados"],
+    ["Racha actual", streak + " día" + (streak === 1 ? "" : "s"), "días consecutivos de estudio"],
+    ["Cuestionarios", String(st.sessions.length), doneS.length ? "media " + avgScore.toFixed(1) + " / 10" : "aún sin sesiones"],
+    ["Acierto medio", doneS.length ? Math.round(avgScore * 10) + "%" : "—", doneS.length + " completados"],
     ["Banco", st.questions.length.toLocaleString(), "preguntas = tarjetas"],
   ];
   return (
-    <main className="main">
+    <main className="main" tabIndex={0} aria-label="Estadísticas de estudio, región desplazable">
       <PageHead title="Estadísticas" sub="Resumen de tu actividad de estudio" crumbs={[["Inicio", "inicio"], "Estadísticas"]} />
 
       <div className="kpis">
@@ -549,7 +602,7 @@ function Estadisticas() {
       </Panel>
 
       <div className="grid-2">
-        <Panel idx="03" title="Actividad semanal" meta="preguntas / día">
+        <Panel idx="03" title="Actividad semanal" meta="actividad / día (≈min)">
           <div className="barchart">
             {week.map(([d, v]) => (
               <div className="barcol" key={d}>
@@ -582,6 +635,7 @@ function Estadisticas() {
       <div className="grid-2">
         <Panel idx="05" title="Temas más débiles" action="ir al banco ▸" onAction={() => go("banco")}>
           <div className="weak">
+            {weak.length === 0 && <p className="reco-p">Sin datos aún: estudia tarjetas para medir tu dominio por tema.</p>}
             {weak.map(([n, p]) => (
               <div className="weak-row" key={n}>
                 <span className="weak-name">{n}</span>
@@ -610,7 +664,7 @@ function Config() {
   const st = window.useStore();
   const [s, setS] = React.useState({ explica: true, mezclar: true, sonido: false, autoguardar: true });
   const [confirmDel, setConfirmDel] = React.useState(false);
-  const [nombre, setNombre] = React.useState(st.plan.nombre || "Aspirante J. Ramírez");
+  const [nombre, setNombre] = React.useState(st.plan.nombre || "Aspirante");
   const [fecha, setFecha] = React.useState(st.plan.examDate || "2026-07-27");
   const DOW = [["L", 1], ["M", 2], ["X", 3], ["J", 4], ["V", 5], ["S", 6], ["D", 0]];
   const [dias, setDias] = React.useState(st.plan.diasDisponibles || [1, 2, 3, 4, 5, 6]);
@@ -635,27 +689,27 @@ function Config() {
       </div>
       <div className="settings">
         <Panel idx="01" title="Aspirante y examen">
-          <div className="set-row"><div><div className="set-label">Nombre del aspirante</div><div className="set-desc">Aparece en tu perfil y respaldos.</div></div><input className="input input-sm" style={{ maxWidth: "240px" }} value={nombre} onChange={(e) => setNombre(e.target.value)} /></div>
-          <div className="set-row"><div><div className="set-label">Fecha del examen</div><div className="set-desc">Recalcula la cuenta regresiva y el plan.</div></div><input type="date" className="input input-sm" value={fecha} onChange={(e) => setFecha(e.target.value)} /></div>
-          <div className="set-row"><div><div className="set-label">Meta diaria de preguntas</div><div className="set-desc">Objetivo que verás en el panel de Inicio.</div></div><select className="input input-sm" value={st.plan.dailyGoal} onChange={(e) => window.EPStore.setGoal(+e.target.value)}><option>20</option><option>30</option><option>40</option><option>50</option></select></div>
+          <div className="set-row"><div><div className="set-label">Nombre del aspirante</div><div className="set-desc">Aparece en tu perfil y respaldos.</div></div><input className="input input-sm" aria-label="Nombre del aspirante" style={{ maxWidth: "240px" }} value={nombre} onChange={(e) => setNombre(e.target.value)} /></div>
+          <div className="set-row"><div><div className="set-label">Fecha del examen</div><div className="set-desc">Recalcula la cuenta regresiva y el plan.</div></div><input type="date" className="input input-sm" aria-label="Fecha del examen" value={fecha} onChange={(e) => setFecha(e.target.value)} /></div>
           <div className="set-row"><div><div className="set-label">Días disponibles</div><div className="set-desc">Días de la semana en que estudias.</div></div><div className="dow-pick">{DOW.map(([l, n]) => <button key={n} className={"dow-b" + (dias.includes(n) ? " is-on" : "")} onClick={() => toggleDia(n)}>{l}</button>)}</div></div>
           <div className="set-row"><div><div className="set-label">Guardar y recalcular</div><div className="set-desc">Aplica los cambios y regenera el plan hasta el examen.</div></div><button className="btn btn-sm btn-accent" onClick={guardarAspirante}>Guardar cambios</button></div>
+          <div className="set-row"><div><div className="set-label">Asistente inicial</div><div className="set-desc">Vuelve a configurar examen, materias y ritmo paso a paso.</div></div><button className="btn btn-sm" onClick={() => go("onboarding")}>Abrir asistente ▸</button></div>
         </Panel>
 
         <Panel idx="02" title="Estudio">
-          <div className="set-row"><div><div className="set-label">Meta diaria de preguntas</div><div className="set-desc">Objetivo que verás en el panel de Inicio.</div></div><select className="input input-sm" value={st.plan.dailyGoal} onChange={(e) => window.EPStore.setGoal(+e.target.value)}><option>20</option><option>30</option><option>40</option><option>50</option></select></div>
-          <div className="set-row"><div><div className="set-label">Mostrar explicación tras responder</div><div className="set-desc">Revela la explicación al confirmar cada pregunta.</div></div><Switch on={s.explica} onClick={() => t("explica")} /></div>
-          <div className="set-row"><div><div className="set-label">Mezclar preguntas y respuestas</div><div className="set-desc">Orden aleatorio en cada sesión.</div></div><Switch on={s.mezclar} onClick={() => t("mezclar")} /></div>
-          <div className="set-row"><div><div className="set-label">Sonido de respuesta</div><div className="set-desc">Efecto al acertar o fallar.</div></div><Switch on={s.sonido} onClick={() => t("sonido")} /></div>
+          <div className="set-row"><div><div className="set-label">Meta diaria de preguntas</div><div className="set-desc">Objetivo que verás en el panel de Inicio.</div></div><select className="input input-sm" aria-label="Meta diaria de preguntas" value={st.plan.dailyGoal} onChange={(e) => window.EPStore.setGoal(+e.target.value)}><option>20</option><option>30</option><option>40</option><option>50</option></select></div>
+          <div className="set-row"><div><div className="set-label">Mostrar explicación tras responder</div><div className="set-desc">Revela la explicación al confirmar cada pregunta.</div></div><Switch on={s.explica} onClick={() => t("explica")} label="Mostrar explicación tras responder" /></div>
+          <div className="set-row"><div><div className="set-label">Mezclar preguntas y respuestas</div><div className="set-desc">Orden aleatorio en cada sesión.</div></div><Switch on={s.mezclar} onClick={() => t("mezclar")} label="Mezclar preguntas y respuestas" /></div>
+          <div className="set-row"><div><div className="set-label">Sonido de respuesta</div><div className="set-desc">Efecto al acertar o fallar.</div></div><Switch on={s.sonido} onClick={() => t("sonido")} label="Sonido de respuesta" /></div>
         </Panel>
 
         <Panel idx="03" title="Apariencia">
-          <div className="set-row"><div><div className="set-label">Idioma</div><div className="set-desc">Idioma de la interfaz.</div></div><select className="input input-sm"><option>Español</option><option>English</option></select></div>
-          <div className="set-row"><div><div className="set-label">Instalar como app (PWA)</div><div className="set-desc">Úsala como programa de escritorio, sin navegador.</div></div><button className="btn btn-sm" onClick={instalar} disabled={!canInstall}>{canInstall ? "Instalar app" : "No disponible aquí"}</button></div>
+          <div className="set-row"><div><div className="set-label">Idioma</div><div className="set-desc">Idioma de la interfaz.</div></div><select className="input input-sm" aria-label="Idioma"><option>Español</option><option>English</option></select></div>
+          <div className="set-row"><div><div className="set-label">Instalar como app (PWA)</div><div className="set-desc">{canInstall ? "Úsala como programa de escritorio, sin navegador." : "En iPhone: Safari → Compartir → Agregar a pantalla de inicio. En escritorio, tu navegador la ofrecerá al usarla."}</div></div><button className="btn btn-sm" onClick={instalar} disabled={!canInstall} title={canInstall ? undefined : "Este navegador no expone el aviso de instalación"}>{canInstall ? "Instalar app" : "Instalación manual"}</button></div>
         </Panel>
 
         <Panel idx="04" title="Datos">
-          <div className="set-row"><div><div className="set-label">Autoguardado</div><div className="set-desc">Guarda el progreso automáticamente.</div></div><Switch on={s.autoguardar} onClick={() => t("autoguardar")} /></div>
+          <div className="set-row"><div><div className="set-label">Autoguardado</div><div className="set-desc">Guarda el progreso automáticamente.</div></div><Switch on={s.autoguardar} onClick={() => t("autoguardar")} label="Autoguardado" /></div>
           <div className="set-row"><div><div className="set-label">Respaldo y exportación</div><div className="set-desc">Base de datos local (SQLite).</div></div>
             <div className="set-btns"><button className="btn btn-sm" onClick={() => { const n = window.EPStore.exportJSON(); window.toast && window.toast("Respaldo exportado (" + n + " elementos)", "ok"); }}>Exportar JSON</button><button className="btn btn-sm" onClick={() => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); }}>Respaldar</button></div></div>
           <div className="set-row"><div><div className="set-label">Importar banco</div><div className="set-desc">CSV, JSON o texto.</div></div><div className="set-btns"><button className="btn btn-sm" onClick={() => go("importar")}>Importar…</button><button className="btn btn-sm" onClick={() => go("importar-ia")}>Con IA</button></div></div>
@@ -866,7 +920,7 @@ function Importar() {
               <div className="map-row" key={i}>
                 <span className="map-src">{h} <em className="map-sample">{rows[0] && rows[0][i] ? "“" + rows[0][i].slice(0, 24) + "”" : ""}</em></span>
                 <span className="map-arrow">→</span>
-                <select className="input input-sm" value={map[i] || "Ignorar"} onChange={(e) => setMap((m) => { const n = m.slice(); n[i] = e.target.value; return n; })}>
+                <select className="input input-sm" aria-label={"Mapear columna " + (i + 1)} value={map[i] || "Ignorar"} onChange={(e) => setMap((m) => { const n = m.slice(); n[i] = e.target.value; return n; })}>
                   {FIELDS.map((f) => <option key={f}>{f}</option>)}
                 </select>
               </div>
@@ -881,10 +935,10 @@ function Importar() {
           <Panel idx="03" title="Destino y previsualización" meta={rows.length + " filas · " + valid + " válidas" + (nativeQs ? " · formato EstudioPro" : "")}>
             <div className="form-3">
               <div className="field"><label>Materia{nativeQs ? " (si la pregunta no trae)" : ""}</label>
-                <select className="input" value={destSubj} onChange={(e) => setDestSubj(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
+                <select className="input" aria-label="Materia de destino" value={destSubj} onChange={(e) => setDestSubj(e.target.value)}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select></div>
               <div className="field"><label>Ordenamiento / Manual</label>
                 <input className="input" placeholder="p. ej. Manual de Ciberseguridad y Ciberdefensa" value={destOrd} onChange={(e) => setDestOrd(e.target.value)} /></div>
-              <div className="field"><label>Estado inicial</label><select className="input" disabled><option>Nuevas (sin estudiar)</option></select></div>
+              <div className="field"><label>Estado inicial</label><select className="input" aria-label="Estado inicial" disabled><option>Nuevas (sin estudiar)</option></select></div>
             </div>
             <table className="tbl tbl-mini import-prev">
               <thead><tr><th>Enunciado</th><th>Estado</th></tr></thead>

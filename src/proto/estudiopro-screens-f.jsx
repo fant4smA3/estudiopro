@@ -148,7 +148,7 @@ function Cronometro() {
               </label>
               <div className="cron-cfg-row">
                 <span>Materia</span>
-                <select className="input" value={subject} onChange={(e) => setSubject(e.target.value)}>
+                <select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)}>
                   {SUBJECTS.map((s) => <option key={s}>{s}</option>)}
                 </select>
               </div>
@@ -377,7 +377,7 @@ function Audio() {
         crumbs={[["Inicio", "inicio"], "Tarjetas en audio"]} />
       {!supported && <div className="audio-warn">⚠ Tu navegador no soporta síntesis de voz. El repaso avanzará por temporizador sin audio.</div>}
       <div className="audio-bar">
-        <select className="input" value={subject} onChange={(e) => setSubject(e.target.value)}>
+        <select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)}>
           <option value="todas">Todas las materias</option>
           {SUBJECTS.map((s) => <option key={s}>{s}</option>)}
         </select>

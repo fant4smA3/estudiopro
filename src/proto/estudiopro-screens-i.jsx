@@ -7,7 +7,7 @@ window.activityMap = function () {
   const s = window.EPStore.get();
   const byDate = {};
   (s.timeLog || []).forEach((t) => { byDate[t.date] = (byDate[t.date] || 0) + Math.round((t.seconds || 0) / 60); });
-  const hash = (str) => { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return h; };
+  Object.entries(s.activity || {}).forEach(([d, u]) => { byDate[d] = (byDate[d] || 0) + (u || 0); });
   const days = 7 * 19;
   const out = [];
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -17,8 +17,6 @@ window.activityMap = function () {
     const d = new Date(end); d.setDate(end.getDate() - i);
     const key = d.toISOString().slice(0, 10);
     let min = byDate[key] || 0;
-    // relleno estable para días pasados (demo realista); días futuros = 0
-    if (d <= today && min === 0) { const seed = hash(key) % 100; min = seed < 42 ? 0 : seed < 66 ? 12 : seed < 84 ? 28 : seed < 95 ? 52 : 78; }
     if (d > today) min = 0;
     const level = min === 0 ? 0 : min < 15 ? 1 : min < 35 ? 2 : min < 60 ? 3 : 4;
     out.push({ key, date: d, min, level, future: d > today });
@@ -114,7 +112,7 @@ function Informe() {
     const sys = "Eres el mentor de estudio de un aspirante al ascenso militar mexicano. Redacta un informe semanal breve, motivador y accionable en español, "
       + "con estas secciones en MAYÚSCULA como encabezado: RESUMEN DE LA SEMANA, LO QUE VA BIEN, A MEJORAR, PLAN PARA LA PRÓXIMA SEMANA (lista numerada de 3-4 acciones). "
       + "Sé concreto y usa los datos. Máximo 220 palabras.";
-    const prompt = "Datos del aspirante esta semana:\n" + JSON.stringify(datos, null, 2) + "\nExamen el 27 de julio de 2026.";
+    const prompt = "Datos del aspirante esta semana:\n" + JSON.stringify(datos, null, 2) + "\nFecha del examen: " + (window.EPStore.get().plan.examDate || "sin definir") + ".";
     try {
       const out = await window.claude.complete({ system: sys, messages: [{ role: "user", content: prompt }], max_tokens: 700 });
       setReport(out);
@@ -183,7 +181,7 @@ function HojaRepaso() {
               <button key={k} className={"rep-tab" + (modo === k ? " is-on" : "")} onClick={() => setModo(k)}>{l}</button>
             ))}
           </div>
-          {modo === "subj" && <select className="input" value={subj} onChange={(e) => setSubj(e.target.value)} style={{ maxWidth: "240px" }}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>}
+          {modo === "subj" && <select className="input" aria-label="Materia" value={subj} onChange={(e) => setSubj(e.target.value)} style={{ maxWidth: "240px" }}>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>}
           <label className="hoja-chk"><input type="checkbox" checked={conResp} onChange={() => setConResp(!conResp)} /> Incluir respuestas</label>
           <span style={{ flex: 1 }}></span>
           <button className="btn btn-accent" disabled={!lista.length} onClick={() => window.print()}>🖨 Imprimir / PDF</button>

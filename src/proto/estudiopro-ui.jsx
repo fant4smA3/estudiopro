@@ -76,11 +76,24 @@ function Topbar({ onMenu, onFocus, onDark, dark }) {
         <button className="btn btn-accent" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ Pregunta</button>
         <button className="btn qbar-opt" onClick={() => { window.__epEditC = null; go("tarjeta"); }}>+ Tarjeta</button>
         <span className="qbar-rule qbar-opt"></span>
-        <span className="streak qbar-opt"><b>12</b> días</span>
-        <button className="topbar-av" onClick={() => go("perfil")} title="Perfil">JR</button>
+        <TopbarStreak />
+        <TopbarAvatar onClick={() => go("perfil")} />
       </div>
     </header>
   );
+}
+
+/* racha real (días consecutivos con actividad) e iniciales del aspirante */
+function TopbarStreak() {
+  const st = window.useStore ? window.useStore() : null;
+  const streak = st && window.realStreak ? window.realStreak() : 0;
+  return <span className="streak qbar-opt"><b>{streak}</b> día{streak === 1 ? "" : "s"}</span>;
+}
+function TopbarAvatar({ onClick }) {
+  const st = window.useStore ? window.useStore() : null;
+  const nombre = ((st && st.plan.nombre) || "Aspirante").trim();
+  const ini = nombre.split(/\s+/).map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "A";
+  return <button className="topbar-av" onClick={onClick} title="Perfil">{ini}</button>;
 }
 
 function GlobalSearch() {
@@ -119,7 +132,7 @@ function GlobalSearch() {
             ? <div className="gsearch-empty">Sin resultados para “{q}”</div>
             : results.map((r, i) => (
               <div className="gsearch-res" key={i} onClick={() => pick(r)}>
-                <span className="gsearch-kind" style={{ color: window.subjColor(r.subject) }}>{r.kind}</span>
+                <span className="gsearch-kind" style={{ color: window.subjTextColor(r.subject) }}>{r.kind}</span>
                 <span className="gsearch-label">{r.label}</span>
                 <span className="gsearch-subj">{r.subject}</span>
               </div>
@@ -148,12 +161,23 @@ function Side({ active, open }) {
           ))}
         </div>
       ))}
-      <div className="side-foot">
-        <div className="side-foot-h">avance global</div>
-        <div className="mini-bar"><i style={{ width: "47%" }}></i></div>
-        <div className="side-foot-n"><b>47%</b> · 1,498 / 3,184</div>
-      </div>
+      <SideFoot />
     </nav>
+  );
+}
+
+/* avance global real: % de tarjetas dominadas sobre el banco */
+function SideFoot() {
+  const st = window.useStore ? window.useStore() : null;
+  const total = st ? st.questions.length : 0;
+  const dom = st ? st.cards.filter((c) => c.nivel === "dominado").length : 0;
+  const pct = total ? Math.round(dom / total * 100) : 0;
+  return (
+    <div className="side-foot">
+      <div className="side-foot-h">avance global</div>
+      <div className="mini-bar"><i style={{ width: pct + "%" }}></i></div>
+      <div className="side-foot-n"><b>{pct}%</b> · {dom.toLocaleString()} / {total.toLocaleString()}</div>
+    </div>
   );
 }
 
@@ -216,9 +240,9 @@ function Diff({ level }) {
 }
 
 /* Toggle switch for settings/forms */
-function Switch({ on, onClick }) {
+function Switch({ on, onClick, label }) {
   return (
-    <button className={"switch" + (on ? " is-on" : "")} onClick={onClick} aria-pressed={on}>
+    <button className={"switch" + (on ? " is-on" : "")} onClick={onClick} aria-pressed={on} aria-label={label || "Activar o desactivar"}>
       <i></i>
     </button>
   );
@@ -236,12 +260,25 @@ function EmptyState({ icon, title, desc, actions, tone }) {
   );
 }
 
-/* Modal dialog (confirm, etc.) */
+/* Modal dialog (confirm, etc.) — cierra con Escape y devuelve el foco al abrir/cerrar */
 function Modal({ open, onClose, children }) {
+  const boxRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!open) return;
+    const prev = document.activeElement;
+    const onKey = (e) => { if (e.key === "Escape") { e.stopPropagation(); onClose && onClose(); } };
+    window.addEventListener("keydown", onKey);
+    // foco inicial dentro del diálogo (primer control o el contenedor)
+    const t = setTimeout(() => {
+      const el = boxRef.current && (boxRef.current.querySelector("input, textarea, select, button") || boxRef.current);
+      if (el && el.focus) el.focus();
+    }, 30);
+    return () => { window.removeEventListener("keydown", onKey); clearTimeout(t); if (prev && prev.focus) prev.focus(); };
+  }, [open]);
   if (!open) return null;
   return (
     <div className="modal-scrim" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+      <div className="modal" ref={boxRef} tabIndex={-1} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
         {children}
       </div>
     </div>

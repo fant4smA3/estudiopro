@@ -20,9 +20,12 @@ class EstudioProDB extends Dexie {
 const db = new EstudioProDB();
 const SNAP_KEY = "snapshot";
 const LEGACY_LS_KEY = "estudiopro:v1";
+// Sin IndexedDB (tests en node, navegadores muy viejos): opera en memoria sin ruido en consola.
+const hasIDB = typeof indexedDB !== "undefined";
 
 /** Carga el snapshot guardado. Si no hay, migra el de localStorage (prototipo). */
 export async function epLoadSnapshot(): Promise<Record<string, unknown> | null> {
+  if (!hasIDB) return null;
   try {
     const row = await db.kv.get(SNAP_KEY);
     if (row && row.value) return row.value as Record<string, unknown>;
@@ -44,6 +47,7 @@ let timer: ReturnType<typeof setTimeout> | null = null;
 
 /** Guarda (con debounce) el snapshot del estado. Síncrono para el llamador. */
 export function epSaveSnapshot(snap: Record<string, unknown>): void {
+  if (!hasIDB) return;
   pending = snap;
   if (timer) return;
   timer = setTimeout(async () => {

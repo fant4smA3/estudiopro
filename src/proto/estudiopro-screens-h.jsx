@@ -129,7 +129,7 @@ function Evolucion() {
       <section className="panel">
         <div className="panel-h"><div className="panel-h-l"><span className="panel-idx">📈</span><span className="panel-title">Curva de aprendizaje</span></div>
           <div className="panel-h-r">
-            <select className="input" value={foco} onChange={(e) => setFoco(e.target.value)} style={{ maxWidth: "220px" }}>
+            <select className="input" aria-label="Materia en foco" value={foco} onChange={(e) => setFoco(e.target.value)} style={{ maxWidth: "220px" }}>
               <option value="global">Nota global</option>
               {SUBJECTS.map((s) => <option key={s}>{s}</option>)}
             </select>
@@ -219,7 +219,7 @@ function MapaTemario() {
     <main className="main">
       <PageHeadH title="Mapa del temario" sub="Dominio estimado capítulo por capítulo — detecta tus huecos de un vistazo"
         crumbs={[["Inicio", "inicio"], "Mapa del temario"]}
-        actions={<select className="input" value={foco} onChange={(e) => setFoco(e.target.value)} style={{ maxWidth: "220px" }}>
+        actions={<select className="input" aria-label="Materia en foco" value={foco} onChange={(e) => setFoco(e.target.value)} style={{ maxWidth: "220px" }}>
           <option value="todas">Todas las materias</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}
         </select>} />
       <div className="mapa-legend">
@@ -381,7 +381,7 @@ function Reportes() {
                   <div className="rep-item-l">
                     <div className="rep-item-h">
                       <span className="rep-reason">{REASONS[r.reason] || r.reason}</span>
-                      {r.subject && <span className="rep-subj" style={{ color: subjColor(r.subject) }}>{r.subject}</span>}
+                      {r.subject && <span className="rep-subj" style={{ color: subjTextColor(r.subject) }}>{r.subject}</span>}
                       <span className={"rep-status rep-" + r.status}>{r.status}</span>
                     </div>
                     <div className="rep-q">{src ? src.q : "(reactivo eliminado del banco)"}</div>
@@ -415,7 +415,7 @@ function Reportes() {
           )}
           {pick && <div className="rep-picked"><b>Seleccionado:</b> {pick.q} <button className="link-btn" onClick={() => setPickId(null)}>cambiar</button></div>}
           <div className="field"><label>Motivo</label>
-            <select className="input" value={reason} onChange={(e) => setReason(e.target.value)}>
+            <select className="input" aria-label="Motivo del reporte" value={reason} onChange={(e) => setReason(e.target.value)}>
               {Object.entries(REASONS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select>
           </div>
