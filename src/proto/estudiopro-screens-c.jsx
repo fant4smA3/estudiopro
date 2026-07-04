@@ -159,7 +159,7 @@ function Cuestionarios() {
                     <span className="t-q-bar" style={{ background: c }}></span>
                     <span className="t-q-body">
                       <span className="t-q-text">{h.label}</span>
-                      <span className="t-q-loc"><span className="t-q-subj" style={{ color: c }}>{h.subject}</span><span className="t-q-path">· {h.n} preg · {h.time}</span></span>
+                      <span className="t-q-loc"><span className="t-q-subj" style={{ color: window.subjTextColor(h.subject) }}>{h.subject}</span><span className="t-q-path">· {h.n} preg · {h.time}</span></span>
                     </span>
                   </td>
                   <td className="ta-c">{h.score == null ? <span className="st st-nuevo"><i className="st-dot"></i>en pausa</span> : <span className={"hist-score " + (h.score >= 8 ? "hs-ok" : h.score >= 6 ? "hs-warn" : "hs-bad")}>{h.score}</span>}</td>

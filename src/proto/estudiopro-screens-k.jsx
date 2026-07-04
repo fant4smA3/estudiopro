@@ -148,7 +148,7 @@ function Confusiones() {
       <section className="panel cf-peak" style={{ borderLeft: "3px solid var(--danger)" }}>
         <div className="cf-peak-ic">🎯</div>
         <div><div className="cf-peak-t">Tu mayor fuga de puntos</div>
-          <div className="cf-peak-d"><b style={{ color: subjColor(m.peak.subj) }}>{m.peak.subj}</b> · {m.peak.col.toLowerCase()}</div></div>
+          <div className="cf-peak-d"><b style={{ color: subjTextColor(m.peak.subj) }}>{m.peak.subj}</b> · {m.peak.col.toLowerCase()}</div></div>
         <button className="btn btn-accent" onClick={() => { window.__epSubject = m.peak.subj; go("repaso"); }}>Practicar esto ▸</button>
       </section>
       <section className="panel">
@@ -336,7 +336,7 @@ function Glosario() {
               <section className="gl-card" key={t.id} style={{ borderTop: "3px solid " + subjColor(t.subject) }}>
                 <div className="gl-card-h"><span className="gl-term">{t.term}</span><button className="cron-x" onClick={() => window.EPStore.deleteGlossary(t.id)} aria-label="Eliminar">×</button></div>
                 <p className="gl-def">{t.def}</p>
-                <div className="gl-foot"><span className="gl-subj" style={{ color: subjColor(t.subject) }}>{t.subject}</span>{t.ref && <span className="gl-ref">{t.ref}</span>}</div>
+                <div className="gl-foot"><span className="gl-subj" style={{ color: subjTextColor(t.subject) }}>{t.subject}</span>{t.ref && <span className="gl-ref">{t.ref}</span>}</div>
               </section>
             ))}
           </div>}

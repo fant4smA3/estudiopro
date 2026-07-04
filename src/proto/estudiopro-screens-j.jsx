@@ -217,7 +217,7 @@ function RetoDiario() {
         crumbs={[["Inicio", "inicio"], "Reto diario"]} />
       <div className="reto-prog"><div className="reto-prog-bar" style={{ width: ((i) / pool.length * 100) + "%", background: color }}></div></div>
       <section className="panel reto-card" style={{ borderTop: "3px solid " + color }}>
-        <div className="q-head"><span className="reto-n">Pregunta {i + 1} de {pool.length}</span><span className="q-tag" style={{ color, fontWeight: 700 }}>{q.subject}</span></div>
+        <div className="q-head"><span className="reto-n">Pregunta {i + 1} de {pool.length}</span><span className="q-tag" style={{ color: window.subjTextColor(q.subject), fontWeight: 700 }}>{q.subject}</span></div>
         <div className="q-text">{q.q}</div>
         <div className="opts">
           {q.options.map((t, k) => {

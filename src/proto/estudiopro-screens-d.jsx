@@ -79,7 +79,7 @@ function Calendario() {
                 onClick={() => openDay(dd)} role={d ? "button" : undefined}>
                 <span className="cal-num">{dd}{isExam && <span className="cal-examflag">EXAMEN</span>}</span>
                 {d && d.tipo === "simulacro" && <span className="cal-chip cal-chip-sim">Simulacro 200</span>}
-                {d && d.tipo === "estudio" && <span className="cal-chip" style={{ background: c + "22", color: c }}><i className="cal-dot" style={{ background: c }}></i>{d.subject.split(" ")[0]}</span>}
+                {d && d.tipo === "estudio" && <span className="cal-chip" style={{ background: c + "22", color: window.subjTextColor(d.subject) }}><i className="cal-dot" style={{ background: c }}></i>{d.subject.split(" ")[0]}</span>}
                 {d && d.tipo === "repaso" && <span className="cal-chip cal-chip-rep">Repaso</span>}
                 {d && d.titulo && d.tipo !== "simulacro" && <span className="cal-cap">{d.titulo.replace(/^(Cap\.|Libro|Título)\s*/, "")}</span>}
                 {d && <span className={"cal-state " + (estadoCls[d.estado] || "")}></span>}
@@ -361,7 +361,7 @@ function SimRun() {
           <div className="q-head">
             <span className="type-tag">{TYPE_LABEL[q.type] || q.type}</span>
             <DiffD level={q.dif} />
-            <span className="q-tag" style={{ color: window.subjColor(q.subject), fontWeight: 700 }}>{q.subject}</span>
+            <span className="q-tag" style={{ color: window.subjTextColor(q.subject), fontWeight: 700 }}>{q.subject}</span>
             {flags[cur] && <span className="q-flagged">★ marcada</span>}
           </div>
           <div className="q-text">{q.q}</div>
@@ -541,7 +541,7 @@ function RepasoPrioritario() {
                   <div className="rp-item" key={i}>
                     <span className="rp-item-bar" style={{ background: subjColor(it.subject) }}></span>
                     <span className="rp-item-q">{it.q || it.front}</span>
-                    <span className="rp-item-subj" style={{ color: subjColor(it.subject) }}>{(it.subject || "").split(" ")[0]}</span>
+                    <span className="rp-item-subj" style={{ color: subjTextColor(it.subject) }}>{(it.subject || "").split(" ")[0]}</span>
                   </div>
                 ))}
                 {t.items.length > 3 && <div className="rp-more">+ {t.items.length - 3} más en esta categoría</div>}
@@ -582,7 +582,7 @@ function SesionHoy() {
         <CrumbsD path={[["Inicio", "inicio"], "Sesión de hoy"]} />
         <div className="study-top">
           <div className="study-meta">
-            <span className="study-meta-tag" style={{ color }}>Sesión de estudio · modo enfoque</span>
+            <span className="study-meta-tag" style={{ color: window.subjTextColor(ses.subject) }}>Sesión de estudio · modo enfoque</span>
             <span className="study-meta-name">{ses.subject} · {ses.titulo}</span>
           </div>
           <div className="sesion-prog"><span className="sp-n">{Math.min(step, 3)} / 3</span><div className="mini-bar mini-bar-wide" style={{ width: "180px" }}><i style={{ width: (Math.min(step, 3) / 3 * 100) + "%", background: color }}></i></div></div>
@@ -759,7 +759,7 @@ function Inteligencia() {
               <div className="intel-bar-row" key={m.subj} onClick={() => { window.__epSubject = m.subj; go("materia"); }}>
                 <span className="intel-bar-name">{m.subj}</span>
                 <div className="intel-bar-track"><i style={{ width: m.dominio + "%", background: subjColor(m.subj) }}></i></div>
-                <span className="intel-bar-pct" style={{ color: subjColor(m.subj) }}>{m.dominio}%</span>
+                <span className="intel-bar-pct" style={{ color: subjTextColor(m.subj) }}>{m.dominio}%</span>
               </div>
             ))}
           </div>
@@ -785,21 +785,21 @@ function Inteligencia() {
           <div className="intel-focus">
             <div className="intel-focus-row">
               <span className="intel-focus-k">Punto débil</span>
-              <span className="intel-focus-v" style={{ color: subjColor(x.debil.subj) }}>{x.debil.subj}</span>
+              <span className="intel-focus-v" style={{ color: subjTextColor(x.debil.subj) }}>{x.debil.subj}</span>
               <span className="intel-focus-n">{x.debil.dominio}%</span>
             </div>
             <div className="intel-focus-row">
               <span className="intel-focus-k">Más olvidado</span>
               {x.olvidado
                 ? <React.Fragment>
-                    <span className="intel-focus-v" style={{ color: subjColor(x.olvidado.subj) }}>{x.olvidado.subj}</span>
+                    <span className="intel-focus-v" style={{ color: subjTextColor(x.olvidado.subj) }}>{x.olvidado.subj}</span>
                     <span className="intel-focus-n">{x.olvidado.dias} d sin repasar</span>
                   </React.Fragment>
                 : <span className="intel-focus-n">sin datos aún · registra sesiones o tiempo</span>}
             </div>
             <div className="intel-focus-row">
               <span className="intel-focus-k">Más fuerte</span>
-              <span className="intel-focus-v" style={{ color: subjColor(x.fuerte.subj) }}>{x.fuerte.subj}</span>
+              <span className="intel-focus-v" style={{ color: subjTextColor(x.fuerte.subj) }}>{x.fuerte.subj}</span>
               <span className="intel-focus-n">{x.fuerte.dominio}%</span>
             </div>
             <div className="intel-focus-row">
@@ -839,7 +839,7 @@ function Inteligencia() {
                 <tr key={cap} className="clickable" onClick={() => { window.__epSubject = subj; go("materia"); }}>
                   <td className="t-q"><span className="t-q-bar" style={{ background: subjColor(subj), display: "inline-block", width: "3px", height: "14px", verticalAlign: "middle", marginRight: "8px", borderRadius: "2px" }}></span>{cap}</td>
                   <td style={{ width: "90px" }}><div className="mini-bar mini-bar-thin"><i style={{ width: p + "%", background: subjColor(subj) }}></i></div></td>
-                  <td className="ta-r" style={{ width: "36px", fontWeight: 700, color: subjColor(subj) }}>{p}%</td>
+                  <td className="ta-r" style={{ width: "36px", fontWeight: 700, color: subjTextColor(subj) }}>{p}%</td>
                 </tr>
               ))}
             </tbody>

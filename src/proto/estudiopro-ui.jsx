@@ -132,7 +132,7 @@ function GlobalSearch() {
             ? <div className="gsearch-empty">Sin resultados para “{q}”</div>
             : results.map((r, i) => (
               <div className="gsearch-res" key={i} onClick={() => pick(r)}>
-                <span className="gsearch-kind" style={{ color: window.subjColor(r.subject) }}>{r.kind}</span>
+                <span className="gsearch-kind" style={{ color: window.subjTextColor(r.subject) }}>{r.kind}</span>
                 <span className="gsearch-label">{r.label}</span>
                 <span className="gsearch-subj">{r.subject}</span>
               </div>

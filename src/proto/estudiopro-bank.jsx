@@ -10,6 +10,23 @@ window.SUBJECT_COLORS = {
 };
 window.subjColor = (s) => window.SUBJECT_COLORS[s] || "#2F73CE";
 
+/* Variantes oscurecidas de los colores de materia para cuando se usan como TEXTO pequeño
+   (pasan WCAG AA 4.5:1 sobre blanco y tintes claros). Los puntos, barras y rellenos siguen
+   usando subjColor() con el color brillante de identidad. En tema oscuro no se aplican:
+   el color brillante ya contrasta sobre la superficie oscura. */
+window.SUBJECT_TEXT_COLORS = {
+  "Legislación Militar": "#2964B3",
+  "Operaciones Militares": "#23734E",
+  "Normatividad Gubernamental": "#815E22",
+  "Aspecto Administrativo": "#734EBF",
+  "Adiestramiento y Mando Militar": "#B53C0B",
+  "Aspecto Técnico": "#0D6E89",
+};
+window.subjTextColor = (s) => {
+  if (typeof document !== "undefined" && document.querySelector(".theme-dark")) return window.subjColor(s);
+  return window.SUBJECT_TEXT_COLORS[s] || window.subjColor(s);
+};
+
 /* Banco de preguntas de ejemplo. type: OM (opción múltiple), VF (verdadero/falso), AB (abierta).
    status: ok=dominada, fall=fallada, nuevo=sin estudiar, imp=importante. */
 window.QUESTION_BANK = [

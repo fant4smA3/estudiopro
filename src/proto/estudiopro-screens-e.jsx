@@ -161,7 +161,7 @@ function CreaRapido() {
       <div className="qr-dest" style={{ borderTop: "3px solid " + color }}>
         <div className="qr-dest-h">
           <span className="qr-dest-tag">Destino de las preguntas</span>
-          <span className="qr-dest-sum">Se guardarán todas en <b style={{ color }}>{dest.subject}</b>{dest.ord ? <span> · {dest.ord}</span> : null}{dest.cap ? <span> · {dest.cap}</span> : null}</span>
+          <span className="qr-dest-sum">Se guardarán todas en <b style={{ color: window.subjTextColor(dest.subject) }}>{dest.subject}</b>{dest.ord ? <span> · {dest.ord}</span> : null}{dest.cap ? <span> · {dest.cap}</span> : null}</span>
         </div>
         <div className="qr-dest-grid">
           <div className="field">

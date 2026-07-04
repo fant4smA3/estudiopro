@@ -178,9 +178,9 @@ function Inicio() {
               <div className="cat clickable" key={n} onClick={() => { window.__epSubject = n; go("materia"); }}>
                 <div className="cat-top">
                   <span className="cat-name">{n}</span>
-                  <span className="cat-pct" style={{ color: window.subjColor(n) }}>{p}%</span>
+                  <span className="cat-pct" style={{ color: window.subjTextColor(n) }}>{p}%</span>
                 </div>
-                <div className="mini-bar"><i style={{ width: p + "%", background: window.subjColor(n), color: window.subjColor(n) }}></i></div>
+                <div className="mini-bar"><i style={{ width: p + "%", background: window.subjColor(n), color: window.subjTextColor(n) }}></i></div>
                 <div className="cat-meta">{m} ordenamiento{m === 1 ? "" : "s"} · {q} preguntas</div>
               </div>
               );

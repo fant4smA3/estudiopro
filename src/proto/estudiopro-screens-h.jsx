@@ -381,7 +381,7 @@ function Reportes() {
                   <div className="rep-item-l">
                     <div className="rep-item-h">
                       <span className="rep-reason">{REASONS[r.reason] || r.reason}</span>
-                      {r.subject && <span className="rep-subj" style={{ color: subjColor(r.subject) }}>{r.subject}</span>}
+                      {r.subject && <span className="rep-subj" style={{ color: subjTextColor(r.subject) }}>{r.subject}</span>}
                       <span className={"rep-status rep-" + r.status}>{r.status}</span>
                     </div>
                     <div className="rep-q">{src ? src.q : "(reactivo eliminado del banco)"}</div>

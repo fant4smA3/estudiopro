@@ -105,7 +105,7 @@ function Banco() {
                   <span className="t-q-body">
                     <span className="t-q-text">{r.q}</span>
                     <span className="t-q-loc">
-                      <span className="t-q-subj" style={{ color: subjColor(r.subject) }}>{r.subject}</span>
+                      <span className="t-q-subj" style={{ color: subjTextColor(r.subject) }}>{r.subject}</span>
                       <span className="t-q-path">· {r.ord} · {r.loc}</span>
                       {r.tags.map((t) => <span className="tag" key={t}>#{t}</span>)}
                     </span>
@@ -390,7 +390,7 @@ function Tarjetas() {
       <CrumbsB path={[["Inicio", "inicio"], "Tarjetas"]} />
       <div className="study-top">
         <div className="study-meta">
-          <span className="study-meta-tag" style={{ color }}>{vista === "estudiar" ? "Repaso de tarjetas" : "Gestión de tarjetas"}</span>
+          <span className="study-meta-tag" style={{ color: window.subjTextColor(subject) }}>{vista === "estudiar" ? "Repaso de tarjetas" : "Gestión de tarjetas"}</span>
           <span className="study-meta-name">{subject}</span>
         </div>
         <div className="seg seg-tabs">
@@ -786,7 +786,7 @@ function Quiz() {
         <CrumbsB path={[["Inicio", "inicio"], [subject, "materia"], "Cuestionario"]} />
         <div className="quiz-bar">
           <div className="quiz-headline">
-            <span className="quiz-headline-tag" style={{ color }}>{isSim ? "Simulacro general · cronometrado" : strict ? "Cuestionario · modo examen" : "Cuestionario · modo práctica"}</span>
+            <span className="quiz-headline-tag" style={{ color: window.subjTextColor(subject) }}>{isSim ? "Simulacro general · cronometrado" : strict ? "Cuestionario · modo examen" : "Cuestionario · modo práctica"}</span>
             <span className="quiz-headline-name">{isSim ? "Examen de promoción · 6 materias" : subject}</span>
           </div>
           <div className="quiz-meta">
@@ -804,9 +804,9 @@ function Quiz() {
             <span className="type-tag">{TYPE_LABEL[q.type] || q.type}</span>
             <DiffB level={q.dif} />
             {isSim
-              ? <span className="q-tag" style={{ color: subjColor(q.subject), fontWeight: 700 }}>{q.subject}</span>
+              ? <span className="q-tag" style={{ color: subjTextColor(q.subject), fontWeight: 700 }}>{q.subject}</span>
               : <span className="q-tag">{q.ord} · {q.loc}</span>}
-            {flags[cur] && <span className="q-flagged" style={{ color }}>★ marcada</span>}
+            {flags[cur] && <span className="q-flagged" style={{ color: window.subjTextColor(subject) }}>★ marcada</span>}
           </div>
           <div className="q-text">{q.q}</div>
 
@@ -868,7 +868,7 @@ function Quiz() {
           </div>
           <div className="rail-cfg">
             <div className="rail-cfg-h">configuración</div>
-            <div className="cfg-row"><span>Materia</span><b style={{ color }}>{subject.split(" ")[0]}</b></div>
+            <div className="cfg-row"><span>Materia</span><b style={{ color: window.subjTextColor(subject) }}>{subject.split(" ")[0]}</b></div>
             <div className="cfg-row"><span>Mostrar respuestas</span><b>{strict ? "al final" : "tras responder"}</b></div>
             <div className="cfg-row"><span>Tiempo límite</span><b>{limitMin ? String(limitMin).padStart(2, "0") + ":00" : "Sin límite"}</b></div>
           </div>
@@ -916,7 +916,7 @@ function Resultado() {
         </div>
         <div className="res-headline">
           <div className="res-title">Cuestionario completado</div>
-          <div className="res-sub"><span style={{ color, fontWeight: 700 }}>{r.subject}</span> · {r.total} preguntas · {r.time}</div>
+          <div className="res-sub"><span style={{ color: window.subjTextColor(r.subject), fontWeight: 700 }}>{r.subject}</span> · {r.total} preguntas · {r.time}</div>
           <div className="res-tags">
             <span className="res-pill res-ok"><b>{r.correct}</b> correctas</span>
             <span className="res-pill res-bad"><b>{r.wrong}</b> incorrectas</span>
