@@ -10,13 +10,7 @@ const NAV = [
     ["inicio", "Inicio"],
     ["categorias", "Categorías"],
     ["materias", "Materias"],
-    ["cronometro", "Cronómetro"],
-    ["audio", "Tarjetas en audio"],
-    ["notas", "Apuntes"],
     ["imprimir", "Hoja de repaso"],
-    ["reto", "Reto diario"],
-    ["examen-adaptativo", "Examen adaptativo"],
-    ["podcast", "Podcast de repaso"],
     ["glosario", "Glosario"],
     ["metas", "Metas semanales"],
     ["bitacora", "Bitácora"],
@@ -24,7 +18,6 @@ const NAV = [
   { g: "banco", items: [
     ["banco", "Banco de preguntas"],
     ["crear-rapido", "Crear preguntas"],
-    ["generador", "Generador IA"],
     ["duplicados", "Duplicados"],
     ["distractores", "Reparar distractores"],
     ["tarjetas", "Tarjetas"],
@@ -33,7 +26,6 @@ const NAV = [
     ["simulacro", "Simulacro"],
     ["calendario", "Calendario"],
     ["plan", "Editor del plan"],
-    ["tutor", "Tutor de dudas"],
     ["reportes", "Reportes"],
   ]},
   { g: "progreso", items: [
@@ -49,7 +41,6 @@ const NAV = [
   ]},
   { g: "gestión", items: [
     ["importar", "Importar"],
-    ["importar-ia", "Importar con IA"],
     ["respaldo", "Respaldo"],
     ["alertas", "Alertas"],
     ["config", "Configuración"],

@@ -780,7 +780,7 @@ function Config() {
           <div className="set-row"><div><div className="set-label">Autoguardado</div><div className="set-desc">Guarda el progreso automáticamente.</div></div><Switch on={s.autoguardar} onClick={() => t("autoguardar")} label="Autoguardado" /></div>
           <div className="set-row"><div><div className="set-label">Respaldo y exportación</div><div className="set-desc">Base de datos local (SQLite).</div></div>
             <div className="set-btns"><button className="btn btn-sm" onClick={() => { const n = window.EPStore.exportJSON(); window.toast && window.toast("Respaldo exportado (" + n + " elementos)", "ok"); }}>Exportar JSON</button><button className="btn btn-sm" onClick={() => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); }}>Respaldar</button></div></div>
-          <div className="set-row"><div><div className="set-label">Importar banco</div><div className="set-desc">CSV, JSON o texto.</div></div><div className="set-btns"><button className="btn btn-sm" onClick={() => go("importar")}>Importar…</button><button className="btn btn-sm" onClick={() => go("importar-ia")}>Con IA</button></div></div>
+          <div className="set-row"><div><div className="set-label">Importar banco</div><div className="set-desc">CSV, JSON o texto.</div></div><div className="set-btns"><button className="btn btn-sm" onClick={() => go("importar")}>Importar…</button></div></div>
           <div className="set-row"><div><div className="set-label danger-text">Borrar todos los datos</div><div className="set-desc">Acción irreversible.</div></div><button className="btn btn-sm btn-danger" onClick={() => setConfirmDel(true)}>Borrar</button></div>
         </Panel>
       </div>
