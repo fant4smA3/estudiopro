@@ -7,7 +7,7 @@ function Banco() {
   const { EmptyState, ConfirmDialog, TYPE_LABEL, STATUS_LABEL, subjColor, SUBJECT_COLORS, useStore, EPStore } = window;
   const st = useStore();
   const bank = st.questions;
-  const subjects = ["Todas", ...Object.keys(SUBJECT_COLORS)];
+  const subjects = ["Todas", ...window.subjectNames()];
   const navInit = (window.EPStore.getNav && window.EPStore.getNav()) || {};
   const [q, setQ] = React.useState(navInit.search || "");
   React.useEffect(() => { if (navInit.search) window.EPStore.setNav({}); }, []);
@@ -176,7 +176,7 @@ function PreguntaForm() {
   const go = useGoB();
   const { EPStore, SUBJECT_COLORS, toast } = window;
   const editing = window.__epEditQ || null;
-  const SUBJECTS = Object.keys(SUBJECT_COLORS || {});
+  const SUBJECTS = window.subjectNames();
   const tipoMap = { "Opción múltiple": "OM", "Verdadero / Falso": "VF", "Respuesta corta": "AB", "Abierta": "AB", "Relacionar": "REL", "Completar": "COMP" };
   const tipoFromCode = { OM: "Opción múltiple", VF: "Verdadero / Falso", AB: "Abierta", REL: "Relacionar", COMP: "Completar" };
   const tipos = ["Opción múltiple", "Verdadero / Falso", "Respuesta corta", "Relacionar", "Completar", "Abierta"];
@@ -322,10 +322,10 @@ function Tarjetas() {
   const st = useStore();
   const [vista, setVista] = React.useState(window.__epCardVista || "estudiar"); // estudiar | gestionar
   React.useEffect(() => { window.__epCardVista = vista; }, [vista]);
-  const subject = (window.__epSubject && SUBJECT_COLORS[window.__epSubject]) ? window.__epSubject : "Legislación Militar";
+  const subject = (window.__epSubject && window.subjectNames().includes(window.__epSubject)) ? window.__epSubject : (window.subjectNames()[0] || "Legislación Militar");
   const setSubject = (s) => { window.__epSubject = s; setI(0); setFlip(false); setDone(false); setResultados({ facil: 0, medio: 0, dificil: 0, otra: 0 }); };
   const color = subjColor(subject);
-  const SUBJECTS = Object.keys(SUBJECT_COLORS);
+  const SUBJECTS = window.subjectNames();
 
   // filtro de la sesión de estudio: hoy (vencen · SM-2) | todas | nuevas | repaso
   const [filtro, setFiltro] = React.useState(window.__epCardFilter || "hoy");
@@ -561,7 +561,7 @@ function TarjetaForm() {
   const go = useGoB();
   const { EPStore, SUBJECT_COLORS, toast } = window;
   const editing = window.__epEditC || null;
-  const SUBJECTS = Object.keys(SUBJECT_COLORS || {});
+  const SUBJECTS = window.subjectNames();
   const [front, setFront] = React.useState(editing ? editing.front : "");
   const [back, setBack] = React.useState(editing ? editing.back : "");
   const [subject, setSubject] = React.useState(editing ? editing.subject : SUBJECTS[0]);
@@ -655,7 +655,7 @@ function Quiz() {
   const nav = (window.EPStore && window.EPStore.getNav && window.EPStore.getNav()) || {};
   const isSim = !!window.__epSimulacro;
   const strict = nav.mode === "examen";
-  const subject = isSim ? "Simulacro general" : ((window.__epSubject && window.SUBJECT_COLORS[window.__epSubject]) ? window.__epSubject : "Legislación Militar");
+  const subject = isSim ? "Simulacro general" : ((window.__epSubject && window.subjectNames().includes(window.__epSubject)) ? window.__epSubject : (window.subjectNames()[0] || "Legislación Militar"));
   const color = isSim ? "var(--accent)" : subjColor(subject);
   const qs = React.useMemo(() => {
     const bank = window.EPStore.get().questions || [];

@@ -1,7 +1,7 @@
 /* EstudioPro · Prototipo — Pantallas nuevas (H): Preparación, Evolución, Mapa del temario, Respaldo, Reportes. */
 const { useGo: useGoH, PageHead: PageHeadH, Panel: PanelH, EmptyState: EmptyStateH } = window;
 
-const hSubjects = () => Object.keys(window.SUBJECT_COLORS || {});
+const hSubjects = () => window.subjectNames();
 const hHash = (s) => { let h = 0; for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) >>> 0; } return h; };
 
 /* ============================ ÍNDICE DE PREPARACIÓN ============================ */

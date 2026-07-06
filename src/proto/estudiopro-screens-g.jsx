@@ -1,7 +1,7 @@
 /* EstudioPro · Prototipo — Pantallas nuevas (G): Generador IA y Tutor de dudas IA. */
 const { useGo: useGoG, PageHead: PageHeadG, Panel: PanelG, EmptyState: EmptyStateG } = window;
 
-const gSubjects = () => Object.keys(window.SUBJECT_COLORS || {});
+const gSubjects = () => window.subjectNames();
 const stripFences = (s) => (s || "").replace(/```json/gi, "").replace(/```/g, "").trim();
 
 /* ============================ GENERADOR DE REACTIVOS CON IA ============================ */

@@ -119,7 +119,7 @@ function Simulacro() {
   const go = useGoD();
   const st = window.useStore();
   const subjColor = window.subjColor;
-  const SUBJECTS = Object.keys(window.SUBJECT_COLORS || {});
+  const SUBJECTS = window.subjectNames();
   const DEF = { "Legislación Militar": 40, "Operaciones Militares": 35, "Normatividad Gubernamental": 35, "Aspecto Administrativo": 25, "Adiestramiento y Mando Militar": 30, "Aspecto Técnico": 35 };
   const [dist, setDist] = React.useState(DEF);
   const [modo, setModo] = React.useState("aleatorio");
@@ -488,7 +488,7 @@ function RepasoPrioritario() {
   const go = useGoD();
   const st = window.useStore();
   const subjColor = window.subjColor;
-  const SUBJECTS = Object.keys(window.SUBJECT_COLORS || {});
+  const SUBJECTS = window.subjectNames();
   // construye la cola con el orden del plan §5: falladas → importantes → vencidas → nuevas
   const falladas = st.questions.filter((q) => q.status === "fall");
   const importantes = st.questions.filter((q) => q.status === "imp");
@@ -628,7 +628,7 @@ window.SesionHoy = SesionHoy;
 function Onboarding() {
   const go = useGoD();
   const subjColor = window.subjColor;
-  const SUBJECTS = Object.keys(window.SUBJECT_COLORS || {});
+  const SUBJECTS = window.subjectNames();
   const [step, setStep] = React.useState(0);
   const [examDate, setExamDate] = React.useState("2026-07-27");
   const [activeSubj, setActiveSubj] = React.useState(() => { const o = {}; SUBJECTS.forEach((s) => o[s] = true); return o; });

@@ -153,7 +153,7 @@ function Informe() {
 function HojaRepaso() {
   const st = window.useStore();
   const subjColor = window.subjColor;
-  const SUBJECTS = Object.keys(window.SUBJECT_COLORS || {});
+  const SUBJECTS = window.subjectNames();
   const [modo, setModo] = React.useState("fall");   // fall | imp | subj | all
   const [subj, setSubj] = React.useState(SUBJECTS[0]);
   const [conResp, setConResp] = React.useState(true);

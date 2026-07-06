@@ -33,7 +33,7 @@ function Inicio() {
     ["Avance", avancePct + "%", dominadas.toLocaleString() + " dominadas"],
   ];
   // top 3 materias por volumen real de preguntas (ordenamientos y conteos del banco)
-  const cats = Object.keys(window.SUBJECT_COLORS || {})
+  const cats = window.subjectNames()
     .map((s) => {
       const qs = st.questions.filter((q) => q.subject === s);
       return [s, new Set(qs.map((q) => q.ord).filter(Boolean)).size, qs.length];
@@ -105,11 +105,9 @@ function Inicio() {
   })();
   const streakDays = window.realStreak ? window.realStreak() : 0;
   const weekMark = Array.from({ length: 7 }, (_, i) => i < Math.min(7, streakDays));
-  // materias del examen (colores reales del sistema; se mantienen)
-  const mats = [
-    ["Legislación Militar", "⚖"], ["Operaciones Militares", "🎯"], ["Normatividad Gubernamental", "📋"],
-    ["Aspecto Administrativo", "🗂"], ["Adiestramiento y Mando Militar", "🎖"], ["Aspecto Técnico", "🛡"],
-  ].map(([n, ic]) => ({ n, ic, p: domBySubj[n] != null ? domBySubj[n] : 0 }));
+  // materias del examen desde la lista editable (icono por materia conocida; genérico para las nuevas)
+  const ICON = { "Legislación Militar": "⚖", "Operaciones Militares": "🎯", "Normatividad Gubernamental": "📋", "Aspecto Administrativo": "🗂", "Adiestramiento y Mando Militar": "🎖", "Aspecto Técnico": "🛡" };
+  const mats = window.subjectNames().map((n) => ({ n, ic: ICON[n] || "📘", p: domBySubj[n] != null ? domBySubj[n] : 0 }));
   return (
     <main className="main">
       <PageHead title="Resumen" sub={(() => { const t = new Date().toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "short" }); return t.charAt(0).toUpperCase() + t.slice(1) + " · sesión local"; })()} crumbs={["Inicio"]} />
@@ -244,47 +242,66 @@ function Inicio() {
 /* ========================== CATEGORÍAS ========================== */
 function Categorias() {
   const go = useGo();
-  const { PromptDialog } = window;
+  const { TaxEditDialog, ConfirmDialog } = window;
   const st = window.useStore();
-  const [open, setOpen] = React.useState(false);
+  const [dlg, setDlg] = React.useState(null); // { mode:"add"|"edit", cat }
+  const [del, setDel] = React.useState(null);
   const nQ = st.questions.length;
   const nDom = st.cards.filter((c) => c.nivel === "dominado").length;
-  const nMats = Object.keys(window.SUBJECT_COLORS || {}).length;
-  const base = [
-    ["Promoción 2026", "Cap. 1/o. I.C.I. · Examen de promoción general. " + nMats + " materias evaluadas y " + Object.keys(window.MATERIA_DETAIL || {}).length + " ordenamientos.", "#2F73CE", nMats, nQ.toLocaleString(), nQ ? Math.round(nDom / nQ * 100) : 0],
-  ];
-  const userCats = (st.userCats || []).map((c) => [c.name, c.desc || "Categoría personalizada.", c.color, 0, "0", 0]);
-  const cats = [...base, ...userCats];
+  const nMats = window.subjectNames().length;
+  const nOrds = Object.keys(window.MATERIA_DETAIL || {}).length;
+  const cats = st.categories || [];
+  const avancePct = nQ ? Math.round(nDom / nQ * 100) : 0;
   return (
     <main className="main">
-      <PageHead title="Categorías" sub={"Cap. 1/o. I.C.I. · " + cats.length + (cats.length === 1 ? " categoría · 6 materias" : " categorías")} crumbs={[["Inicio", "inicio"], "Categorías"]}
-        actions={<button className="btn btn-accent" onClick={() => setOpen(true)}>+ Nueva categoría</button>} />
+      <PageHead title="Categorías" sub={cats.length + (cats.length === 1 ? " categoría" : " categorías") + " · organiza tus exámenes o convocatorias"} crumbs={[["Inicio", "inicio"], "Categorías"]}
+        actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva categoría</button>} />
       <div className="cat-grid">
-        {cats.map(([n, d, c, m, q, p]) => (
-          <div className="catcard" key={n} onClick={() => go("materias")}>
-            <div className="catcard-top" style={{ background: c }}></div>
+        {cats.map((cat, i) => {
+          const isPrimary = i === 0;
+          return (
+          <div className="catcard" key={cat.id}>
+            <div className="catcard-top" style={{ background: cat.color }}></div>
             <div className="catcard-b">
-              <div className="catcard-name">{n}</div>
-              <div className="catcard-desc">{d}</div>
+              <div className="catcard-head">
+                <div className="catcard-name">{cat.name}</div>
+                <div className="rowacts" onClick={(e) => e.stopPropagation()}>
+                  <button className="ra-btn" title="Editar" aria-label={"Editar " + cat.name} onClick={() => setDlg({ mode: "edit", cat })}>✎</button>
+                  <button className="ra-btn ra-del" title="Eliminar" aria-label={"Eliminar " + cat.name} onClick={() => setDel(cat)}>✕</button>
+                </div>
+              </div>
+              <div className="catcard-desc">{cat.desc || (isPrimary ? "Cap. 1/o. I.C.I. · Examen de promoción general." : "Categoría personalizada.")}</div>
               <div className="catcard-stats">
-                <span><b>{m}</b> materias</span>
-                <span><b>{q}</b> preguntas</span>
+                <span><b>{nMats}</b> materias</span>
+                <span><b>{isPrimary ? nQ.toLocaleString() : 0}</b> preguntas</span>
+                <span><b>{nOrds}</b> ordenamientos</span>
               </div>
               <div className="catcard-foot">
-                <div className="mini-bar"><i style={{ width: p + "%", background: c }}></i></div>
-                <span className="catcard-pct">{p}%</span>
+                <div className="mini-bar"><i style={{ width: (isPrimary ? avancePct : 0) + "%", background: cat.color }}></i></div>
+                <span className="catcard-pct">{isPrimary ? avancePct : 0}%</span>
               </div>
+              <button className="btn btn-sm catcard-go" onClick={() => go("materias")}>Ver materias ▸</button>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
-      <PromptDialog open={open} title="Nueva categoría" confirmLabel="Crear categoría"
-        fields={[
-          { key: "name", label: "Nombre de la categoría", placeholder: "p. ej. Promoción 2027", required: true },
-          { key: "desc", label: "Descripción", type: "textarea", placeholder: "Breve descripción del examen o convocatoria" },
-        ]}
-        onClose={() => setOpen(false)}
-        onConfirm={(v) => { window.EPStore.addCategory({ name: v.name.trim(), desc: (v.desc || "").trim() }); setOpen(false); window.toast && window.toast("Categoría creada", "ok"); }} />
+
+      <TaxEditDialog open={!!dlg} title={dlg && dlg.mode === "edit" ? "Editar categoría" : "Nueva categoría"}
+        initial={dlg && dlg.cat} showName showDesc showColor
+        confirmLabel={dlg && dlg.mode === "edit" ? "Guardar cambios" : "Crear categoría"}
+        onClose={() => setDlg(null)}
+        onConfirm={(v) => {
+          if (dlg.mode === "edit") { window.EPStore.updateCategory(dlg.cat.id, { name: v.name, desc: v.desc, color: v.color }); window.toast && window.toast("Categoría actualizada", "ok"); }
+          else { window.EPStore.addCategory({ name: v.name, desc: v.desc, color: v.color }); window.toast && window.toast("Categoría creada", "ok"); }
+          setDlg(null);
+        }} />
+
+      <ConfirmDialog open={!!del} danger confirmLabel="Eliminar categoría"
+        title="¿Eliminar esta categoría?"
+        body={del && <span>Se eliminará <b>“{del.name}”</b>. Tus materias y preguntas no se tocan; solo desaparece esta agrupación.</span>}
+        onClose={() => setDel(null)}
+        onConfirm={() => { window.EPStore.deleteCategory(del.id); setDel(null); window.toast && window.toast("Categoría eliminada", "ok"); }} />
     </main>
   );
 }
@@ -292,11 +309,11 @@ function Categorias() {
 /* =========================== MATERIAS =========================== */
 function Materias() {
   const go = useGo();
-  const { PromptDialog } = window;
+  const { TaxEditDialog, ConfirmDialog } = window;
   const st = window.useStore();
-  const [open, setOpen] = React.useState(false);
-  const PALETTE = ["#2F73CE", "#2A8A5E", "#A0742A", "#7A57C2", "#C2410C", "#0E7490", "#B83280", "#15803D"];
-  // descripciones del temario (contenido fijo) + conteos y avance reales del banco
+  const [dlg, setDlg] = React.useState(null); // { mode:"add"|"edit", subj }
+  const [del, setDel] = React.useState(null); // { name, count }
+  // descripciones del temario base (contenido fijo); las materias nuevas no la tienen
   const DESC = {
     "Legislación Militar": "CJM, LOEFAM, ISSFAM, disciplina, ascensos y deberes.",
     "Operaciones Militares": "Logística, operaciones, op. conjuntas y planeamiento.",
@@ -306,45 +323,78 @@ function Materias() {
     "Aspecto Técnico": "Ciberseguridad y ciberdefensa.",
   };
   const DETAIL = window.MATERIA_DETAIL || {};
-  const base = Object.keys(window.SUBJECT_COLORS || {}).map((s) => {
-    const qs = st.questions.filter((q) => q.subject === s);
-    const dom = st.cards.filter((c) => c.subject === s && c.nivel === "dominado").length;
-    const nOrds = Object.keys(DETAIL).filter((k) => DETAIL[k].cat === s).length;
-    return [s, DESC[s] || "", nOrds, qs.length, qs.length, qs.length ? Math.round(dom / qs.length * 100) : 0, window.subjColor(s)];
+  const mats = (st.subjects || []).map((s) => {
+    const qs = st.questions.filter((q) => q.subject === s.name);
+    const dom = st.cards.filter((c) => c.subject === s.name && c.nivel === "dominado").length;
+    const nOrds = new Set([...Object.keys(DETAIL).filter((k) => DETAIL[k].cat === s.name), ...((st.userOrds || {})[s.name] || []).map((o) => o.name), ...qs.map((q) => q.ord).filter(Boolean)]).size;
+    return { name: s.name, color: s.color, desc: DESC[s.name] || "Materia personalizada.", nOrds, q: qs.length, p: qs.length ? Math.round(dom / qs.length * 100) : 0 };
   });
-  const userMats = (st.userMats || []).map((m) => [m.name, m.desc || "Materia personalizada.", 0, 0, 0, 0, m.color]);
-  const mats = [...base, ...userMats];
+  const askDelete = (name) => {
+    const count = st.questions.filter((q) => q.subject === name).length;
+    setDel({ name, count });
+  };
   return (
     <main className="main">
-      <PageHead title="Materias" sub={"Promoción 2026 · " + mats.length + " materias"} crumbs={[["Inicio", "inicio"], ["Categorías", "categorias"], "Materias"]}
-        actions={<button className="btn btn-accent" onClick={() => setOpen(true)}>+ Nueva materia</button>} />
+      <PageHead title="Materias" sub={mats.length + " materias · edita nombre, color o crea las tuyas"} crumbs={[["Inicio", "inicio"], ["Categorías", "categorias"], "Materias"]}
+        actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva materia</button>} />
       <div className="cat-grid">
-        {mats.map(([n, d, t, q, tj, p, c]) => (
-          <div className="catcard" key={n} onClick={() => { window.__epSubject = n; go("materia"); }}>
-            <div className="catcard-top" style={{ background: c }}></div>
+        {mats.map((mt) => (
+          <div className="catcard" key={mt.name}>
+            <div className="catcard-top" style={{ background: mt.color }}></div>
             <div className="catcard-b">
-              <div className="catcard-name">{n}</div>
-              <div className="catcard-desc">{d}</div>
+              <div className="catcard-head">
+                <div className="catcard-name">{mt.name}</div>
+                <div className="rowacts" onClick={(e) => e.stopPropagation()}>
+                  <button className="ra-btn" title="Editar nombre y color" aria-label={"Editar " + mt.name} onClick={() => setDlg({ mode: "edit", subj: mt })}>✎</button>
+                  <button className="ra-btn ra-del" title="Eliminar" aria-label={"Eliminar " + mt.name} onClick={() => askDelete(mt.name)}>✕</button>
+                </div>
+              </div>
+              <div className="catcard-desc">{mt.desc}</div>
               <div className="catcard-stats">
-                <span><b>{t}</b> {t === 1 ? "ordenamiento" : "ordenamientos"}</span>
-                <span><b>{q}</b> preguntas</span>
-                <span><b>{tj}</b> tarjetas</span>
+                <span><b>{mt.nOrds}</b> {mt.nOrds === 1 ? "ordenamiento" : "ordenamientos"}</span>
+                <span><b>{mt.q}</b> preguntas</span>
               </div>
               <div className="catcard-foot">
-                <div className="mini-bar"><i style={{ width: p + "%", background: c }}></i></div>
-                <span className="catcard-pct">{p}%</span>
+                <div className="mini-bar"><i style={{ width: mt.p + "%", background: mt.color }}></i></div>
+                <span className="catcard-pct">{mt.p}%</span>
               </div>
+              <button className="btn btn-sm catcard-go" onClick={() => { window.__epSubject = mt.name; go("materia"); }}>Ver temario ▸</button>
             </div>
           </div>
         ))}
       </div>
-      <PromptDialog open={open} title="Nueva materia" confirmLabel="Crear materia"
-        fields={[
-          { key: "name", label: "Nombre de la materia", placeholder: "p. ej. Derecho Internacional Humanitario", required: true },
-          { key: "desc", label: "Descripción", type: "textarea", placeholder: "Qué cubre esta materia (ordenamientos, manuales…)" },
-        ]}
-        onClose={() => setOpen(false)}
-        onConfirm={(v) => { window.EPStore.addSubject({ name: v.name.trim(), desc: (v.desc || "").trim(), color: PALETTE[(st.userMats || []).length % PALETTE.length] }); setOpen(false); window.toast && window.toast("Materia creada", "ok"); }} />
+
+      <TaxEditDialog open={!!dlg} title={dlg && dlg.mode === "edit" ? "Editar materia" : "Nueva materia"}
+        initial={dlg && dlg.subj} showName showColor
+        confirmLabel={dlg && dlg.mode === "edit" ? "Guardar cambios" : "Crear materia"}
+        onClose={() => setDlg(null)}
+        onConfirm={(v) => {
+          if (dlg.mode === "edit") {
+            const old = dlg.subj.name;
+            if (v.name && v.name !== old) {
+              const r = window.EPStore.renameSubject(old, v.name);
+              if (!r.ok) { window.toast && window.toast(r.reason === "ya existe" ? "Ya existe una materia con ese nombre" : "No se pudo renombrar", "danger"); return; }
+            }
+            window.EPStore.setSubjectColor(v.name || old, v.color);
+            window.toast && window.toast("Materia actualizada", "ok");
+          } else {
+            const ok = window.EPStore.addSubject({ name: v.name, color: v.color });
+            if (!ok) { window.toast && window.toast("Ya existe una materia con ese nombre", "danger"); return; }
+            window.toast && window.toast("Materia creada", "ok");
+          }
+          setDlg(null);
+        }} />
+
+      <ConfirmDialog open={!!del} danger={del && del.count === 0} confirmLabel={del && del.count === 0 ? "Eliminar materia" : "Entendido"}
+        title={del && del.count > 0 ? "No se puede eliminar todavía" : "¿Eliminar esta materia?"}
+        body={del && (del.count > 0
+          ? <span>La materia <b>“{del.name}”</b> tiene <b>{del.count}</b> pregunta{del.count === 1 ? "" : "s"}. Muévelas o elimínalas primero (o renombra la materia) para no dejar preguntas huérfanas.</span>
+          : <span>Se eliminará <b>“{del.name}”</b>. No tiene preguntas asociadas, así que es seguro.</span>)}
+        onClose={() => setDel(null)}
+        onConfirm={() => {
+          if (del.count > 0) { setDel(null); return; }
+          window.EPStore.deleteSubject(del.name); setDel(null); window.toast && window.toast("Materia eliminada", "ok");
+        }} />
     </main>
   );
 }
@@ -356,6 +406,9 @@ function MateriaDetalle() {
   const st = window.useStore();
   const [open, setOpen] = React.useState(0);
   const [ordOpen, setOrdOpen] = React.useState(false);
+  const [ordEdit, setOrdEdit] = React.useState(null); // ordenamiento a renombrar
+  const [ordDel, setOrdDel] = React.useState(null);   // ordenamiento a eliminar
+  const { ConfirmDialog } = window;
   const DETAIL = window.MATERIA_DETAIL || {};
   const SUBJECTS = {
     "Legislación Militar": "Ordenamientos jurídico-militares: justicia, organización, disciplina, ascensos y deberes del Ejto. y F.A.M.",
@@ -365,13 +418,9 @@ function MateriaDetalle() {
     "Adiestramiento y Mando Militar": "Mando, liderazgo y proceso de adiestramiento militar.",
     "Aspecto Técnico": "Ciberseguridad, ciberdefensa y operaciones en el ciberespacio.",
   };
-  const subject = (window.__epSubject && SUBJECTS[window.__epSubject]) ? window.__epSubject : "Legislación Militar";
-  const SUBJECT_COLOR = {
-    "Legislación Militar": "#2F73CE", "Operaciones Militares": "#2A8A5E",
-    "Normatividad Gubernamental": "#A0742A", "Aspecto Administrativo": "#7A57C2",
-    "Adiestramiento y Mando Militar": "#C2410C", "Aspecto Técnico": "#0E7490",
-  };
-  const color = SUBJECT_COLOR[subject] || "#2F73CE";
+  const names = window.subjectNames();
+  const subject = (window.__epSubject && names.includes(window.__epSubject)) ? window.__epSubject : (names[0] || "Legislación Militar");
+  const color = window.subjColor(subject);
   // each ordenamiento of this subject = a tree-tema; its títulos = cap-rows
   // conteos reales del banco: preguntas cuyo `ord` coincide con el ordenamiento (y `loc` con el título)
   const subjQs = st.questions.filter((x) => x.subject === subject);
@@ -388,7 +437,7 @@ function MateriaDetalle() {
   });
   const userOrds = ((st.userOrds || {})[subject] || []).map((o) => {
     const q = subjQs.filter((x) => x.ord === o.name).length;
-    return { n: o.name, ref: o.desc || "Ordenamiento personalizado", q, t: q, caps: [], isNew: true };
+    return { n: o.name, ref: o.desc || "Ordenamiento personalizado", q, t: q, caps: [], isNew: true, id: o.id };
   });
   const temas = [...temasBase, ...userOrds];
   const totQ = subjQs.length;
@@ -402,7 +451,7 @@ function MateriaDetalle() {
         <div className="subj-grid">
           <div className="subj-l">
             <h1 className="page-title">{subject}</h1>
-            <p className="subj-desc">{SUBJECTS[subject]}</p>
+            <p className="subj-desc">{SUBJECTS[subject] || "Materia de tu banco de estudio."}</p>
             <div className="stat-chips">
               <span className="sc"><b>{temas.length}</b> {temas.length === 1 ? "ordenamiento" : "ordenamientos"}</span>
               <span className="sc"><b>{totQ}</b> preguntas</span>
@@ -429,8 +478,14 @@ function MateriaDetalle() {
               <div className={"tree-tema" + (isOpen ? " is-open" : "")} key={tm.n}>
                 <div className="tema-row" onClick={() => setOpen(isOpen ? -1 : i)}>
                   <span className="tw">{isOpen ? "▾" : "▸"}</span>
-                  <span className="tema-name">{tm.n}</span>
+                  <span className="tema-name">{tm.n}{tm.isNew && <span className="tag" style={{ marginLeft: "6px" }}>tuyo</span>}</span>
                   <span className="tema-counts">{tm.q} preg · {tm.t} tarj</span>
+                  {tm.isNew && (
+                    <span className="rowacts" onClick={(e) => e.stopPropagation()}>
+                      <button className="ra-btn" title="Renombrar ordenamiento" aria-label={"Renombrar " + tm.n} onClick={() => setOrdEdit(tm)}>✎</button>
+                      <button className="ra-btn ra-del" title="Eliminar ordenamiento" aria-label={"Eliminar " + tm.n} onClick={() => setOrdDel(tm)}>✕</button>
+                    </span>
+                  )}
                   <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); window.__epSimulacro = false; window.__epSubject = subject; window.EPStore.setNav({ subject, ord: tm.n, mode: "practica" }); go("quiz"); }}>Estudiar</button>
                 </div>
                 {isOpen && tm.caps.map(([cn, cd, cq, ct, cu]) => (
@@ -477,6 +532,19 @@ function MateriaDetalle() {
         ]}
         onClose={() => setOrdOpen(false)}
         onConfirm={(v) => { window.EPStore.addOrdenamiento(subject, { name: v.name.trim(), desc: (v.desc || "").trim() }); setOrdOpen(false); setOpen(temas.length); window.toast && window.toast("Ordenamiento creado", "ok"); }} />
+
+      <PromptDialog open={!!ordEdit} title="Renombrar ordenamiento" confirmLabel="Guardar"
+        fields={[{ key: "name", label: "Nuevo nombre", placeholder: ordEdit ? ordEdit.n : "", required: true }]}
+        onClose={() => setOrdEdit(null)}
+        onConfirm={(v) => { const r = window.EPStore.renameOrdenamiento(subject, ordEdit.id, v.name.trim()); setOrdEdit(null); window.toast && window.toast(r.ok ? "Ordenamiento renombrado" : "No se pudo renombrar", r.ok ? "ok" : "danger"); }} />
+
+      <ConfirmDialog open={!!ordDel} danger={ordDel && ordDel.q === 0} confirmLabel={ordDel && ordDel.q === 0 ? "Eliminar" : "Entendido"}
+        title={ordDel && ordDel.q > 0 ? "No se puede eliminar todavía" : "¿Eliminar este ordenamiento?"}
+        body={ordDel && (ordDel.q > 0
+          ? <span>“{ordDel.n}” tiene <b>{ordDel.q}</b> pregunta{ordDel.q === 1 ? "" : "s"}. Muévelas o renómbralo primero.</span>
+          : <span>Se eliminará <b>“{ordDel.n}”</b>. No tiene preguntas asociadas.</span>)}
+        onClose={() => setOrdDel(null)}
+        onConfirm={() => { if (ordDel.q > 0) { setOrdDel(null); return; } window.EPStore.deleteOrdenamiento(subject, ordDel.id); setOrdDel(null); window.toast && window.toast("Ordenamiento eliminado", "ok"); }} />
 
       <NotasPanel keyName={"materia:" + subject} color={color} />
     </main>
@@ -557,7 +625,7 @@ function Estadisticas() {
       .sort((a, b) => a[1] - b[1])
       .slice(0, 4);
   })();
-  const porMateria = Object.keys(window.SUBJECT_COLORS || {}).map((s) => {
+  const porMateria = window.subjectNames().map((s) => {
     const cs = st.cards.filter((c) => c.subject === s);
     const dom = cs.filter((c) => c.nivel === "dominado").length;
     return [s, cs.length ? Math.round(dom / cs.length * 100) : 0, cs.length, window.subjColor(s)];
@@ -738,7 +806,7 @@ function Importar() {
   const [error, setError] = React.useState("");
   const fileRef = React.useRef(null);
   const steps = ["Archivo", "Columnas", "Destino", "Confirmar"];
-  const SUBJECTS = Object.keys(window.SUBJECT_COLORS || {});
+  const SUBJECTS = window.subjectNames();
   const [destSubj, setDestSubj] = React.useState(SUBJECTS[0] || "");
   const [destOrd, setDestOrd] = React.useState("");
 

@@ -8,7 +8,14 @@ window.SUBJECT_COLORS = {
   "Adiestramiento y Mando Militar": "#C2410C",
   "Aspecto Técnico": "#0E7490",
 };
-window.subjColor = (s) => window.SUBJECT_COLORS[s] || "#2F73CE";
+// El color de materia sale del store editable si existe; si no, del valor por defecto.
+window.subjColor = (s) => {
+  try {
+    const st = window.EPStore && window.EPStore.get && window.EPStore.get();
+    if (st && st.subjects) { const m = st.subjects.find((x) => x.name === s); if (m && m.color) return m.color; }
+  } catch (e) { /* store aún no listo */ }
+  return window.SUBJECT_COLORS[s] || "#2F73CE";
+};
 
 /* Variantes oscurecidas de los colores de materia para cuando se usan como TEXTO pequeño
    (pasan WCAG AA 4.5:1 sobre blanco y tintes claros). Los puntos, barras y rellenos siguen

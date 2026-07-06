@@ -99,7 +99,7 @@ function TopbarAvatar({ onClick }) {
 function GlobalSearch() {
   const go = useGo();
   const st = window.useStore ? window.useStore() : { questions: [], cards: [] };
-  const SUBJECTS = Object.keys(window.SUBJECT_COLORS || {});
+  const SUBJECTS = window.subjectNames();
   const [q, setQ] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const boxRef = React.useRef(null);
@@ -329,6 +329,48 @@ function PromptDialog({ open, title, fields, confirmLabel, onConfirm, onClose })
   );
 }
 
+/* Selector de color: muestras + color personalizado */
+function ColorField({ value, onChange }) {
+  const PALETTE = ["#1B8FBE", "#2F73CE", "#2A8A5E", "#A0742A", "#7A57C2", "#C2410C", "#0E7490", "#B83280", "#15803D", "#475569"];
+  return (
+    <div className="colorfield">
+      <div className="colorfield-swatches">
+        {PALETTE.map((c) => (
+          <button key={c} type="button" className={"colorsw" + (value === c ? " is-on" : "")} style={{ background: c }}
+            onClick={() => onChange(c)} aria-label={"Color " + c} aria-pressed={value === c}></button>
+        ))}
+      </div>
+      <label className="colorfield-custom"><input type="color" value={value} onChange={(e) => onChange(e.target.value)} aria-label="Color personalizado" /><span>Personalizado</span></label>
+    </div>
+  );
+}
+
+/* Diálogo genérico para crear/editar un elemento de taxonomía (nombre / descripción / color) */
+function TaxEditDialog({ open, title, initial, showName = true, showDesc = false, showColor = true, confirmLabel, onConfirm, onClose }) {
+  const [name, setName] = React.useState("");
+  const [desc, setDesc] = React.useState("");
+  const [color, setColor] = React.useState("#1B8FBE");
+  React.useEffect(() => { if (open) { setName((initial && initial.name) || ""); setDesc((initial && initial.desc) || ""); setColor((initial && initial.color) || "#1B8FBE"); } }, [open]);
+  const ready = !showName || name.trim() !== "";
+  const submit = () => { if (ready) onConfirm({ name: name.trim(), desc: desc.trim(), color }); };
+  return (
+    <Modal open={open} onClose={onClose}>
+      <div className="modal-h">{title}</div>
+      <div className="modal-b">
+        <div className="form-stack">
+          {showName && <div className="field"><label>Nombre</label><input className="input" value={name} autoFocus onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && ready) submit(); }} /></div>}
+          {showDesc && <div className="field"><label>Descripción</label><textarea className="input textarea" rows="2" value={desc} onChange={(e) => setDesc(e.target.value)}></textarea></div>}
+          {showColor && <div className="field"><label>Color</label><ColorField value={color} onChange={setColor} /></div>}
+        </div>
+      </div>
+      <div className="modal-f">
+        <button className="btn" onClick={onClose}>Cancelar</button>
+        <button className="btn btn-accent" disabled={!ready} onClick={submit}>{confirmLabel || "Guardar"}</button>
+      </div>
+    </Modal>
+  );
+}
+
 /* Toast (ephemeral feedback) */
 function Toast({ msg }) {
   if (!msg) return null;
@@ -364,5 +406,5 @@ function Toast({ msg }) {
 
 Object.assign(window, {
   NavCtx, useGo, NAV, Topbar, Side, Crumbs, PageHead, Panel, Diff, Switch,
-  EmptyState, Modal, ConfirmDialog, PromptDialog, Toast, ToastHost: window.ToastHost,
+  EmptyState, Modal, ConfirmDialog, PromptDialog, ColorField, TaxEditDialog, Toast, ToastHost: window.ToastHost,
 });
