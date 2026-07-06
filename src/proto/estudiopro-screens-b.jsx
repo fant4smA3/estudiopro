@@ -503,28 +503,33 @@ function Tarjetas() {
   }
 
   /* ============ VISTA ESTUDIAR · sesión activa ============ */
+  const nivelLabel = { nuevo: "Nueva", medio: "En repaso", dominado: "Dominada" };
   return (
-    <main className="main main-center">
+    <main className="main main-study">
       <Header progLabel={(i + 1) + " / " + total} progPct={(i + 1) / total * 100} />
 
-      <div className="chiprow" style={{ justifyContent: "center" }}>
+      <div className="chiprow chiprow-center">
         {FILTROS.map(([k, label, n]) => (
           <span key={k} className={"fchip" + (filtro === k ? " is-on" : "")} onClick={() => { setFiltro(k); setI(0); setFlip(false); }}>{label} · {n}</span>
         ))}
       </div>
 
       <div className="card-stage">
-        <div className={"flashcard" + (flip ? " is-flip" : "")} onClick={() => setFlip(!flip)}
-          onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-          <div className="fc-corner fc-tl">{flip ? "REVERSO" : "FRENTE"}</div>
-          <div className="fc-corner fc-tr">{i + 1} / {total}</div>
+        <div className={"flashcard fc-study" + (flip ? " is-flip" : "")} style={{ "--fc-accent": color }}
+          onClick={() => setFlip(!flip)} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+          role="button" tabIndex={0} aria-label={flip ? "Reverso de la tarjeta, toca para volver" : "Frente de la tarjeta, toca para revelar"}
+          onKeyDown={(e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); setFlip((f) => !f); } }}>
+          <span className="fc-accent" aria-hidden="true"></span>
+          <div className="fc-top">
+            <span className="fc-side">{flip ? "Reverso" : "Frente"}</span>
+            <span className={"fc-lvl lvl-" + card.nivel}>{nivelLabel[card.nivel] || card.nivel}</span>
+          </div>
           <div className="fc-body">
             <div className="fc-q">{flip ? card.back : card.front}</div>
-            <div className="fc-hint">{flip ? "¿Qué tal lo recordaste?" : "Haz clic para revelar el reverso"}</div>
           </div>
           <div className="fc-foot">
-            {(card.tags || []).map((t) => <span className="tag" key={t}>#{t}</span>)}
-            <span className="fc-domain">dominio: {card.nivel}</span>
+            <div className="fc-tags">{(card.tags || []).map((t) => <span className="tag" key={t}>#{t}</span>)}</div>
+            <span className="fc-hint">{flip ? "¿Qué tal lo recordaste?" : "Toca para revelar ▸"}</span>
           </div>
         </div>
       </div>
@@ -533,16 +538,16 @@ function Tarjetas() {
         <div className="study-controls">
           {(() => { const p = window.srsPreview(card._id); return (
             <React.Fragment>
-              <button className="btn study-btn study-danger" onClick={() => grade("otra")}>Otra vez<small>{p.otra}</small></button>
-              <button className="btn study-btn study-warn" onClick={() => grade("dificil")}>Difícil<small>{p.dificil}</small></button>
-              <button className="btn study-btn study-ok" onClick={() => grade("medio")}>Bien<small>{p.medio}</small></button>
-              <button className="btn study-btn study-ok" onClick={() => grade("facil")}>Fácil<small>{p.facil}</small></button>
+              <button className="btn study-btn study-danger" onClick={() => grade("otra")}><span>Otra vez</span><small>{p.otra}</small></button>
+              <button className="btn study-btn study-warn" onClick={() => grade("dificil")}><span>Difícil</span><small>{p.dificil}</small></button>
+              <button className="btn study-btn study-ok" onClick={() => grade("medio")}><span>Bien</span><small>{p.medio}</small></button>
+              <button className="btn study-btn study-easy" onClick={() => grade("facil")}><span>Fácil</span><small>{p.facil}</small></button>
             </React.Fragment>
           ); })()}
         </div>
       ) : (
         <div className="study-controls study-controls-1">
-          <button className="btn btn-accent btn-lg" onClick={() => setFlip(true)}>Revelar respuesta</button>
+          <button className="btn btn-accent btn-lg study-reveal" onClick={() => setFlip(true)}>Revelar respuesta</button>
         </div>
       )}
 
