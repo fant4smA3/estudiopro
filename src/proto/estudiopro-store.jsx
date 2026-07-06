@@ -6,7 +6,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
 (function () {
   const listeners = new Set();
   // --- persistencia local: IndexedDB con debounce ---
-  const PERSIST_KEYS = ["questions", "cardSrs", "sessions", "lastResult", "plan", "notes", "resume", "userCats", "userMats", "userOrds", "unlocked", "activity", "timeLog", "reports", "simHistory", "journal", "glossary"];
+  const PERSIST_KEYS = ["questions", "cardSrs", "sessions", "lastResult", "plan", "notes", "resume", "subjects", "categories", "userCats", "userMats", "userOrds", "unlocked", "activity", "timeLog", "reports", "simHistory", "journal", "glossary"];
   const save = () => {
     try {
       const snap = {};
@@ -38,7 +38,10 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     resume: null,
     activity: {},   // actividad real por día: { "YYYY-MM-DD": unidades (≈min) } — alimenta heatmap y racha
     unlocked: {},   // logros desbloqueados manualmente / por evento
-    // taxonomía añadida por el usuario (se suma a la semilla fija en las cuadrículas)
+    // taxonomía editable (fuente de verdad; se siembra desde los valores por defecto la 1a vez)
+    subjects: null,    // [{ name, color }] — materias editables (nombre + color)
+    categories: null,  // [{ id, name, desc, color }] — categorías editables
+    // legado del prototipo (se pliega en subjects/categories al sembrar; se conserva por compat)
     userCats: [],   // { id, name, desc, color }
     userMats: [],   // { id, name, desc, color }
     userOrds: {},   // { [subject]: [{ id, name, desc }] }
@@ -103,6 +106,20 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     seeded = store.questions.length > 0;
   };
 
+  // siembra la taxonomía editable la primera vez, plegando cualquier añadido del prototipo (userMats/userCats)
+  const ensureTaxonomy = () => {
+    if (!store.subjects) {
+      const base = Object.entries(window.SUBJECT_COLORS || {}).map(([name, color]) => ({ name, color }));
+      const extra = (store.userMats || []).filter((m) => m && m.name && !base.some((b) => b.name === m.name)).map((m) => ({ name: m.name, color: m.color || "#2A8A5E" }));
+      store.subjects = [...base, ...extra];
+    }
+    if (!store.categories) {
+      const base = [{ id: "cat-promocion-2026", name: "Promoción 2026", desc: "Cap. 1/o. I.C.I. · Examen de promoción general.", color: "#2F73CE" }];
+      const extra = (store.userCats || []).map((c) => ({ id: c.id || ("cat" + Math.random().toString(36).slice(2, 8)), name: c.name, desc: c.desc || "", color: c.color || "#2F73CE" }));
+      store.categories = [...base, ...extra];
+    }
+  };
+
   const isoToday = () => new Date().toISOString().slice(0, 10);
   // registra actividad real del día (≈minutos-equivalentes) — alimenta heatmap, racha y metas
   const markActivity = (units) => {
@@ -118,7 +135,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   window.EPStore = {
-    get: () => { ensureSeed(); ensureDay(); return store; },
+    get: () => { ensureSeed(); ensureDay(); ensureTaxonomy(); return store; },
     subscribe: (fn) => { listeners.add(fn); return () => listeners.delete(fn); },
     addQuestion: (q) => {
       ensureSeed();
@@ -257,12 +274,68 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     },
     addFreeze: () => { store.plan = { ...store.plan, freezes: (store.plan.freezes || 0) + 1 }; emit(); },
     // --- taxonomía editable (categorías / materias / ordenamientos) ---
-    addCategory: (cat) => { store.userCats = [...store.userCats, { id: "cat" + Date.now(), color: "#2F73CE", ...cat }]; emit(); },
-    addSubject: (mat) => { store.userMats = [...store.userMats, { id: "mat" + Date.now(), color: "#2A8A5E", ...mat }]; emit(); },
+    // Categorías: CRUD completo
+    addCategory: (cat) => { ensureTaxonomy(); store.categories = [...store.categories, { id: "cat" + Date.now(), color: "#2F73CE", desc: "", ...cat }]; emit(); },
+    updateCategory: (id, patch) => { ensureTaxonomy(); store.categories = store.categories.map((c) => c.id === id ? { ...c, ...patch } : c); emit(); },
+    deleteCategory: (id) => { ensureTaxonomy(); store.categories = store.categories.filter((c) => c.id !== id); emit(); },
+    // Materias: color, alta, renombrar (con cascada al banco) y borrar (con guardia)
+    addSubject: (mat) => {
+      ensureTaxonomy();
+      const name = (mat.name || "").trim();
+      if (!name || store.subjects.some((s) => s.name === name)) return false;
+      store.subjects = [...store.subjects, { name, color: mat.color || "#2A8A5E" }];
+      emit(); return true;
+    },
+    setSubjectColor: (name, color) => { ensureTaxonomy(); store.subjects = store.subjects.map((s) => s.name === name ? { ...s, color } : s); emit(); },
+    renameSubject: (oldName, newName) => {
+      ensureTaxonomy();
+      newName = (newName || "").trim();
+      if (!newName || newName === oldName) return { ok: false, reason: "sin cambio" };
+      if (store.subjects.some((s) => s.name === newName)) return { ok: false, reason: "ya existe" };
+      const ren = (v) => v === oldName ? newName : v;
+      store.subjects = store.subjects.map((s) => s.name === oldName ? { ...s, name: newName } : s);
+      // cascada a todo lo que referencia la materia por nombre
+      store.questions = store.questions.map((q) => q.subject === oldName ? { ...q, subject: newName } : q);
+      store.sessions = (store.sessions || []).map((x) => ({ ...x, subject: ren(x.subject) }));
+      store.timeLog = (store.timeLog || []).map((x) => ({ ...x, subject: ren(x.subject) }));
+      store.glossary = (store.glossary || []).map((x) => ({ ...x, subject: ren(x.subject) }));
+      store.reports = (store.reports || []).map((x) => ({ ...x, subject: ren(x.subject) }));
+      if (store.userOrds && store.userOrds[oldName]) { const n = { ...store.userOrds }; n[newName] = n[oldName]; delete n[oldName]; store.userOrds = n; }
+      store.simHistory = (store.simHistory || []).map((s) => { if (s.byS && s.byS[oldName] != null) { const b = { ...s.byS }; b[newName] = b[oldName]; delete b[oldName]; return { ...s, byS: b }; } return s; });
+      if (store.resume && store.resume.subject === oldName) store.resume = { ...store.resume, subject: newName };
+      if (store.lastResult && store.lastResult.subject === oldName) store.lastResult = { ...store.lastResult, subject: newName };
+      emit(); return { ok: true };
+    },
+    deleteSubject: (name) => {
+      ensureTaxonomy();
+      const count = store.questions.filter((q) => q.subject === name).length;
+      if (count > 0) return { ok: false, count }; // guardia: no dejar preguntas huérfanas
+      store.subjects = store.subjects.filter((s) => s.name !== name);
+      if (store.userOrds && store.userOrds[name]) { const n = { ...store.userOrds }; delete n[name]; store.userOrds = n; }
+      emit(); return { ok: true };
+    },
+    // Ordenamientos añadidos por el usuario: alta, renombrar (cascada .ord del banco) y borrar
     addOrdenamiento: (subject, ord) => {
       const list = store.userOrds[subject] || [];
       store.userOrds = { ...store.userOrds, [subject]: [...list, { id: "ord" + Date.now(), ...ord }] };
       emit();
+    },
+    renameOrdenamiento: (subject, id, newName) => {
+      newName = (newName || "").trim(); if (!newName) return { ok: false };
+      const list = store.userOrds[subject] || [];
+      const cur = list.find((o) => o.id === id); if (!cur) return { ok: false };
+      const oldName = cur.name;
+      store.userOrds = { ...store.userOrds, [subject]: list.map((o) => o.id === id ? { ...o, name: newName } : o) };
+      store.questions = store.questions.map((q) => (q.subject === subject && q.ord === oldName) ? { ...q, ord: newName } : q);
+      emit(); return { ok: true };
+    },
+    deleteOrdenamiento: (subject, id) => {
+      const list = store.userOrds[subject] || [];
+      const cur = list.find((o) => o.id === id); if (!cur) return { ok: false, count: 0 };
+      const count = store.questions.filter((q) => q.subject === subject && q.ord === cur.name).length;
+      if (count > 0) return { ok: false, count };
+      store.userOrds = { ...store.userOrds, [subject]: list.filter((o) => o.id !== id) };
+      emit(); return { ok: true };
     },
     // exporta el estado completo a un archivo JSON descargable
     exportJSON: () => {
@@ -326,6 +399,11 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     reset: () => { store.questions = []; store.cardSrs = {}; store.sessions = []; store.lastResult = null; store.notes = {}; store.resume = null; store.userCats = []; store.userMats = []; store.userOrds = {}; store.timeLog = []; store.reports = []; store.plan = { ...store.plan, doneToday: 0 }; seeded = true; emit(); },
   };
 
+  // lista de nombres de materia (fuente de verdad editable)
+  window.subjectNames = function () { const s = window.EPStore.get(); return (s.subjects || []).map((x) => x.name); };
+  // categorías editables
+  window.categoryList = function () { const s = window.EPStore.get(); return s.categories || []; };
+
   // hook
   window.useStore = function useStore() {
     const [, force] = React.useReducer((x) => x + 1, 0);
@@ -384,7 +462,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
 
   // genera un plan de estudio (días) desde hoy hasta el examen
   window.generarPlan = function () {
-    const subjects = Object.keys(window.SUBJECT_COLORS || {});
+    const subjects = window.subjectNames();
     const detail = window.MATERIA_DETAIL || {};
     const capsBySubject = {};
     subjects.forEach((s) => { capsBySubject[s] = []; });
@@ -459,7 +537,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   // dominio por materia (0-100) a partir de avance representativo + estado de preguntas
   window.intel = function () {
     const s = window.EPStore.get();
-    const subjects = Object.keys(window.SUBJECT_COLORS || {});
+    const subjects = window.subjectNames();
     const hoy = new Date().setHours(0, 0, 0, 0);
     const porMateria = subjects.map((subj) => {
       const qs = s.questions.filter((q) => q.subject === subj);
@@ -592,7 +670,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   // ===== Matriz de confusión: dónde pierdes puntos (materia × tipo de error) =====
   window.confusionMatrix = function () {
     const s = window.EPStore.get();
-    const subjects = Object.keys(window.SUBJECT_COLORS || {});
+    const subjects = window.subjectNames();
     const hash = (str) => { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return h; };
     // categorías de error frecuentes en examen jurídico-militar
     const cols = ["Confusión de conceptos", "Artículo/fundamento", "Plazos y cifras", "Jerarquía/competencia"];

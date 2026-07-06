@@ -1,6 +1,6 @@
 /* EstudioPro · Prototipo — Pantallas nuevas (J): Importar IA, Duplicados, Reto diario, Hábitos, Bitácora. */
 const { useGo: useGoJ, PageHead: PageHeadJ, Panel: PanelJ, EmptyState: EmptyStateJ } = window;
-const jSubjects = () => Object.keys(window.SUBJECT_COLORS || {});
+const jSubjects = () => window.subjectNames();
 const jStrip = (s) => (s || "").replace(/```json/gi, "").replace(/```/g, "").trim();
 const jNorm = (t) => (t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
 

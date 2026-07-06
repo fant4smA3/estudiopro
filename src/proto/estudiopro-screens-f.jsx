@@ -1,7 +1,7 @@
 /* EstudioPro · Prototipo — Pantallas nuevas (F): Cronómetro, Apuntes, Audio, Generador IA, Tutor IA. */
 const { useGo: useGoF, PageHead: PageHeadF, Panel: PanelF, EmptyState: EmptyStateF } = window;
 
-const fSubjects = () => Object.keys(window.SUBJECT_COLORS || {});
+const fSubjects = () => window.subjectNames();
 const fmtDur = (secs) => {
   const m = Math.floor(secs / 60), s = Math.floor(secs % 60);
   return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");

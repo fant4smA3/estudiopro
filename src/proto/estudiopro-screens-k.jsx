@@ -1,6 +1,6 @@
 /* EstudioPro · Prototipo — Pantallas nuevas (K): Examen adaptativo, Confusiones, Metas semanales, Podcast, Glosario, Simulador de nota. */
 const { useGo: useGoK, PageHead: PageHeadK, Panel: PanelK, EmptyState: EmptyStateK } = window;
-const kSubjects = () => Object.keys(window.SUBJECT_COLORS || {});
+const kSubjects = () => window.subjectNames();
 const kShuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 /* ============================ EXAMEN ADAPTATIVO ============================ */

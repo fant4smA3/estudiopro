@@ -75,10 +75,10 @@ const epShuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i
 function CreaRapido() {
   const go = useGoE();
   const st = window.useStore();
-  const SUBJECTS = Object.keys(window.SUBJECT_COLORS || {});
+  const SUBJECTS = window.subjectNames();
   const subjColor = window.subjColor;
   const DETAIL = window.MATERIA_DETAIL || {};
-  const defSubj = (window.__epSubject && window.SUBJECT_COLORS[window.__epSubject]) ? window.__epSubject : SUBJECTS[0];
+  const defSubj = (window.__epSubject && window.subjectNames().includes(window.__epSubject)) ? window.__epSubject : SUBJECTS[0];
 
   // ordenamientos y capítulos disponibles según el destino elegido
   const ordsForSubject = (subj) => {

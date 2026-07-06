@@ -43,7 +43,7 @@ function Cuestionarios() {
     const d = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(s.date + "T00:00:00")) / 86400000);
     return d <= 0 ? "hoy" : d === 1 ? "ayer" : d < 7 ? d + " d" : Math.floor(d / 7) + " sem";
   };
-  const SUBJECTS6 = Object.keys(window.SUBJECT_COLORS || {});
+  const SUBJECTS6 = window.subjectNames();
 
   return (
     <main className="main">
@@ -205,7 +205,7 @@ function Perfil() {
     ["Racha actual", streak + " día" + (streak === 1 ? "" : "s"), "días consecutivos de estudio"],
     ["Simulacros", String(sims.length), sims.length ? "media " + simMedia + " / 10" : "aún sin simulacros"],
   ];
-  const SUBJECTS = Object.keys(window.SUBJECT_COLORS || {});
+  const SUBJECTS = window.subjectNames();
   const porMateria = SUBJECTS.map((s) => {
     const qs = st.cards.filter((c) => c.subject === s);
     const dom = qs.filter((c) => c.nivel === "dominado").length;
