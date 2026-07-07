@@ -6,7 +6,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
 (function () {
   const listeners = new Set();
   // --- persistencia local: IndexedDB con debounce ---
-  const PERSIST_KEYS = ["questions", "cardSrs", "sessions", "lastResult", "plan", "notes", "resume", "subjects", "categories", "userCats", "userMats", "userOrds", "unlocked", "activity", "timeLog", "reports", "simHistory", "journal", "glossary"];
+  const PERSIST_KEYS = ["questions", "cardSrs", "sessions", "lastResult", "plan", "notes", "resume", "subjects", "categories", "userCats", "userMats", "userOrds", "unlocked", "activity", "timeLog", "reports", "simHistory", "journal", "glossary", "sidebar"];
   const save = () => {
     try {
       const snap = {};
@@ -63,6 +63,9 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     ],
     // histórico de simulacros para la gráfica de evolución (global + por materia, sobre 10)
     simHistory: [],
+    // layout personalizable del menú lateral: [{ t:"grp",label } | { t:"item",id } | { t:"sep" } | { t:"gap" }]
+    // null = usar el orden por defecto derivado de NAV
+    sidebar: null,
   };
 
   // store.cards es DERIVADO del banco: cada pregunta genera una tarjeta (frente=enunciado, reverso=respuesta correcta)
@@ -273,6 +276,9 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       emit(); return true;
     },
     addFreeze: () => { store.plan = { ...store.plan, freezes: (store.plan.freezes || 0) + 1 }; emit(); },
+    // --- menú lateral personalizable ---
+    setSidebar: (layout) => { store.sidebar = Array.isArray(layout) ? layout : null; emit(); },
+    resetSidebar: () => { store.sidebar = null; emit(); },
     // --- taxonomía editable (categorías / materias / ordenamientos) ---
     // Categorías: CRUD completo
     addCategory: (cat) => { ensureTaxonomy(); store.categories = [...store.categories, { id: "cat" + Date.now(), color: "#2F73CE", desc: "", ...cat }]; emit(); },

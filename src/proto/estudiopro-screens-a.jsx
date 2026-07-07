@@ -772,6 +772,7 @@ function Config() {
         </Panel>
 
         <Panel idx="03" title="Apariencia">
+          <div className="set-row"><div><div className="set-label">Menú lateral</div><div className="set-desc">Reordena u oculta páginas y agrega separadores o espacios.</div></div><button className="btn btn-sm" onClick={() => window.dispatchEvent(new Event("ep:editnav"))}>Personalizar…</button></div>
           <div className="set-row"><div><div className="set-label">Idioma</div><div className="set-desc">Idioma de la interfaz.</div></div><select className="input input-sm" aria-label="Idioma"><option>Español</option><option>English</option></select></div>
           <div className="set-row"><div><div className="set-label">Instalar como app (PWA)</div><div className="set-desc">{canInstall ? "Úsala como programa de escritorio, sin navegador." : "En iPhone: Safari → Compartir → Agregar a pantalla de inicio. En escritorio, tu navegador la ofrecerá al usarla."}</div></div><button className="btn btn-sm" onClick={instalar} disabled={!canInstall} title={canInstall ? undefined : "Este navegador no expone el aviso de instalación"}>{canInstall ? "Instalar app" : "Instalación manual"}</button></div>
         </Panel>
