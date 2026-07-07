@@ -74,7 +74,6 @@ function Preparacion() {
         <PanelH idx="→" title="Qué hacer ahora" meta="plan sugerido">
           <ol className="prep-todo">
             <li onClick={() => go("repaso")}><b>Repaso prioritario</b><span>Ataca falladas e importantes primero</span></li>
-            <li onClick={() => go("cronometro")}><b>Bloque de enfoque</b><span>Pomodoro en tu materia más débil</span></li>
             <li onClick={() => go("simulacro")}><b>Simulacro de práctica</b><span>Mide y detecta huecos reales</span></li>
             <li onClick={() => go("evolucion")}><b>Revisa tu evolución</b><span>Confirma que la tendencia sube</span></li>
           </ol>

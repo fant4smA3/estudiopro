@@ -10,13 +10,7 @@ const NAV = [
     ["inicio", "Inicio"],
     ["categorias", "Categorías"],
     ["materias", "Materias"],
-    ["cronometro", "Cronómetro"],
-    ["audio", "Tarjetas en audio"],
-    ["notas", "Apuntes"],
     ["imprimir", "Hoja de repaso"],
-    ["reto", "Reto diario"],
-    ["examen-adaptativo", "Examen adaptativo"],
-    ["podcast", "Podcast de repaso"],
     ["glosario", "Glosario"],
     ["metas", "Metas semanales"],
     ["bitacora", "Bitácora"],
@@ -24,7 +18,6 @@ const NAV = [
   { g: "banco", items: [
     ["banco", "Banco de preguntas"],
     ["crear-rapido", "Crear preguntas"],
-    ["generador", "Generador IA"],
     ["duplicados", "Duplicados"],
     ["distractores", "Reparar distractores"],
     ["tarjetas", "Tarjetas"],
@@ -33,7 +26,6 @@ const NAV = [
     ["simulacro", "Simulacro"],
     ["calendario", "Calendario"],
     ["plan", "Editor del plan"],
-    ["tutor", "Tutor de dudas"],
     ["reportes", "Reportes"],
   ]},
   { g: "progreso", items: [
@@ -49,12 +41,33 @@ const NAV = [
   ]},
   { g: "gestión", items: [
     ["importar", "Importar"],
-    ["importar-ia", "Importar con IA"],
     ["respaldo", "Respaldo"],
     ["alertas", "Alertas"],
     ["config", "Configuración"],
   ]},
 ];
+
+/* Registro de etiquetas por id (fuente de verdad de qué páginas existen) */
+const NAV_LABELS = {};
+NAV.forEach((g) => g.items.forEach(([id, label]) => { NAV_LABELS[id] = label; }));
+
+/* Layout por defecto del menú: lista plana de entradas grupo/ítem */
+function sidebarDefault() {
+  const out = [];
+  NAV.forEach((g) => { out.push({ t: "grp", label: g.g }); g.items.forEach(([id]) => out.push({ t: "item", id })); });
+  return out;
+}
+/* Layout efectivo: el guardado (reconciliado contra las páginas que existen) o el por defecto */
+function sidebarLayout() {
+  const st = window.EPStore ? window.EPStore.get() : null;
+  const saved = st && Array.isArray(st.sidebar) ? st.sidebar : null;
+  if (!saved) return sidebarDefault();
+  // descarta ítems de páginas que ya no existen; conserva grupos/separadores/espacios
+  return saved.filter((e) => e && e.t && (e.t !== "item" || NAV_LABELS[e.id])).map((e) => ({ ...e }));
+}
+window.NAV_LABELS = NAV_LABELS;
+window.sidebarDefault = sidebarDefault;
+window.sidebarLayout = sidebarLayout;
 
 function Topbar({ onMenu, onFocus, onDark, dark }) {
   const go = useGo();
@@ -145,24 +158,109 @@ function GlobalSearch() {
 
 function Side({ active, open }) {
   const go = useGo();
+  if (window.useStore) window.useStore(); // re-render al cambiar el layout guardado
+  const [editOpen, setEditOpen] = React.useState(false);
+  React.useEffect(() => {
+    const h = () => setEditOpen(true);
+    window.addEventListener("ep:editnav", h);
+    return () => window.removeEventListener("ep:editnav", h);
+  }, []);
+  const layout = window.sidebarLayout ? window.sidebarLayout() : [];
   return (
     <nav className={"side" + (open ? " is-open" : "")}>
-      {NAV.map((sec) => (
-        <div className="side-grp" key={sec.g}>
-          <div className="side-grp-h">{sec.g}</div>
-          {sec.items.map(([id, label]) => (
-            <a key={id}
-               className={"side-item" + (id === active ? " is-active" : "")}
-               onClick={() => go(id)} role="button" tabIndex={0}
-               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(id); } }}>
+      <div className="side-list">
+        {layout.map((e, i) => {
+          if (e.t === "grp") return <div className="side-grp-h" key={i}>{e.label}</div>;
+          if (e.t === "sep") return <div className="side-sep" key={i} aria-hidden="true"></div>;
+          if (e.t === "gap") return <div className="side-gap" key={i} aria-hidden="true"></div>;
+          const label = NAV_LABELS[e.id];
+          if (!label) return null;
+          return (
+            <a key={i}
+               className={"side-item" + (e.id === active ? " is-active" : "")}
+               onClick={() => go(e.id)} role="button" tabIndex={0}
+               onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); go(e.id); } }}>
               <span className="side-tick" aria-hidden="true"></span>
               <span className="side-label">{label}</span>
             </a>
+          );
+        })}
+      </div>
+      <div className="side-tools">
+        <button className="side-edit" onClick={() => window.dispatchEvent(new Event("ep:editnav"))}>
+          <span aria-hidden="true">✎</span> Personalizar menú
+        </button>
+      </div>
+      <SideFoot />
+      <SidebarEditor open={editOpen} onClose={() => setEditOpen(false)} />
+    </nav>
+  );
+}
+
+/* Editor del menú lateral: reordenar, ocultar páginas y agregar/quitar separadores y espacios */
+function SidebarEditor({ open, onClose }) {
+  const [draft, setDraft] = React.useState([]);
+  React.useEffect(() => { if (open) setDraft(window.sidebarLayout()); }, [open]);
+  const known = NAV_LABELS;
+  const usedIds = new Set(draft.filter((e) => e.t === "item").map((e) => e.id));
+  const hidden = Object.keys(known).filter((id) => !usedIds.has(id));
+
+  const move = (i, d) => setDraft((a) => {
+    const j = i + d; if (j < 0 || j >= a.length) return a;
+    const b = a.slice(); const t = b[i]; b[i] = b[j]; b[j] = t; return b;
+  });
+  const removeAt = (i) => setDraft((a) => a.filter((_, k) => k !== i));
+  const append = (entry) => setDraft((a) => [...a, entry]);
+  const setLabel = (i, v) => setDraft((a) => a.map((e, k) => (k === i ? { ...e, label: v } : e)));
+  const save = () => { window.EPStore.setSidebar(draft); window.toast && window.toast("Menú actualizado", "ok"); onClose && onClose(); };
+
+  const badge = { grp: "grupo", sep: "separador", gap: "espacio", item: "ítem" };
+  return (
+    <Modal open={open} onClose={onClose}>
+      <div className="modal-h">Personalizar menú lateral</div>
+      <div className="modal-b navedit">
+        <p className="navedit-hint">Reordena con ▲ ▼ y oculta con ✕. Agrega <b>separadores</b> (línea) o <b>espacios</b> (hueco) para agrupar visualmente. Las páginas ocultas siguen disponibles desde ⌘K.</p>
+        <div className="navedit-list">
+          {draft.length === 0 && <div className="navedit-empty">El menú está vacío. Agrega páginas desde abajo.</div>}
+          {draft.map((e, i) => (
+            <div className={"navedit-row nr-" + e.t} key={i}>
+              <div className="navedit-move">
+                <button type="button" className="navedit-arrow" aria-label="Subir" disabled={i === 0} onClick={() => move(i, -1)}>▲</button>
+                <button type="button" className="navedit-arrow" aria-label="Bajar" disabled={i === draft.length - 1} onClick={() => move(i, 1)}>▼</button>
+              </div>
+              <span className={"navedit-badge b-" + e.t}>{badge[e.t]}</span>
+              {e.t === "grp"
+                ? <input className="input navedit-in" value={e.label || ""} onChange={(ev) => setLabel(i, ev.target.value)} aria-label="Nombre del grupo" />
+                : e.t === "sep" ? <span className="navedit-name navedit-rule" aria-hidden="true"></span>
+                : e.t === "gap" ? <span className="navedit-name navedit-dim">— hueco vertical —</span>
+                : <span className="navedit-name">{known[e.id] || e.id}</span>}
+              <button type="button" className="navedit-del" aria-label={e.t === "item" ? "Ocultar página" : "Quitar"} onClick={() => removeAt(i)}>✕</button>
+            </div>
           ))}
         </div>
-      ))}
-      <SideFoot />
-    </nav>
+        <div className="navedit-add">
+          <button type="button" className="btn btn-sm" onClick={() => append({ t: "sep" })}>+ Separador</button>
+          <button type="button" className="btn btn-sm" onClick={() => append({ t: "gap" })}>+ Espacio</button>
+          <button type="button" className="btn btn-sm" onClick={() => append({ t: "grp", label: "nuevo grupo" })}>+ Grupo</button>
+        </div>
+        {hidden.length > 0 && (
+          <div className="navedit-pool">
+            <div className="navedit-pool-h">Páginas ocultas · toca para añadir</div>
+            <div className="navedit-chips">
+              {hidden.map((id) => (
+                <button type="button" className="navedit-chip" key={id} onClick={() => append({ t: "item", id })}>+ {known[id]}</button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="modal-f navedit-f">
+        <button type="button" className="btn" onClick={() => setDraft(window.sidebarDefault())}>Restablecer</button>
+        <span className="navedit-spacer"></span>
+        <button type="button" className="btn" onClick={onClose}>Cancelar</button>
+        <button type="button" className="btn btn-accent" onClick={save}>Guardar</button>
+      </div>
+    </Modal>
   );
 }
 

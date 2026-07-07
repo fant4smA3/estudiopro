@@ -10,8 +10,6 @@ import "./estudiopro-screens-b.jsx";
 import "./estudiopro-screens-c.jsx";
 import "./estudiopro-screens-d.jsx";
 import "./estudiopro-screens-e.jsx";
-import "./estudiopro-screens-f.jsx";
-import "./estudiopro-screens-g.jsx";
 import "./estudiopro-screens-h.jsx";
 import "./estudiopro-screens-i.jsx";
 import "./estudiopro-screens-j.jsx";

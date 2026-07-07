@@ -772,6 +772,7 @@ function Config() {
         </Panel>
 
         <Panel idx="03" title="Apariencia">
+          <div className="set-row"><div><div className="set-label">Menú lateral</div><div className="set-desc">Reordena u oculta páginas y agrega separadores o espacios.</div></div><button className="btn btn-sm" onClick={() => window.dispatchEvent(new Event("ep:editnav"))}>Personalizar…</button></div>
           <div className="set-row"><div><div className="set-label">Idioma</div><div className="set-desc">Idioma de la interfaz.</div></div><select className="input input-sm" aria-label="Idioma"><option>Español</option><option>English</option></select></div>
           <div className="set-row"><div><div className="set-label">Instalar como app (PWA)</div><div className="set-desc">{canInstall ? "Úsala como programa de escritorio, sin navegador." : "En iPhone: Safari → Compartir → Agregar a pantalla de inicio. En escritorio, tu navegador la ofrecerá al usarla."}</div></div><button className="btn btn-sm" onClick={instalar} disabled={!canInstall} title={canInstall ? undefined : "Este navegador no expone el aviso de instalación"}>{canInstall ? "Instalar app" : "Instalación manual"}</button></div>
         </Panel>
@@ -780,7 +781,7 @@ function Config() {
           <div className="set-row"><div><div className="set-label">Autoguardado</div><div className="set-desc">Guarda el progreso automáticamente.</div></div><Switch on={s.autoguardar} onClick={() => t("autoguardar")} label="Autoguardado" /></div>
           <div className="set-row"><div><div className="set-label">Respaldo y exportación</div><div className="set-desc">Base de datos local (SQLite).</div></div>
             <div className="set-btns"><button className="btn btn-sm" onClick={() => { const n = window.EPStore.exportJSON(); window.toast && window.toast("Respaldo exportado (" + n + " elementos)", "ok"); }}>Exportar JSON</button><button className="btn btn-sm" onClick={() => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); }}>Respaldar</button></div></div>
-          <div className="set-row"><div><div className="set-label">Importar banco</div><div className="set-desc">CSV, JSON o texto.</div></div><div className="set-btns"><button className="btn btn-sm" onClick={() => go("importar")}>Importar…</button><button className="btn btn-sm" onClick={() => go("importar-ia")}>Con IA</button></div></div>
+          <div className="set-row"><div><div className="set-label">Importar banco</div><div className="set-desc">CSV, JSON o texto.</div></div><div className="set-btns"><button className="btn btn-sm" onClick={() => go("importar")}>Importar…</button></div></div>
           <div className="set-row"><div><div className="set-label danger-text">Borrar todos los datos</div><div className="set-desc">Acción irreversible.</div></div><button className="btn btn-sm btn-danger" onClick={() => setConfirmDel(true)}>Borrar</button></div>
         </Panel>
       </div>

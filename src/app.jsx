@@ -5,17 +5,17 @@ const {
   Importar, Banco, PreguntaForm, Tarjetas, TarjetaForm, Quiz, Resultado, Cuestionarios, Perfil,
   ToastHost, Calendario, Simulacro, SimRun, Alertas, RepasoPrioritario, SesionHoy, Onboarding,
   Inteligencia, CreaRapido,
-  Cronometro, Apuntes, Audio, Generador, Tutor, Preparacion, Evolucion, MapaTemario, Respaldo, Reportes,
+  Preparacion, Evolucion, MapaTemario, Respaldo, Reportes,
   Informe, HojaRepaso, EditorPlan, CommandPalette,
-  ImportarIA, Duplicados, RetoDiario, Habitos, Bitacora,
-  ExamenAdaptativo, Confusiones, Metas, Podcast, Glosario, Simulador,
+  Duplicados, Habitos, Bitacora,
+  Confusiones, Metas, Glosario, Simulador,
   ReparaDistractores,
   useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor,
 } = window;
 
 const React = window.React;
 
-const ACTIVE = { materia: "materias", pregunta: "banco", tarjeta: "tarjetas", resultado: "cuestionarios", quiz: "cuestionarios", simrun: "simulacro", sesion: "inicio", "crear-rapido": "banco", generador: "generador", tutor: "tutor", reportes: "reportes", plan: "plan", imprimir: "imprimir", informe: "informe", "importar-ia": "importar-ia", duplicados: "duplicados", reto: "reto", habitos: "habitos", bitacora: "bitacora", "examen-adaptativo": "examen-adaptativo", confusiones: "confusiones", metas: "metas", podcast: "podcast", glosario: "glosario", simulador: "simulador" };
+const ACTIVE = { materia: "materias", pregunta: "banco", tarjeta: "tarjetas", resultado: "cuestionarios", quiz: "cuestionarios", simrun: "simulacro", sesion: "inicio", "crear-rapido": "banco", reportes: "reportes", plan: "plan", imprimir: "imprimir", informe: "informe", duplicados: "duplicados", habitos: "habitos", bitacora: "bitacora", confusiones: "confusiones", metas: "metas", glosario: "glosario", simulador: "simulador" };
 
 const TWEAK_DEFAULTS = { estilo: "sereno", acento: "#1B8FBE", densidad: "compacta", tema: "claro" };
 
@@ -27,7 +27,7 @@ export default function App() {
   const [navOpen, setNavOpen] = React.useState(false);
   const go = React.useCallback((r) => setRoute(r), []);
   React.useEffect(() => { const m = document.querySelector(".main"); if (m) m.scrollTop = 0; setNavOpen(false); }, [route]);
-  const screens = { inicio: Inicio, categorias: Categorias, materias: Materias, materia: MateriaDetalle, banco: Banco, pregunta: PreguntaForm, "crear-rapido": CreaRapido, tarjetas: Tarjetas, tarjeta: TarjetaForm, cuestionarios: Cuestionarios, quiz: Quiz, resultado: Resultado, importar: Importar, estadisticas: Estadisticas, config: Config, perfil: Perfil, calendario: Calendario, simulacro: Simulacro, simrun: SimRun, alertas: Alertas, repaso: RepasoPrioritario, sesion: SesionHoy, onboarding: Onboarding, inteligencia: Inteligencia, cronometro: Cronometro, notas: Apuntes, audio: Audio, generador: Generador, tutor: Tutor, preparacion: Preparacion, evolucion: Evolucion, mapa: MapaTemario, respaldo: Respaldo, reportes: Reportes, informe: Informe, imprimir: HojaRepaso, plan: EditorPlan, "importar-ia": ImportarIA, duplicados: Duplicados, reto: RetoDiario, habitos: Habitos, bitacora: Bitacora, "examen-adaptativo": ExamenAdaptativo, confusiones: Confusiones, metas: Metas, podcast: Podcast, glosario: Glosario, simulador: Simulador, distractores: ReparaDistractores };
+  const screens = { inicio: Inicio, categorias: Categorias, materias: Materias, materia: MateriaDetalle, banco: Banco, pregunta: PreguntaForm, "crear-rapido": CreaRapido, tarjetas: Tarjetas, tarjeta: TarjetaForm, cuestionarios: Cuestionarios, quiz: Quiz, resultado: Resultado, importar: Importar, estadisticas: Estadisticas, config: Config, perfil: Perfil, calendario: Calendario, simulacro: Simulacro, simrun: SimRun, alertas: Alertas, repaso: RepasoPrioritario, sesion: SesionHoy, onboarding: Onboarding, inteligencia: Inteligencia, preparacion: Preparacion, evolucion: Evolucion, mapa: MapaTemario, respaldo: Respaldo, reportes: Reportes, informe: Informe, imprimir: HojaRepaso, plan: EditorPlan, duplicados: Duplicados, habitos: Habitos, bitacora: Bitacora, confusiones: Confusiones, metas: Metas, glosario: Glosario, simulador: Simulador, distractores: ReparaDistractores };
   const Screen = screens[route] || Inicio;
   const estiloCls = ESTILO_CLS[t.estilo] || "opt-sereno";
   const densCls = t.densidad === "compacta" ? "dens-compact" : (t.densidad === "amplia" ? "dens-comfy" : "");

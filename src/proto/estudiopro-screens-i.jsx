@@ -287,9 +287,6 @@ function CommandPalette() {
     const nav = [];
     (window.NAV || []).forEach((grp) => grp.items.forEach(([route, label]) => nav.push({ label, hint: grp.g, run: () => go(route) })));
     const actions = [
-      { label: "Iniciar Pomodoro", hint: "acción", run: () => go("cronometro") },
-      { label: "Generar reactivos con IA", hint: "acción", run: () => go("generador") },
-      { label: "Preguntar al tutor", hint: "acción", run: () => go("tutor") },
       { label: "Exportar respaldo", hint: "acción", run: () => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); } },
       { label: "Regenerar plan de estudio", hint: "acción", run: () => { window.generarPlan(); window.toast && window.toast("Plan regenerado", "ok"); go("calendario"); } },
       { label: "Hoja de repaso (imprimir)", hint: "acción", run: () => go("imprimir") },
