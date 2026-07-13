@@ -130,7 +130,7 @@ function Duplicados() {
   const subjColor = window.subjColor;
   const groups = window.dedupeGroups();
   const total = groups.reduce((a, g) => a + g.length - 1, 0);
-  const del = (id) => { window.EPStore.deleteQuestion(id); window.toast && window.toast("Duplicado eliminado", "ok"); };
+  const del = (id) => { window.EPStore.deleteQuestion(id); window.undoableToast && window.undoableToast("Duplicado eliminado"); };
   return (
     <main className="main">
       <PageHeadJ title="Duplicados" sub="Reactivos con enunciado casi idéntico en tu banco"
@@ -255,28 +255,36 @@ function Habitos() {
     <main className="main">
       <PageHeadJ title="Hábitos de estudio" sub="Cuándo rindes mejor y qué estás por olvidar"
         crumbs={[["Inicio", "inicio"], "Hábitos"]} />
-      <PanelJ idx="◷" title="Mejor hora para estudiar" meta={"pico: " + fmtH(bh.best) + " · " + franja}>
-        <div className="bh-chart">
-          {bh.buckets.map((v, h) => (
-            <div className="bh-col" key={h} title={fmtH(h) + " · " + v + " min"}>
-              <div className="bh-bar" style={{ height: Math.max(2, v / bh.max * 100) + "%", background: h === bh.best ? "var(--accent)" : "var(--surface-2)" }}></div>
-              {h % 6 === 0 && <span className="bh-lbl">{h === 0 ? "12a" : h === 12 ? "12p" : (h % 12) + (h < 12 ? "a" : "p")}</span>}
-            </div>
-          ))}
-        </div>
-        <div className="bh-note">Programa tus bloques de enfoque alrededor de las <b>{fmtH(bh.best)}</b>, tu franja más productiva.</div>
+      <PanelJ idx="◷" title="Mejor hora para estudiar" meta={bh.total ? ("pico: " + fmtH(bh.best) + " · " + franja) : "sin registros aún"}>
+        {bh.total === 0
+          ? <EmptyStateJ icon="◷" title="Aún no hay registros de tiempo" desc="Usa el cronómetro o el temporizador de enfoque; aquí verás en qué horas rindes más." />
+          : <React.Fragment>
+              <div className="bh-chart">
+                {bh.buckets.map((v, h) => (
+                  <div className="bh-col" key={h} title={fmtH(h) + " · " + v + " min"}>
+                    <div className="bh-bar" style={{ height: Math.max(2, v / bh.max * 100) + "%", background: h === bh.best ? "var(--accent)" : "var(--surface-2)" }}></div>
+                    {h % 6 === 0 && <span className="bh-lbl">{h === 0 ? "12a" : h === 12 ? "12p" : (h % 12) + (h < 12 ? "a" : "p")}</span>}
+                  </div>
+                ))}
+              </div>
+              <div className="bh-note">Programa tus bloques de enfoque alrededor de las <b>{fmtH(bh.best)}</b>, tu franja más productiva.</div>
+            </React.Fragment>}
       </PanelJ>
-      <PanelJ idx="↓" title="Por olvidar pronto" meta="curva de olvido">
-        <div className="fg-list">
-          {fg.map(({ c, ret, dias }) => (
-            <div className="fg-row" key={c._id}>
-              <span className="cron-dot" style={{ background: subjColor(c.subject) }}></span>
-              <div className="fg-q"><div className="fg-q-t">{c.front}</div><div className="fg-q-s">{c.subject} · nivel {c.nivel} · hace {dias} d</div></div>
-              <div className="fg-ret"><div className="fg-ret-track"><div className="fg-ret-fill" style={{ width: ret + "%", background: ret < 40 ? "var(--danger)" : ret < 70 ? "var(--warn)" : "var(--ok)" }}></div></div><span>{ret}%</span></div>
-            </div>
-          ))}
-        </div>
-        <div className="fg-foot"><button className="btn btn-accent" onClick={() => go("repaso")}>Repasar ahora ▸</button></div>
+      <PanelJ idx="↓" title="Por olvidar pronto" meta="curva de olvido (estimada con tu repaso SM-2)">
+        {fg.length === 0
+          ? <EmptyStateJ icon="↓" title="Aún no hay repasos registrados" desc="Estudia tus tarjetas y aquí verás cuáles están por olvidarse, según el intervalo SM-2 de cada una." />
+          : <React.Fragment>
+              <div className="fg-list">
+                {fg.map(({ c, ret, dias }) => (
+                  <div className="fg-row" key={c._id}>
+                    <span className="cron-dot" style={{ background: subjColor(c.subject) }}></span>
+                    <div className="fg-q"><div className="fg-q-t">{c.front}</div><div className="fg-q-s">{c.subject} · nivel {c.nivel} · {dias === 0 ? "repasada hoy" : "hace " + dias + " d"}</div></div>
+                    <div className="fg-ret"><div className="fg-ret-track"><div className="fg-ret-fill" style={{ width: ret + "%", background: ret < 40 ? "var(--danger)" : ret < 70 ? "var(--warn)" : "var(--ok)" }}></div></div><span>{ret}%</span></div>
+                  </div>
+                ))}
+              </div>
+              <div className="fg-foot"><button className="btn btn-accent" onClick={() => go("repaso")}>Repasar ahora ▸</button></div>
+            </React.Fragment>}
       </PanelJ>
     </main>
   );

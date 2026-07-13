@@ -17,7 +17,8 @@ npm run dev        # abre http://localhost:5173
 ```
 
 Otros comandos: `npm test` (pruebas), `npm run build` (build de producción en `dist/`),
-`npm run preview` (sirve el build).
+`npm run preview` (sirve el build), `npm run lint` (ESLint) y `npm run typecheck` (TypeScript).
+En cada pull request, CI ejecuta lint + typecheck + pruebas + build (`.github/workflows/ci.yml`).
 
 ## Instalar en tu iPhone (offline)
 
@@ -50,8 +51,12 @@ el filtro **"Vencen hoy"** de Tarjetas muestra solo lo pendiente. Lógica en `sr
 ## Datos
 
 - Todo vive en tu dispositivo (IndexedDB); no hay servidor ni cuentas.
+- **Banco incluido**: la app empaqueta un banco curado (`public/data/`) que se carga con un
+  botón desde la pantalla **Importar** — funciona offline. La fuente cruda está en `data/` y
+  se cura con `node scripts/curar-banco.mjs <entrada> <salida>`.
 - Importación masiva: pantalla **Importar** (CSV/JSON, wizard de 4 pasos).
-- Exportar/restaurar: pantalla **Respaldo** (JSON completo).
+- Exportar/restaurar: pantalla **Respaldo** (JSON completo). Además se guarda una **copia
+  automática diaria** (últimas 5) restaurable desde esa misma pantalla.
 
 ## Estructura
 

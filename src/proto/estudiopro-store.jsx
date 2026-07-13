@@ -6,7 +6,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
 (function () {
   const listeners = new Set();
   // --- persistencia local: IndexedDB con debounce ---
-  const PERSIST_KEYS = ["questions", "cardSrs", "sessions", "lastResult", "plan", "notes", "resume", "subjects", "categories", "userCats", "userMats", "userOrds", "unlocked", "activity", "timeLog", "reports", "simHistory", "journal", "glossary", "sidebar"];
+  const PERSIST_KEYS = ["questions", "cardSrs", "sessions", "lastResult", "plan", "notes", "resume", "subjects", "categories", "userCats", "userMats", "userOrds", "unlocked", "activity", "timeLog", "reports", "simHistory", "journal", "glossary", "sidebar", "lastExport"];
   const save = () => {
     try {
       const snap = {};
@@ -66,6 +66,8 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     // layout personalizable del menú lateral: [{ t:"grp",label } | { t:"item",id } | { t:"sep" } | { t:"gap" }]
     // null = usar el orden por defecto derivado de NAV
     sidebar: null,
+    // fecha ISO de la última exportación de respaldo (para el recordatorio)
+    lastExport: null,
   };
 
   // store.cards es DERIVADO del banco: cada pregunta genera una tarjeta (frente=enunciado, reverso=respuesta correcta)
@@ -123,6 +125,16 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     }
   };
 
+  // último borrado de preguntas (para «Deshacer»): [{ q, idx, srs }]
+  let lastDeleted = null;
+  const rememberDeleted = (ids) => {
+    const set = new Set(ids);
+    lastDeleted = store.questions
+      .map((q, idx) => ({ q, idx, srs: store.cardSrs[q._id] }))
+      .filter((e) => set.has(e.q._id));
+    if (!lastDeleted.length) lastDeleted = null;
+  };
+
   const isoToday = () => new Date().toISOString().slice(0, 10);
   // registra actividad real del día (≈minutos-equivalentes) — alimenta heatmap, racha y metas
   const markActivity = (units) => {
@@ -178,7 +190,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       emit();
       return { added, skipped };
     },
-    deleteQuestion: (id) => { store.questions = store.questions.filter((q) => q._id !== id); const cs = { ...store.cardSrs }; delete cs[id]; store.cardSrs = cs; emit(); },
+    deleteQuestion: (id) => { rememberDeleted([id]); store.questions = store.questions.filter((q) => q._id !== id); const cs = { ...store.cardSrs }; delete cs[id]; store.cardSrs = cs; emit(); },
     updateQuestion: (id, patch) => { store.questions = store.questions.map((q) => q._id === id ? { ...q, ...patch } : q); emit(); },
     // editar una tarjeta edita la pregunta de origen (frente→enunciado, reverso→respuesta) + su nivel SRS
     updateCard: (id, patch) => {
@@ -204,7 +216,22 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
         : q);
       emit();
     },
-    deleteQuestions: (ids) => { const set = new Set(ids); store.questions = store.questions.filter((q) => !set.has(q._id)); const cs = { ...store.cardSrs }; ids.forEach((id) => delete cs[id]); store.cardSrs = cs; emit(); },
+    deleteQuestions: (ids) => { rememberDeleted(ids); const set = new Set(ids); store.questions = store.questions.filter((q) => !set.has(q._id)); const cs = { ...store.cardSrs }; ids.forEach((id) => delete cs[id]); store.cardSrs = cs; emit(); },
+    // restaura el último borrado de preguntas/tarjetas (posición original + estado SRS)
+    undoDelete: () => {
+      if (!lastDeleted || !lastDeleted.length) return 0;
+      const qs = store.questions.slice();
+      const cs = { ...store.cardSrs };
+      lastDeleted.forEach(({ q, idx, srs }) => {
+        qs.splice(Math.min(idx, qs.length), 0, q);
+        if (srs !== undefined) cs[q._id] = srs;
+      });
+      const n = lastDeleted.length;
+      lastDeleted = null;
+      store.questions = qs; store.cardSrs = cs;
+      emit();
+      return n;
+    },
     duplicateQuestion: (id) => {
       ensureSeed();
       const i = store.questions.findIndex((q) => q._id === id);
@@ -227,6 +254,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     },
     // eliminar una tarjeta elimina la pregunta de origen (fuente única)
     deleteCard: (id) => {
+      rememberDeleted([id]);
       store.questions = store.questions.filter((q) => q._id !== id);
       const cs = { ...store.cardSrs }; delete cs[id]; store.cardSrs = cs;
       emit();
@@ -356,6 +384,8 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       a.href = url; a.download = "estudiopro-respaldo-" + stamp + ".json";
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
+      store.lastExport = new Date().toISOString();
+      emit();
       return store.questions.length + store.cards.length;
     },
     // --- registro de tiempo real ---
@@ -386,23 +416,75 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       store.simHistory = [...store.simHistory, { id: "s" + Date.now(), date: new Date().toISOString().slice(0, 10), ...res }];
       emit();
     },
-    // --- importar respaldo JSON (reemplaza el estado local) ---
+    // --- importar respaldo JSON (reemplaza el estado local, con validación de esquema) ---
     importJSON: (payload) => {
       try {
         const d = payload && payload.data ? payload.data : payload;
-        if (!d) return { ok: false, msg: "Archivo vacío o inválido" };
-        if (Array.isArray(d.questions)) store.questions = d.questions.map((q, i) => ({ ...q, _id: q._id || q.id || ("Q" + i) }));
+        if (!d || typeof d !== "object" || Array.isArray(d)) return { ok: false, msg: "Archivo vacío o inválido" };
+        const hasAny = PERSIST_KEYS.some((k) => d[k] !== undefined);
+        if (!hasAny) return { ok: false, msg: "El archivo no parece un respaldo de EstudioPro" };
+
+        // preguntas: solo entradas bien formadas (enunciado + respuesta coherente con las opciones)
+        let dropped = 0;
+        if (d.questions !== undefined) {
+          if (!Array.isArray(d.questions)) return { ok: false, msg: "El campo de preguntas del respaldo está dañado" };
+          const clean = [];
+          d.questions.forEach((q, i) => {
+            if (!q || typeof q !== "object" || typeof q.q !== "string" || !q.q.trim()) { dropped++; return; }
+            if (q.options !== undefined) {
+              if (!Array.isArray(q.options) || q.options.length < 2 || q.options.some((o) => typeof o !== "string")
+                || typeof q.answer !== "number" || q.answer < 0 || q.answer >= q.options.length) { dropped++; return; }
+            } else if (typeof q.answer !== "string") { dropped++; return; }
+            clean.push({
+              ...q,
+              _id: q._id || q.id || ("Q" + Date.now() + "-" + i),
+              type: typeof q.type === "string" ? q.type : (q.options ? "OM" : "AB"),
+              dif: ["fácil", "medio", "difícil"].includes(q.dif) ? q.dif : "medio",
+              status: ["ok", "fall", "nuevo", "imp"].includes(q.status) ? q.status : "nuevo",
+              tags: Array.isArray(q.tags) ? q.tags.filter((t) => typeof t === "string") : [],
+            });
+          });
+          store.questions = clean;
+        }
+
+        // resto de claves: solo si el tipo coincide con el esperado
+        const isObj = (v) => v && typeof v === "object" && !Array.isArray(v);
+        const EXPECT = {
+          cardSrs: isObj, sessions: Array.isArray, notes: isObj, subjects: Array.isArray, categories: Array.isArray,
+          userCats: Array.isArray, userMats: Array.isArray, userOrds: isObj, unlocked: isObj, activity: isObj,
+          timeLog: Array.isArray, reports: Array.isArray, simHistory: Array.isArray, journal: Array.isArray,
+          glossary: Array.isArray, sidebar: Array.isArray, lastResult: isObj, resume: isObj,
+        };
         PERSIST_KEYS.forEach((k) => {
           if (k === "questions" || k === "plan") return;
-          if (d[k] !== undefined) store[k] = d[k];
+          if (d[k] === undefined || d[k] === null) return;
+          if (EXPECT[k] && !EXPECT[k](d[k])) { dropped++; return; }
+          store[k] = d[k];
         });
-        if (d.plan) store.plan = { ...store.plan, ...d.plan };
+        if (isObj(d.plan)) store.plan = { ...store.plan, ...d.plan };
+        // el SRS solo puede referir preguntas existentes
+        const ids = new Set((store.questions || []).map((q) => q._id));
+        const cs = {};
+        Object.keys(store.cardSrs || {}).forEach((id) => { if (ids.has(id)) cs[id] = store.cardSrs[id]; });
+        store.cardSrs = cs;
         seeded = true;
         emit();
-        return { ok: true, n: (store.questions || []).length };
+        return { ok: true, n: (store.questions || []).length, dropped };
       } catch (e) { return { ok: false, msg: "No se pudo leer el archivo" }; }
     },
     reset: () => { store.questions = []; store.cardSrs = {}; store.sessions = []; store.lastResult = null; store.notes = {}; store.resume = null; store.userCats = []; store.userMats = []; store.userOrds = {}; store.timeLog = []; store.reports = []; store.plan = { ...store.plan, doneToday: 0 }; seeded = true; emit(); },
+  };
+
+  // toast con «Deshacer» para borrados de preguntas/tarjetas
+  window.undoableToast = (msg) => {
+    if (!window.toast) return;
+    window.toast(msg, "ok", {
+      label: "Deshacer",
+      run: () => {
+        const n = window.EPStore.undoDelete();
+        window.toast(n ? (n === 1 ? "1 elemento restaurado" : n + " elementos restaurados") : "Nada que restaurar", n ? "ok" : "warn");
+      },
+    });
   };
 
   // lista de nombres de materia (fuente de verdad editable)
@@ -629,28 +711,35 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     return Object.values(map).filter((g) => g.length > 1);
   };
 
-  // ===== Curva de olvido: tarjetas por olvidar pronto =====
+  // ===== Curva de olvido: tarjetas por olvidar pronto (solo tarjetas ya repasadas) =====
+  // Retención estimada R = 2^(-días desde el último repaso / intervalo SM-2): el intervalo
+  // que programó SM-2 se usa como vida media. Sin historial de repaso no hay curva.
   window.forgetting = function () {
     const s = window.EPStore.get();
-    const hash = (str) => { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return h; };
-    const half = { nuevo: 2, medio: 6, dominado: 16 }; // vida media de retención (días) por nivel
-    const list = (s.cards || []).map((c) => {
-      const dias = hash(c._id) % (half[c.nivel] * 2 + 2); // días desde el último repaso (estable)
-      const ret = Math.round(100 * Math.pow(0.5, dias / (half[c.nivel] || 2)));
-      return { c, dias, ret };
+    const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+    const list = [];
+    (s.cards || []).forEach((c) => {
+      const sm2 = (s.cardSrs[c._id] || {}).sm2;
+      if (!sm2 || !sm2.due) return; // nunca repasada: sin datos para estimar olvido
+      const due = new Date(sm2.due + "T00:00:00");
+      const last = new Date(due); last.setDate(due.getDate() - (sm2.interval || 0));
+      const dias = Math.max(0, Math.round((hoy - last) / 86400000));
+      const half = Math.max(1, sm2.interval || 1);
+      const ret = Math.round(100 * Math.pow(0.5, dias / half));
+      list.push({ c, dias, ret });
     });
     return list.sort((a, b) => a.ret - b.ret);
   };
 
-  // ===== Mejor hora para estudiar (según registros de tiempo) =====
+  // ===== Mejor hora para estudiar (según registros de tiempo reales) =====
   window.bestHours = function () {
     const s = window.EPStore.get();
-    const hash = (str) => { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return h; };
     const buckets = Array.from({ length: 24 }, () => 0);
-    (s.timeLog || []).forEach((t) => { const h = (typeof t.hour === "number") ? t.hour : [7, 8, 9, 18, 19, 20, 21][hash(t.id || "") % 7]; buckets[h] += Math.round((t.seconds || 0) / 60); });
+    (s.timeLog || []).forEach((t) => { if (typeof t.hour === "number") buckets[t.hour] += Math.round((t.seconds || 0) / 60); });
+    const total = buckets.reduce((a, b) => a + b, 0);
     const max = Math.max(1, ...buckets);
     let best = 0; buckets.forEach((v, h) => { if (v > buckets[best]) best = h; });
-    return { buckets, max, best };
+    return { buckets, max, best, total };
   };
 
   // ===== Progreso semanal (días activos esta semana vs meta) =====
@@ -673,30 +762,37 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     return { days, active, goal, pct: Math.min(100, Math.round(active / goal * 100)), freezes: s.plan.freezes || 0 };
   };
 
-  // ===== Matriz de confusión: dónde pierdes puntos (materia × tipo de error) =====
+  // ===== Matriz de confusión real: % de falladas por materia × dificultad =====
+  // Celda = falladas / respondidas (ok + fall) de esa materia y dificultad; null sin datos.
   window.confusionMatrix = function () {
     const s = window.EPStore.get();
     const subjects = window.subjectNames();
-    const hash = (str) => { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return h; };
-    // categorías de error frecuentes en examen jurídico-militar
-    const cols = ["Confusión de conceptos", "Artículo/fundamento", "Plazos y cifras", "Jerarquía/competencia"];
+    const cols = ["Fácil", "Medio", "Difícil"];
+    const keys = ["fácil", "medio", "difícil"];
+    let answeredTotal = 0;
     const rows = subjects.map((subj) => {
       const qs = (s.questions || []).filter((q) => q.subject === subj);
-      const fall = qs.filter((q) => q.status === "fall").length;
-      const base = qs.length || 1;
-      // reparte los fallos entre columnas con una señal estable + peso por fallos reales
-      const cells = cols.map((c, ci) => {
-        const w = ((hash(subj + c) % 6) + 1);
-        const real = Math.round((fall / base) * 100);
-        return Math.min(100, Math.round(w * 6 + real * (0.6 + ci * 0.05)));
+      const cells = keys.map((k) => {
+        const grp = qs.filter((q) => (q.dif || "medio") === k);
+        const fall = grp.filter((q) => q.status === "fall").length;
+        const ok = grp.filter((q) => q.status === "ok").length;
+        const answered = fall + ok;
+        answeredTotal += answered;
+        return answered ? { v: Math.round(fall / answered * 100), fall, answered } : null;
       });
-      const worst = cells.indexOf(Math.max(...cells));
+      let worst = -1;
+      cells.forEach((c, i) => { if (c && c.fall > 0 && (worst < 0 || c.v > cells[worst].v)) worst = i; });
+      const fall = qs.filter((q) => q.status === "fall").length;
       return { subj, cells, worst, fall, total: qs.length };
     });
-    // peor celda global
-    let gmax = -1, gRow = 0, gCol = 0;
-    rows.forEach((r, ri) => r.cells.forEach((v, ci) => { if (v > gmax) { gmax = v; gRow = ri; gCol = ci; } }));
-    return { cols, rows, peak: { subj: rows[gRow].subj, col: cols[gCol], val: gmax } };
+    // peor celda global: prioriza nº de falladas y luego el % (evita el ruido de 1/1)
+    let peak = null;
+    rows.forEach((r) => r.cells.forEach((c, ci) => {
+      if (c && c.fall > 0 && (!peak || c.fall > peak.fall || (c.fall === peak.fall && c.v > peak.val))) {
+        peak = { subj: r.subj, col: cols[ci], val: c.v, fall: c.fall };
+      }
+    }));
+    return { cols, rows, peak, hasData: answeredTotal > 0 };
   };
 
   // ===== Simulador de nota final: escenarios al 27-jul =====

@@ -267,6 +267,24 @@ function Respaldo() {
   const fileRef = React.useRef(null);
   const [pending, setPending] = React.useState(null); // payload leído a confirmar
   const [info, setInfo] = React.useState(null);
+  // copias automáticas diarias (IndexedDB) + restauración
+  const [backups, setBackups] = React.useState([]);
+  const [restoreDate, setRestoreDate] = React.useState(null);
+  React.useEffect(() => {
+    if (window.epBackups) window.epBackups.list().then(setBackups).catch(() => {});
+  }, []);
+  const doRestoreBackup = () => {
+    const date = restoreDate; setRestoreDate(null);
+    window.epBackups.get(date).then((snap) => {
+      if (!snap) { window.toast && window.toast("No se encontró la copia", "danger"); return; }
+      const res = window.EPStore.importJSON({ data: snap });
+      if (res.ok) window.toast && window.toast("Copia del " + date + " restaurada (" + res.n + " preguntas)", "ok");
+      else window.toast && window.toast(res.msg || "No se pudo restaurar", "danger");
+    });
+  };
+  // recordatorio: días desde la última exportación (null = nunca)
+  const diasSinExportar = st.lastExport ? Math.floor((Date.now() - new Date(st.lastExport).getTime()) / 86400000) : null;
+  const recordar = diasSinExportar === null || diasSinExportar >= 7;
 
   const stats = [
     ["Preguntas", (st.questions || []).length],
@@ -294,7 +312,7 @@ function Respaldo() {
   const doImport = () => {
     const res = window.EPStore.importJSON(pending);
     setPending(null); setInfo(null);
-    if (res.ok) window.toast && window.toast("Respaldo restaurado (" + res.n + " preguntas)", "ok");
+    if (res.ok) window.toast && window.toast("Respaldo restaurado (" + res.n + " preguntas)" + (res.dropped ? " · " + res.dropped + " entradas inválidas omitidas" : ""), res.dropped ? "warn" : "ok");
     else window.toast && window.toast(res.msg || "No se pudo importar", "danger");
   };
 
@@ -310,6 +328,12 @@ function Respaldo() {
           <div className="resp-ic">⬇</div>
           <h3 className="resp-h">Exportar respaldo</h3>
           <p className="resp-d">Descarga un archivo <code>.json</code> con todo tu banco, tarjetas, apuntes, tiempos y progreso. Guárdalo en un lugar seguro.</p>
+          <p className={"resp-last" + (recordar ? " is-warn" : "")}>
+            {diasSinExportar === null ? "⚠ Aún no has exportado ningún respaldo." :
+              diasSinExportar === 0 ? "✓ Exportaste hoy." :
+              (recordar ? "⚠ " : "✓ ") + "Última exportación hace " + diasSinExportar + " día" + (diasSinExportar === 1 ? "" : "s") + "."}
+            {recordar && " iOS puede purgar datos locales: exporta ahora."}
+          </p>
           <button className="btn btn-accent btn-lg" onClick={() => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); }}>Descargar respaldo</button>
         </section>
         <section className="panel resp-card">
@@ -320,10 +344,29 @@ function Respaldo() {
           <button className="btn btn-lg" onClick={() => fileRef.current && fileRef.current.click()}>Seleccionar archivo…</button>
         </section>
       </div>
+      <section className="panel">
+        <div className="panel-h"><span className="panel-idx">❄</span><h2 className="panel-t">Copias automáticas</h2><span className="panel-meta">una por día · se conservan las últimas 5</span></div>
+        <div className="panel-b">
+          {backups.length === 0
+            ? <p className="resp-d" style={{ margin: 0 }}>Aún no hay copias automáticas. Se crean solas al abrir la app cada día; aquí podrás restaurarlas si algo sale mal.</p>
+            : backups.map((b) => (
+                <div className="set-row" key={b.date}>
+                  <div>
+                    <div className="set-label">Copia del {new Date(b.date + "T00:00:00").toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" })}</div>
+                    <div className="set-desc">Estado completo tal como estaba al iniciar ese día.</div>
+                  </div>
+                  <button className="btn btn-sm" onClick={() => setRestoreDate(b.date)}>Restaurar…</button>
+                </div>
+              ))}
+        </div>
+      </section>
       <p className="resp-note">Tus datos se guardan localmente en este navegador. Exporta con regularidad para no perder tu avance.</p>
       <ConfirmDialog open={!!pending} title="¿Restaurar este respaldo?"
         body={info ? "El archivo contiene " + info.q + " preguntas, " + info.n + " apuntes y " + info.s + " sesiones. Esto reemplazará tus datos actuales." : ""}
         confirmLabel="Restaurar" danger onConfirm={doImport} onClose={() => { setPending(null); setInfo(null); }} />
+      <ConfirmDialog open={!!restoreDate} title={"¿Restaurar la copia del " + restoreDate + "?"}
+        body="Tus datos actuales se reemplazarán por el estado guardado ese día. Si tienes dudas, exporta un respaldo antes."
+        confirmLabel="Restaurar copia" danger onConfirm={doRestoreBackup} onClose={() => setRestoreDate(null)} />
     </main>
   );
 }

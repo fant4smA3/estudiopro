@@ -722,9 +722,15 @@
 
   /* toast */
   .toast-host { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 9000; align-items: center; pointer-events: none; }
-  .toast { display: flex; align-items: center; gap: 10px; background: var(--ink); color: #fff; padding: 11px 16px; border-radius: 999px; font-size: 12.5px; font-weight: 600; box-shadow: 0 12px 32px -10px rgba(0,0,0,.45); animation: toast-in .26s cubic-bezier(.2,.8,.3,1); }
+  .toast { display: flex; align-items: center; gap: 10px; background: var(--ink); color: #fff; padding: 11px 16px; border-radius: 999px; font-size: 12.5px; font-weight: 600; box-shadow: 0 12px 32px -10px rgba(0,0,0,.45); animation: toast-in .26s cubic-bezier(.2,.8,.3,1); pointer-events: auto; }
   @keyframes toast-in { from { opacity: 0; transform: translateY(14px); } }
   .toast-ic { width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; font-size: 11px; }
+  .toast-act { background: rgba(255,255,255,.16); color: #fff; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; min-height: 30px; }
+  .toast-act:hover { background: rgba(255,255,255,.28); }
+
+  /* recordatorio de exportación (Respaldo) */
+  .resp-last { font-size: 12px; font-weight: 600; color: var(--ok); margin: 0 0 12px; }
+  .resp-last.is-warn { color: var(--danger); }
   .toast-ok .toast-ic { background: var(--ok); }
   .toast-danger .toast-ic { background: var(--danger); }
   .toast-warn .toast-ic { background: var(--warn); }
@@ -2081,6 +2087,9 @@ html, body { overscroll-behavior: none; }
     /* enlaces de texto (breadcrumbs, acciones de panel): área táctil ≥36px, muy por encima del mínimo AA de 24 */
     .crumb-link { min-height: 36px; display: inline-flex; align-items: center; }
     .panel-act { min-height: 36px; display: inline-flex; align-items: center; }
+    /* área táctil invisible ampliada en controles pequeños (sin cambiar el diseño) */
+    .switch, .pager .btn-sm, .crumb-link { position: relative; }
+    .switch::after, .pager .btn-sm::after, .crumb-link::after { content: ""; position: absolute; inset: -7px; }
   }
   .th-sort { cursor: pointer; user-select: none; }
   .th-sort:hover { color: var(--ink); }

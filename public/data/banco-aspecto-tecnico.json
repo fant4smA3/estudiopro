@@ -1,0 +1,5435 @@
+[
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; uno de los orígenes del término Ciberespacio se le atribuye al escritor de ciencia ficción.",
+  "options": [
+   "William Gibson",
+   "Neuromante 1984",
+   "Protocolo TCP/IP",
+   "Ciberespacio"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 122"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; novela que utilizó el concepto para describir un espacio virtual tridimensional, donde las personas interactuaban mediante redes de cómputo.",
+  "options": [
+   "Neuromante 1984",
+   "Protocolo TCP/IP",
+   "William Gibson",
+   "Energía eléctrica"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 122"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; concepto que se le atribuye al escritor de ciencia ficción William Gibson, quien en 1984 en su novela \"Neuromante\" utilizo para describir un espacio virtual tridimensional.",
+  "options": [
+   "Ciberespacio",
+   "Aplicaciones",
+   "Información",
+   "William Gibson"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 122"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; trasciende las fronteras geográficas y está en constante expansión, alimentado por la innovación tecnológica y la creatividad humana.",
+  "options": [
+   "Ciberespacio",
+   "Aplicaciones",
+   "Información",
+   "William Gibson"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 122"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; dentro de este espacio, las personas pueden comunicarse, acceder a información y participar en diversas actividades.",
+  "options": [
+   "Ciberespacio",
+   "Aplicaciones",
+   "Información",
+   "William Gibson"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 122"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; entorno o ámbito intangible de naturaleza global, soportado por las Tecnologías de la Información y Comunicaciones.",
+  "options": [
+   "Ciberespacio",
+   "Aplicaciones",
+   "Información",
+   "Protocolo TCP/IP"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 125"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; en él se comunican e interactúan las entidades públicas, privadas y la sociedad en general, coadyuvando al desarrollo nacional y garantizando el ejercicio de los derechos y libertades como en el mundo físico.",
+  "options": [
+   "Ciberespacio",
+   "Aplicaciones",
+   "Información",
+   "Protocolo TCP/IP"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 125"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; para las Fuerzas Armadas, se considera el quinto entorno operacional para proporcionar Seguridad y Defensa.",
+  "options": [
+   "Ciberespacio",
+   "Aplicaciones",
+   "Información",
+   "Protocolo TCP/IP"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 125"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es un concepto, idea o noción sin elementos tangibles o intangibles; compuesto por el Internet y demás sistemas aislados que se materializa por la interrelación de los elementos específicos.",
+  "options": [
+   "Ciberespacio",
+   "Aplicaciones",
+   "Información",
+   "Protocolo TCP/IP"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 126"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; constituyen las computadoras, servidores, cableado, todo tipo de dispositivos y hardware.",
+  "options": [
+   "Infraestructura de Tecnologías de Información y Comunicaciones",
+   "Infraestructura de TIC",
+   "Infraestructura TIC",
+   "instalaciones, centros de comunicaciones, centros de datos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 126"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; designa a los componentes intangibles como aplicaciones y programas.",
+  "options": [
+   "Software",
+   "Infraestructura TIC",
+   "Internet",
+   "Personas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 126"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; permiten el funcionamiento de dispositivos digitales; no es una parte intrínseca del Ciberespacio, sin embargo, es un entorno ideal para manejarla; pero no el único.",
+  "options": [
+   "Información",
+   "Ciberespacio",
+   "Aplicaciones",
+   "Software"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 126"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; conjunto de normas y procedimientos útiles para la transmisión de datos, conocido por el emisor y el receptor.",
+  "options": [
+   "Protocolos de transporte",
+   "Ecosistema ciberespacial",
+   "Infraestructura de TIC",
+   "Las relaciones y actividades"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 126"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es el lenguaje común para trasmitir información en Internet.",
+  "options": [
+   "Protocolo TCP/IP",
+   "Energía eléctrica",
+   "Infraestructura TIC",
+   "Ciberespacio"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 126"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; crean y modifican el Ciberespacio; realizan actividades, funciones y operaciones; pero no son parte intrínseca de este.",
+  "options": [
+   "Personas",
+   "Software",
+   "Internet",
+   "Información"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 126"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; abstracción convenida por las sociedades, soportado por elementos tangibles e intangibles que permite construir un ecosistema en el que interactúan diversas entidades.",
+  "options": [
+   "Ciberespacio",
+   "Aplicaciones",
+   "Información",
+   "Protocolo TCP/IP"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 128"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es uno de los elementos preponderantes del Ciberespacio.",
+  "options": [
+   "Internet",
+   "Software",
+   "Personas",
+   "Información"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 129"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; lugar en el que la percepción del espacio-tiempo es modificada y donde tiene lugar una sociedad virtual que crece exponencialmente, creando nuevas identidades.",
+  "options": [
+   "Ciberespacio",
+   "Aplicaciones",
+   "Información",
+   "Protocolo TCP/IP"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 130"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de acuerdo con la guía de Ciberdefensa, por cuantas partes fundamentales está integrado el ecosistema ciberespacial.",
+  "options": [
+   "3",
+   "2",
+   "4",
+   "5"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; está integrado por tres partes fundamentales: los entes que interactúan entre sí para darle forma, el propio Ciberespacio y las relaciones y/o actividades que se realizan en o a través de él.",
+  "options": [
+   "Ecosistema ciberespacial",
+   "Protocolos de transporte",
+   "Infraestructura de TIC",
+   "Las relaciones y actividades"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; el ecosistema ciberespacial está integrado por tres partes fundamentales: es un ente que interactúa entre sí para darle forma.",
+  "options": [
+   "Infraestructura de TIC",
+   "Protocolos de transporte",
+   "Ecosistema ciberespacial",
+   "Infraestructura de Tecnologías de Información y Comunicaciones"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; el ecosistema ciberespacial está integrado por tres partes fundamentales: es un ente que interactúa entre sí para darle forma.",
+  "options": [
+   "Software",
+   "Internet",
+   "Personas",
+   "Información"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; el ecosistema ciberespacial está integrado por tres partes fundamentales: es un ente que interactúa entre sí para darle forma.",
+  "options": [
+   "Aplicaciones",
+   "Ciberespacio",
+   "Información",
+   "Protocolo TCP/IP"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; el ecosistema ciberespacial está integrado por tres partes fundamentales: es un ente que interactúa entre sí para darle forma.",
+  "options": [
+   "Información",
+   "Ciberespacio",
+   "Aplicaciones",
+   "Software"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; el ecosistema ciberespacial está integrado por tres partes fundamentales: es un ente que interactúa entre sí para darle forma.",
+  "options": [
+   "Protocolos de transporte",
+   "Ecosistema ciberespacial",
+   "Infraestructura de TIC",
+   "Las relaciones y actividades"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; el ecosistema ciberespacial está integrado por tres partes fundamentales: es un ente que interactúa entre sí para darle forma.",
+  "options": [
+   "Energía eléctrica",
+   "Protocolo TCP/IP",
+   "Infraestructura TIC",
+   "Infraestructura de TIC"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; el ecosistema ciberespacial está integrado por tres partes fundamentales: es un ente que interactúa entre sí para darle forma.",
+  "options": [
+   "Personas",
+   "Software",
+   "Internet",
+   "Información"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de acuerdo con la guía de Ciberdefensa, es una parte fundamental del ecosistema ciberespacial.",
+  "options": [
+   "Los entes que interactúan entre sí",
+   "El software y la energía eléctrica",
+   "Las relaciones y actividades",
+   "Protocolos de transporte"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de acuerdo con la guía de Ciberdefensa, es una parte fundamental del ecosistema ciberespacial.",
+  "options": [
+   "Ciberespacio",
+   "Aplicaciones",
+   "Información",
+   "Protocolo TCP/IP"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de acuerdo con la guía de Ciberdefensa, es una parte fundamental del ecosistema ciberespacial.",
+  "options": [
+   "Las relaciones y actividades",
+   "Protocolos de transporte",
+   "Ecosistema ciberespacial",
+   "Los entes que interactúan entre sí"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Definición de Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "concepto"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; son los elementos que mantienen los signos vitales del espacio virtual.",
+  "options": [
+   "El software y la energía eléctrica",
+   "Los entes que interactúan entre sí",
+   "Las relaciones y actividades",
+   "activos, software y hardware"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 131"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; carácter dinámico, irrelevante costo de acceso, alta capacidad de procesamiento, carácter asimétrico, anonimato, alta capacidad de producir efectos físicos, transversalidad, son características del ciberespacio según.",
+  "options": [
+   "Costa Figueiredo & Davara",
+   "Ejército de Brasil",
+   "JID",
+   "OTAN"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; inseguridad latente, alcance global, vulnerabilidad de las fronteras geográficas, mutabilidad, incertidumbre, dualidad, función de apoyo, asimetría, son características del ciberespacio según.",
+  "options": [
+   "Ejército de Brasil",
+   "Costa Figueiredo & Davara",
+   "JID",
+   "OTAN"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; artificial, Imperceptible, dinámico y cambiante, ubicuo e inmediato, tiene fronteras, es transversal, son características del ciberespacio según.",
+  "options": [
+   "JID",
+   "Ejército de Brasil",
+   "Costa Figueiredo & Davara",
+   "OTAN"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; hecho por la humanidad, alcance global, efecto asimétrico, anonimato, tiempo y velocidad diferente, versatilidad y reutilización, son características del ciberespacio según.",
+  "options": [
+   "OTAN",
+   "Ejército de Brasil",
+   "JID",
+   "Costa Figueiredo & Davara"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; cuantas características se le consideraran al Ciberespacio de acuerdo con la OTAN.",
+  "options": [
+   "8",
+   "6",
+   "7",
+   "9"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; característica de acuerdo con la OTAN, el ciberespacio se distingue de otros ámbitos debido a su naturaleza creada por el hombre.",
+  "options": [
+   "Hecho por la humanidad",
+   "Seguridad por diseño",
+   "Costa Figueiredo & Davara",
+   "Identidades virtuales"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; característica de acuerdo con la OTAN, existe gracias a componentes físicos ubicados en tierra, mar, aire y espacio y a su vez, las operaciones en estos dominios físicos dependen del Ciberespacio.",
+  "options": [
+   "Hecho por la humanidad",
+   "Seguridad por diseño",
+   "Costa Figueiredo & Davara",
+   "Identidades virtuales"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se distingue de otros ámbitos debido a su naturaleza creada por el hombre.",
+  "options": [
+   "El Ciberespacio",
+   "Efecto asimétrico",
+   "Reutilización",
+   "Ejército de Brasil"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; este entorno existe gracias a componentes físicos ubicados en tierra, mar, aire y espacio y a su vez, las operaciones en estos dominios físicos dependen del Ciberespacio.",
+  "options": [
+   "El Ciberespacio",
+   "Efecto asimétrico",
+   "Reutilización",
+   "Ejército de Brasil"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; característica de acuerdo con la OTAN, el ciberespacio, aunque compuesto por entidades físicas como computadoras y redes, no está restringido por fronteras geográficas como otros dominios, su limitante es la conectividad y su alcance global permite a los actores generar impactos casi instantáneos en diversas partes del mundo.",
+  "options": [
+   "Alcance",
+   "Rapidez",
+   "Tiempo",
+   "Anonimato"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; no está restringido por fronteras geográficas como otros dominios, su limitante es la conectividad y su alcance global permite a los actores generar impactos casi instantáneos en diversas partes del mundo.",
+  "options": [
+   "El Ciberespacio",
+   "Efecto asimétrico",
+   "Reutilización",
+   "Ejército de Brasil"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; característica de acuerdo con la OTAN, donde los efectos pueden manifestarse en cualquiera de sus elementos.",
+  "options": [
+   "Efecto asimétrico",
+   "Ejército de Brasil",
+   "El Ciberespacio",
+   "Identidades virtuales"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; las actividades en o a través del Ciberespacio están dirigidas inicialmente contra.",
+  "options": [
+   "Sistemas, redes o dispositivos digitales",
+   "Activos, sistemas y redes",
+   "activos, sistemas y comunicaciones",
+   "Sistemas de Salud gubernamentales y de negocios"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; característica de acuerdo con la OTAN, donde permiten que los actores oculten sus intenciones y a su vez, facilitan que otros actúen en su nombre.",
+  "options": [
+   "Anonimato",
+   "Velocidad",
+   "Alcance",
+   "Rapidez"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; permiten que los actores permanezcan en el anonimato y oculten sus intenciones y a su vez, facilitan que otros actúen en su nombre.",
+  "options": [
+   "Identidades virtuales",
+   "Hecho por la humanidad",
+   "Costa Figueiredo & Davara",
+   "Ejército de Brasil"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; característica de acuerdo con la OTAN, donde será prolongado en situaciones donde la complejidad del objetivo, la recopilación de información, la especificidad de los efectos, los daños colaterales, el acceso y/o el anonimato sean aspectos cruciales.",
+  "options": [
+   "Tiempo",
+   "Alcance",
+   "Rapidez",
+   "Riesgo"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; característica de acuerdo con la OTAN, donde pueden generar efectos digitales en cuestión de milisegundos, mientras que cualquier repercusión en el mundo físico se manifestaría más tarde.",
+  "options": [
+   "Rapidez",
+   "Velocidad",
+   "Versatilidad",
+   "Alcance"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; característica de acuerdo con la OTAN, donde los impactos pueden ser concebidos para ser permanentes, temporales o reversibles.",
+  "options": [
+   "Versatilidad",
+   "Velocidad",
+   "Reutilización",
+   "El Ciberespacio"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Características del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; característica de acuerdo con la OTAN, puede ofrecer ventajas en ciertas circunstancias, pero también puede aumentar el riesgo de pérdida de anonimato, captura, explotación posterior y reingeniería por parte del adversario.",
+  "options": [
+   "Reutilización",
+   "Velocidad",
+   "Versatilidad",
+   "El Ciberespacio"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 133"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según la JID con cuantas capas o áreas está compuesto el ciberespacio.",
+  "options": [
+   "6",
+   "7",
+   "5",
+   "8"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 135"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según la OTAN con cuantas capas o áreas está compuesto el ciberespacio.",
+  "options": [
+   "3",
+   "4",
+   "2",
+   "5"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 135"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según el modelo de capas o áreas de la JID, está compuesta por todas las personas que desarrollan su actividad en el Ciberespacio.",
+  "options": [
+   "Capa humana",
+   "Capa lógica",
+   "Capa de TIC",
+   "Capa física"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 136"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según el modelo de capas o áreas de la JID, está formada por las ciberpersonas o identidades online.",
+  "options": [
+   "Capa ciberhumana",
+   "Capa geográfica",
+   "Capa cognitiva",
+   "Capa de la ciberpersona"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 136"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según el modelo de capas o áreas de la JID, está compuesta por el conocimiento como resultado de la interacción de las personas con los sistemas de información.",
+  "options": [
+   "Capa cognitiva",
+   "Capa geográfica",
+   "Capa ciberhumana",
+   "Capa humana"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 136"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según el modelo de capas o áreas de la JID, está integrada fundamentalmente por los sistemas de información.",
+  "options": [
+   "Capa lógica",
+   "Capa humana",
+   "Capa de TIC",
+   "Capa física"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 136"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; conjunto de recursos lógicos de computación que facilitan el procesado de información con un fin específico.",
+  "options": [
+   "Sistema de información",
+   "Manipulación de información",
+   "La seguridad de la información",
+   "Capa de la ciberpersona"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 136"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según el modelo de capas o áreas de la JID, está compuesta por los dispositivos físicos de red que permiten el transporte de datos.",
+  "options": [
+   "Capa de TIC",
+   "Capa humana",
+   "Capa lógica",
+   "Capa física"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 136"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según el modelo de capas o áreas de la JID, se integra por las zonas físicas correspondientes a los ámbitos o entornos de operaciones convencionales.",
+  "options": [
+   "Capa geográfica",
+   "Capa ciberhumana",
+   "Capa cognitiva",
+   "Capa humana"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 136"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según el modelo de capas o áreas de la OTAN, las entidades de esta capa están vinculadas a una ubicación geográfica.",
+  "options": [
+   "Capa física",
+   "Capa humana",
+   "Capa lógica",
+   "Capa de TIC"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 137"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según el modelo de capas o áreas de la OTAN, incluyen los equipos cruciales para el almacenamiento, procesamiento y transmisión de datos y aquellos componentes integrados de TIC de otros equipos o sistemas.",
+  "options": [
+   "Capa física",
+   "Capa humana",
+   "Capa lógica",
+   "Capa de TIC"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 137"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según el modelo de capas o áreas de la OTAN, las entidades de esta capa son elementos manifestados en códigos o datos, como firmware, sistemas operativos, protocolos, aplicaciones y otros componentes de software y datos.",
+  "options": [
+   "Capa lógica",
+   "Capa humana",
+   "Capa de TIC",
+   "Capa física"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 137"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según el modelo de capas o áreas de la OTAN, no puede funcionar sin la capa física y la información fluye a través de redes cableadas o del espectro electromagnético.",
+  "options": [
+   "Capa lógica",
+   "Capa humana",
+   "Capa de TIC",
+   "Capa física"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 137"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; según el modelo de capas o áreas de la OTAN, consiste en representaciones de la identidad virtual de personas u organizaciones.",
+  "options": [
+   "Capa de la ciberpersona",
+   "Capa ciberhumana",
+   "Capa geográfica",
+   "Capa cognitiva"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 137"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Estructura del Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; puede ser una dirección de correo electrónico, una identificación de persona usuaria, una cuenta en una red social o un alias.",
+  "options": [
+   "Identidad virtual",
+   "Capa ciberhumana",
+   "Capa geográfica",
+   "Capa cognitiva"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 137"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; brindan oportunidades de desarrollo social y económico; sin embargo, existen tendencias preocupantes en este entorno mundial respecto a un aumento de incidentes relacionados con su uso malintencionado por parte de agentes estatales y no estatales.",
+  "options": [
+   "Las TIC",
+   "Capa de TIC",
+   "Amenaza",
+   "Windows"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 139"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; brindan oportunidades de desarrollo social y económico.",
+  "options": [
+   "Las TIC",
+   "Capa de TIC",
+   "Amenaza",
+   "Windows"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 139"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se presenta cuando los sistemas informáticos operan a pesar de estar bajo un escenario de riesgo continuo.",
+  "options": [
+   "Paz tolerada",
+   "Ciberamenaza",
+   "Delincuentes",
+   "Ciberataques"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 140"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; antagonismo que implica una condición, interna o externa, generada por situaciones políticas, económicas, sociales o por agentes no estatales, así como por desastres de origen natural o antropogénicos, cuya evolución pudiera poner en entredicho el desarrollo nacional.",
+  "options": [
+   "Riesgo",
+   "Amenaza",
+   "Riesgos y amenazas",
+   "Acceso"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 141"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; antagonismo que implica una condición, interna o externa.",
+  "options": [
+   "Riesgo",
+   "Amenaza",
+   "Riesgos y amenazas",
+   "Acceso"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 141"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; antagonismo generado por situaciones políticas, económicas, sociales o por agentes no estatales, así como por desastres de origen natural o antropogénicos, cuya evolución pudiera poner en entredicho el desarrollo nacional.",
+  "options": [
+   "Riesgo",
+   "Amenaza",
+   "Riesgos y amenazas",
+   "Acceso"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 141"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; antagonismo generado por desastres de origen natural o antropogénicos, cuya evolución pudiera poner en entredicho el desarrollo nacional.",
+  "options": [
+   "Riesgo",
+   "Amenaza",
+   "Riesgos y amenazas",
+   "Acceso"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 141"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; antagonismo intencional generado por el poder de otro Estado, o por agentes no estatales.",
+  "options": [
+   "Amenaza",
+   "Riesgo",
+   "Riesgos y amenazas",
+   "Insiders"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 142"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; antagonismo cuya característica es una voluntad hostil y deliberada que pone en peligro de vulneración particularmente grave a las aspiraciones, intereses y objetivos nacionales.",
+  "options": [
+   "Amenaza",
+   "Riesgo",
+   "Riesgos y amenazas",
+   "Insiders"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 142"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; antagonismo, donde los riesgos se refieren a una condición latente, mientras que las amenazas a una acción intencional.",
+  "options": [
+   "Riesgos y amenazas",
+   "Riesgo",
+   "Amenaza",
+   "Software malicioso"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 143"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; son términos polisémicos, ya que adquieren un significado diferente según se trate de Seguridad Nacional o del Ciberespacio.",
+  "options": [
+   "Riesgo y amenaza",
+   "Actores estatales",
+   "La probabilidad",
+   "Métodos físicos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 144"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; en el ámbito del Ciberespacio los conceptos ___ están estrechamente relacionados a través del concepto de vulnerabilidad.",
+  "options": [
+   "Riesgo y amenaza",
+   "Amenazas y riesgos",
+   "Actores estatales",
+   "La probabilidad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 145"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se define como una falla, ausencia o debilidad en el diseño, implementación u operación de un activo de información o de las TIC.",
+  "options": [
+   "Vulnerabilidad",
+   "Riesgo",
+   "Amenaza",
+   "Ciberamenaza"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 145"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; fuente potencial externa o interna, con capacidad de provocar un efecto adverso perjudicial a un activo de las TIC.",
+  "options": [
+   "Ciberamenaza",
+   "Delincuentes",
+   "Ciberataques",
+   "Accidentales"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 146"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; probabilidad de que una ciberamenaza aproveche y explote una vulnerabilidad y cuyo resultado provoque un impacto negativo a una organización o a la Seguridad Nacional.",
+  "options": [
+   "Ciberriesgo",
+   "Negligencia",
+   "Petyas 2016",
+   "Ciberamenaza"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 147"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se realiza al relacionar la probabilidad de ocurrencia de este con el impacto que puede ocasionar.",
+  "options": [
+   "La evaluación de un ciberriesgo",
+   "La evaluación de una ciberamenaza",
+   "Ciberriesgo",
+   "Ciberamenaza"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 148"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; consiste en la relación entre vulnerabilidades y amenazas.",
+  "options": [
+   "La probabilidad",
+   "El impacto",
+   "Métodos físicos",
+   "Riesgo y amenaza"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 148"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se mide por el valor del bien atacado y la criticidad de su pérdida.",
+  "options": [
+   "El impacto",
+   "La probabilidad",
+   "Petya 2017",
+   "MITRE 2016"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 148"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; conjunto de puntos en el límite por donde un atacante puede tratar de ingresar.",
+  "options": [
+   "Superficie de ataque",
+   "Ataque de fuerza bruta",
+   "Ataque de gemelo malvado",
+   "Actores no estatales"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 151"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se trata de la suma de vulnerabilidades que podrían ser explotadas por un o una atacante.",
+  "options": [
+   "Superficie de ataque",
+   "Ataque de fuerza bruta",
+   "Ataque de gemelo malvado",
+   "Actores no estatales"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 151"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; sus objetivos incluyen instituciones de gobierno e industria de defensa.",
+  "options": [
+   "Actores estatales",
+   "Riesgos y amenazas",
+   "Amenazas y riesgos",
+   "Software malicioso"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 152"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; operan para sí mismos, no obstante, pueden trabajar para un Estado cuando éste carece de las capacidades para operar en el Ciberespacio o delega estas acciones, por falta de voluntad política.",
+  "options": [
+   "Actores no estatales",
+   "Superficie de ataque",
+   "Acciones adversarias",
+   "Acceso no autorizado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 152"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; operan para sí mismos y en los casos en que las operaciones del Ciberespacio no se ajustan a las normas legales o éticas.",
+  "options": [
+   "Actores no estatales",
+   "Superficie de ataque",
+   "Acciones adversarias",
+   "Acceso no autorizado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 152"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; a esta clase pertenecen los denominados hacktivistas.",
+  "options": [
+   "Actores no estatales",
+   "Superficie de ataque",
+   "Acciones adversarias",
+   "Acceso no autorizado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 152"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; puede repercutir en las operaciones militares, pero por lo general sigue siendo competencia de los cuerpos y fuerzas de seguridad pública a través de la legislación establecida.",
+  "options": [
+   "La actividad delictiva",
+   "Denegación de servicio",
+   "Activos, sistemas y redes",
+   "Superficie de ataque"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 152"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; consisten en personal descontento que intenta explotar deliberadamente el Ciberespacio para causar daño.",
+  "options": [
+   "Insiders",
+   "Naturales",
+   "Amenaza",
+   "El impacto"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 152"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; los actores de amenaza pueden ser de distinta índole y motivación, cuantos son.",
+  "options": [
+   "4",
+   "3",
+   "2",
+   "5"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 152"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; actores de amenaza que se ha trasladado al Ciberespacio para aprovechar su conectividad y anonimato.",
+  "options": [
+   "Delincuentes",
+   "Ciberamenaza",
+   "Ciberataques",
+   "Accidentales"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 152"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se disimulan con facilidad y en muchos casos, las víctimas no se dan cuenta de inmediato que han sido atacadas.",
+  "options": [
+   "Ciberataques",
+   "Ciberamenaza",
+   "Delincuentes",
+   "Accidentales"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 153"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es redituable para los actores de amenaza por los efectos que pueden lograr con relación a los recursos invertidos.",
+  "options": [
+   "Ciberataques",
+   "Ciberamenaza",
+   "Delincuentes",
+   "Accidentales"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 153"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; las amenazas en el Ciberespacio pueden clasificarse según su origen, cuantas son.",
+  "options": [
+   "4",
+   "5",
+   "3",
+   "2"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 154"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; las amenazas en el Ciberespacio pueden clasificarse según su tipo, cuantas son.",
+  "options": [
+   "3",
+   "4",
+   "5",
+   "2"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 154"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; las amenazas en el Ciberespacio pueden clasificarse según su técnica, cuantas son.",
+  "options": [
+   "4",
+   "3",
+   "5",
+   "2"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 154"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; amenaza en el Ciberespacio según su origen.",
+  "options": [
+   "Acciones adversarias",
+   "Fallos técnicos de los equipos",
+   "Denegación de servicio",
+   "Acceso no autorizado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 154"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; amenaza en el Ciberespacio según su origen.",
+  "options": [
+   "Negligencia o incompetencia",
+   "Errores, abusos o subversión",
+   "Software malicioso",
+   "Fallos técnicos de los equipos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 154"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; amenaza en el Ciberespacio según su tipo.",
+  "options": [
+   "Fallos técnicos de los equipos",
+   "Accidentales",
+   "Negligencia",
+   "Acceso no autorizado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 154"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; amenaza en el Ciberespacio según su tipo.",
+  "options": [
+   "Compromisos de las funciones derivados de errores, abusos o subversión",
+   "Engaño a personas usuarias autorizadas para que realicen acciones que comprometan la seguridad",
+   "Software malicioso para la explotación continua de sistemas",
+   "Compromisos derivados de acceso no autorizado y escala de privilegios"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 154"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; amenaza en el Ciberespacio según su técnica.",
+  "options": [
+   "Engaño a personas usuarias autorizadas para que realicen acciones que comprometan la seguridad",
+   "Engaño a personas para que realicen explotación continua de sistemas",
+   "Fallos técnicos de los equipos",
+   "Físicos (incendios, inundaciones, pérdidas de energía, entre otros)"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 154"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; amenaza en el Ciberespacio según su técnica.",
+  "options": [
+   "Acceso no autorizado y escala de privilegios",
+   "Acciones adversarias",
+   "Naturales",
+   "Compromisos de las funciones derivados de errores, abusos o subversión"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 154"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; amenaza en el Ciberespacio según su técnica.",
+  "options": [
+   "Software malicioso para la explotación continua de sistemas",
+   "Software malicioso para engaño a personas usuarias autorizadas",
+   "Acciones adversarias derivados de abusos o subversión",
+   "Compromisos de las funciones derivados de errores"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 154"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; amenaza en el Ciberespacio según su técnica.",
+  "options": [
+   "Denegación de servicio",
+   "Fallos técnicos de protocolo",
+   "Métodos físicos",
+   "Acciones adversarias"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 154"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; señaló que una preocupación de los Estados es la instalación clandestina de código malicioso durante el proceso de fabricación o transporte del hardware o software adquirido.",
+  "options": [
+   "El Grupo de Expertos Gubernamentales de la ONU",
+   "El Grupo de Expertos Gubernamentales de la OEA",
+   "Acceso no autorizado y escala de privilegios",
+   "Ataque a la cadena de suministros de las TIC"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 155"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es la instalación clandestina de código malicioso durante el proceso de fabricación o transporte del hardware o software adquirido.",
+  "options": [
+   "Ataque a la cadena de suministros de las TIC",
+   "Compromisos de las funciones derivados de errores",
+   "Acceso no autorizado y escala de privilegios",
+   "El Grupo de Expertos Gubernamentales de la ONU"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 139"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; proveedora de software comercial que se vio comprometida, permitiendo a los atacantes propagar un código malicioso a través de una actualización de software a las personas usuarias de contabilidad de la empresa, el cual tuvo por objeto secuestrar datos, cifrándolos.",
+  "options": [
+   "Petya 2017",
+   "Petyas 2016",
+   "MITRE 2016",
+   "Aspel 2017"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 156"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "riesgos, vulnerabilidades y amenazas"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; las amenazas contra estos, ya sean físicos o virtuales, representan los ataques más dañinos perpetrados a través del Ciberespacio.",
+  "options": [
+   "Activos, sistemas y redes",
+   "activos, software y hardware",
+   "instalaciones, centros de comunicaciones, centros de datos",
+   "activos, sistemas y comunicaciones"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 157"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es referencia mundial para el desarrollo de modelos y metodologías contra ciberamenazas.",
+  "options": [
+   "Base de datos de libre acceso “MITRE ATT&CK”",
+   "Acceso no autorizado y escala de privilegios",
+   "Acceso a credenciales",
+   "instalaciones, centros de comunicaciones, centros de datos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 158"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; proporciona información acerca de las Tácticas, Técnicas y Procedimientos (TTP) empleados por los atacantes en el Ciberespacio con base en observaciones reales.",
+  "options": [
+   "Base de datos de libre acceso “MITRE ATT&CK”",
+   "Acceso no autorizado y escala de privilegios",
+   "Acceso a credenciales",
+   "instalaciones, centros de comunicaciones, centros de datos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 158"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; inició en 2013 para documentar las TTP más comunes que utilizan Amenazas Persistentes Avanzadas (APT, por sus siglas en inglés) contra las redes empresariales de windows.",
+  "options": [
+   "MITRE ATT&CK",
+   "MITRE 2016",
+   "Persistencia",
+   "Recopilación"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 159"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; MITRE inició ATT&CK en 2013 para documentar las TTP más comunes que utilizan Amenazas Persistentes Avanzadas (APT, por sus siglas en inglés) contra las redes empresariales de windows; dentro de un proyecto de investigación llamado.",
+  "options": [
+   "FMX",
+   "APT",
+   "FIN",
+   "JID"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 159"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; MITRE inició ATT&CK en 2013 para documentar las TTP más comunes que utilizan Amenazas Persistentes Avanzadas (APT, por sus siglas en inglés) contra las redes empresariales de.",
+  "options": [
+   "Windows",
+   "Impacto",
+   "Tácticas",
+   "Técnicas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 159"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; son el objetivo del adversario, el motivo por el cual lleva a cabo la acción.",
+  "options": [
+   "Tácticas",
+   "Técnicas",
+   "Phishing",
+   "Windows"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 160"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; representan cómo el atacante logra materializar la táctica.",
+  "options": [
+   "Técnicas",
+   "Tácticas",
+   "Phishing",
+   "Windows"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 160"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; cuantas tácticas considera MITRE.",
+  "options": [
+   "14",
+   "16",
+   "12",
+   "15"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 160"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; son el modo que utiliza la persona adversaria para implementar las técnicas o subtécnicas.",
+  "options": [
+   "Procedimientos",
+   "Reconocimiento",
+   "Descubrimiento",
+   "MITRE ATT&CK"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 160"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; su cantidad tampoco es permanente ya que evolucionan constantemente.",
+  "options": [
+   "Procedimientos",
+   "Reconocimiento",
+   "Descubrimiento",
+   "MITRE ATT&CK"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 160"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; consiste en engañar al objetivo a efecto de que proporcione deliberadamente alguna información confidencial valiosa.",
+  "options": [
+   "Phishing",
+   "Tácticas",
+   "Técnicas",
+   "Windows"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 161"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; táctica de MITRE, donde el o la persona atacante recopila información sobre el objetivo.",
+  "options": [
+   "Reconocimiento",
+   "Procedimientos",
+   "Descubrimiento",
+   "MITRE ATT&CK"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 161"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; táctica de MITRE, donde el o la persona atacante adquiere herramientas y recursos necesarios.",
+  "options": [
+   "Desarrollo de recursos",
+   "Acceso a credenciales",
+   "Evasión de defensas",
+   "Técnica de phishing"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 161"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; táctica de MITRE, donde el o la persona atacante mantiene el acceso después de reinicios.",
+  "options": [
+   "Persistencia",
+   "MITRE ATT&CK",
+   "Recopilación",
+   "Exfiltración"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 161"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; táctica de MITRE, donde el o la persona atacante evita ser detectado o bloqueado.",
+  "options": [
+   "Evasión de defensas",
+   "Técnica de phishing",
+   "Acceso a credenciales",
+   "Comando y control"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 161"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; táctica de MITRE, donde el o la persona atacante obtiene credenciales válidas.",
+  "options": [
+   "Acceso a credenciales",
+   "Acceso no autorizado",
+   "Desarrollo de recursos",
+   "Evasión de defensas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 161"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; táctica de MITRE, donde el o la persona atacante busca información sobre el entorno objetivo.",
+  "options": [
+   "Descubrimiento",
+   "Procedimientos",
+   "Reconocimiento",
+   "MITRE ATT&CK"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 161"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; táctica de MITRE, donde el o la persona atacante recopila datos específicos del objetivo.",
+  "options": [
+   "Recopilación",
+   "MITRE ATT&CK",
+   "Persistencia",
+   "Exfiltración"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 161"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; táctica de MITRE, donde el o la persona atacante establece y mantiene comunicaciones.",
+  "options": [
+   "Comando y control",
+   "Evasión de defensas",
+   "Técnica de phishing",
+   "Procedimientos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 161"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; táctica de MITRE, donde el o la persona atacante roba datos del entorno objetivo.",
+  "options": [
+   "Exfiltración",
+   "MITRE ATT&CK",
+   "Persistencia",
+   "Recopilación"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 161"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; táctica de MITRE, donde el o la persona atacante causa daño directo al entorno objetivo.",
+  "options": [
+   "Impacto",
+   "Windows",
+   "Tácticas",
+   "Técnicas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 161"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tácticas, técnicas y procedimientos (ttp)"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; esta clase de técnica difícilmente logrará por sí sola el cometido, normalmente se articulan diversas técnicas y subtécnicas a fin de explotar las vulnerabilidades del blanco.",
+  "options": [
+   "Técnica de phishing",
+   "Evasión de defensas",
+   "Acceso a credenciales",
+   "Comando y control"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 162"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se utiliza para describir una campaña de ataque en la que una persona intrusa o un grupo de personas intrusas.",
+  "options": [
+   "APT",
+   "FIN",
+   "FMX",
+   "JID"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 163"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; establece una presencia ilícita a largo plazo en una red para extraer datos altamente confidenciales.",
+  "options": [
+   "APT",
+   "FIN",
+   "FMX",
+   "JID"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 163"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de acuerdo a la Guía de Ciberdefensa, las APT operan conforme a un proceso cíclico de cuantas fases.",
+  "options": [
+   "4",
+   "3",
+   "5",
+   "2"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 164"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; fase de las APT donde se realiza la identificación de potenciales objetivos, valoración de sus activos y la rentabilidad del ciberataque, comparando los recursos propios con relación a los beneficios esperados.",
+  "options": [
+   "Preparación",
+   "Persistencia",
+   "Anonimización",
+   "Ejecución"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 164"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; fase de las APT donde se recopila inteligencia de la potencial víctima.",
+  "options": [
+   "Preparación",
+   "Persistencia",
+   "Anonimización",
+   "Ejecución"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 164"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; fase de las APT donde se seleccionan las TTP idóneas, se diseña el ciberataque y se prueba en el campo de maniobras propio.",
+  "options": [
+   "Preparación",
+   "Persistencia",
+   "Anonimización",
+   "Ejecución"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 164"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; fase de las APT donde se procede a la infiltración en la red objetivo y al establecimiento de un canal de comunicación externo, aprovechando vulnerabilidades previamente detectadas y probadas.",
+  "options": [
+   "Acceso",
+   "APT 33",
+   "APT 38",
+   "FIN 13"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 164"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; fase de las APT donde una vez creada la puerta trasera se produce un canal de comunicación oculto entre la red objetivo y el centro de mando y control de la APT, estableciéndose el primer punto de presencia.",
+  "options": [
+   "Acceso",
+   "APT 33",
+   "APT 38",
+   "FIN 13"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 164"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; fase de las APT donde se emplea el primer punto de presencia para realizar desde dentro un reconocimiento detallado de la red que aporte la información necesaria para ejecutar (de manera segura y silenciosa) movimientos laterales dentro de la red.",
+  "options": [
+   "Persistencia",
+   "Anonimización",
+   "Preparación",
+   "Paz tolerada"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 164"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; fase de las APT donde empieza cuando se tiene un grado de control y persistencia suficientemente alto para garantizar el ataque a los objetivos de valor sin ser descubiertos.",
+  "options": [
+   "Ejecución",
+   "Preparación",
+   "Naturales",
+   "Ciberarma"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 164"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; fase de las APT donde se procede, de manera cautelosa, a la selección, recolección, cifrado y exfiltración de la información de interés para el organismo asociado a la APT.",
+  "options": [
+   "Ejecución",
+   "Preparación",
+   "Naturales",
+   "Ciberarma"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 164"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; fase de las APT donde a medida que se van logrando los objetivos específicos, se procede a implementar las medidas orientadas a eliminar los posibles rastros (huella digital).",
+  "options": [
+   "Anonimización",
+   "Persistencia",
+   "Preparación",
+   "Criptojacking"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 164"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; grupo de APT dedicado principalmente al robo de propiedad intelectual en industrias gubernamentales, energía\ty alta tecnología.",
+  "options": [
+   "APT 27 Goblin Panda",
+   "APT 34 HELIX KITTEN",
+   "APT 28 Fancy Bear",
+   "APT 35 Newscaster Team"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 165"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; grupo de APT especializado en la sustracción de información de inteligencia de defensa y geopolítica que se elabora específicamente para los gobiernos.",
+  "options": [
+   "APT 28 Fancy Bear",
+   "APT 27 Goblin Panda",
+   "APT 34 HELIX KITTEN",
+   "APT 35 Newscaster Team"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 165"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; grupo de APT Especializado\ten atacar unidades aeroespaciales, de defensa y petroquímicas.",
+  "options": [
+   "APT 33",
+   "APT 38",
+   "APT 39",
+   "APT 31"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 165"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; grupo de APT especializada en atacar infraestructura crítica a países, como aeropuertos, agencias de seguridad, proveedores de energía e instituciones de gobierno.",
+  "options": [
+   "APT 34 HELIX KITTEN",
+   "APT 27 Goblin Panda",
+   "APT 28 Fancy Bear",
+   "APT 35 Newscaster Team"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 165"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; grupo de APT especializado en crear ataques silenciosos y que roban información de alto nivel y militar, utilizando técnicas avanzadas de ingeniería social.",
+  "options": [
+   "APT 35 Newscaster Team",
+   "APT 27 Goblin Panda",
+   "APT 34 HELIX KITTEN",
+   "APT 28 Fancy Bear"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 165"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; grupo de APT dedicado a atacar entidades financieras en el mundo, se relaciona con el ataque al sistema bancario SWIFT, particularmente al  Banco  Central  de Bangladesh en 2016 y Bancomext en México en 2018, entre otros.",
+  "options": [
+   "APT 38",
+   "FIN",
+   "FIN 13",
+   "APT 33"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 165"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; grupo de APT especializado en ciberespionaje de alto nivel, enfocado a industrias de alta tecnología, su presencia se ha visto en varios países, considerándose la organización APT más importante de Irán.",
+  "options": [
+   "APT 39",
+   "APT 33",
+   "APT 38",
+   "APT 31"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 165"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; grupos delictivos que en un determinado momento no mantienen una sola línea objetivo, utilizan una variedad de técnicas que les permiten atacar a víctimas de diversos sectores.",
+  "options": [
+   "Grupos no clasificados (UNC)",
+   "APT 35 Newscaster Team",
+   "Negligencia o incompetencia",
+   "Errores, abusos o subversión"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 166"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; grupos dedicados a atacar particularmente a entidades financieras.",
+  "options": [
+   "FIN",
+   "APT",
+   "FMX",
+   "JID"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 167"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "amenaza persistente avanzada"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; grupo dedicado a atacar particularmente a entidades financieras, que ha estado particularmente activo en México y Latinoamérica desde 2016.",
+  "options": [
+   "FIN 13",
+   "FIN 31",
+   "APT 38",
+   "APT 31"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 167"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; cuantas técnicas expone el War College del Ejército Norteamericano, en su publicación “Strategic Cyberspace Operations, Guide” (2023).",
+  "options": [
+   "10",
+   "11",
+   "12",
+   "9"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es una técnica o subtécnica empleada por las TTP donde la persona atacante intenta obtener acceso no autorizado a una sola cuenta adivinando la contraseña.",
+  "options": [
+   "Ataque de fuerza bruta",
+   "Ataque de gemelo malvado",
+   "Superficie de ataque",
+   "Denegación de Servicio"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; puede provocar rápidamente el bloqueo de la cuenta objetivo, ya que las políticas de bloqueo de cuentas más comunes permiten de tres a cinco intentos erróneos durante un período de tiempo determinado.",
+  "options": [
+   "Ataque de fuerza bruta",
+   "Ataque de gemelo malvado",
+   "Superficie de ataque",
+   "Denegación de Servicio"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se produce cuando un agente malicioso secuestra de forma efectiva la capacidad de procesamiento de los dispositivos y sistemas de las víctimas.",
+  "options": [
+   "Criptojacking",
+   "Tráfico de red",
+   "Bombas lógicas",
+   "Bomba lógica"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se produce cuando un actor malicioso impide a las personas usuarias legítimas acceder a los sistemas de información, dispositivos u otros recursos de red.",
+  "options": [
+   "Denegación de Servicio",
+   "Ataque de fuerza bruta",
+   "Inyección de código SQL",
+   "Repositorios de malware"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se consigue inundando el host o la red objetivo con tráfico hasta que el objetivo no puede responder o simplemente se bloquea, impidiendo el acceso a los usuarios legítimos.",
+  "options": [
+   "Denegación de Servicio",
+   "Ataque de fuerza bruta",
+   "Inyección de código SQL",
+   "Repositorios de malware"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se producen cuando varias máquinas operan juntas para atacar un objetivo.",
+  "options": [
+   "Ataques Distribuidos de Denegación de Servicios",
+   "Ataques de ingeniería social",
+   "borrar la información del disco duro",
+   "El Grupo de Expertos Gubernamentales de la ONU"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; aprovechan el uso de un botnet (grupo de dispositivos secuestrados conectados a Internet) para llevar a cabo ataques a gran escala.",
+  "options": [
+   "Ataques Distribuidos de Denegación de Servicios",
+   "Ataques de ingeniería social",
+   "borrar la información del disco duro",
+   "El Grupo de Expertos Gubernamentales de la ONU"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; consiste en archivos o programas que pueden causar daños a un dispositivo informático o poner en peligro los datos almacenados en él.",
+  "options": [
+   "Código malicioso (malware)",
+   "Repositorios de malware",
+   "Inyección de código SQL",
+   "Archivos de datos maliciosos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; tienen la capacidad de dañar o destruir los archivos de un sistema informático.",
+  "options": [
+   "Virus",
+   "Gusanos",
+   "Troyanos",
+   "Archivos de datos maliciosos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se propagan compartiendo un medio extraíble ya infectado, abriendo archivos adjuntos maliciosos en correos electrónicos y visitando páginas web maliciosas.",
+  "options": [
+   "Virus",
+   "Gusanos",
+   "Troyanos",
+   "Archivos de datos maliciosos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; código malicioso o malware que requiere acción de la persona usuaria.",
+  "options": [
+   "Virus",
+   "Gusanos",
+   "Troyanos",
+   "Archivos de datos maliciosos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se replica automáticamente de una computadora a otra, su objetivo es utilizar todos los recursos de ese dispositivo, lo que puede causar que deje de responder.",
+  "options": [
+   "Gusanos",
+   "Troyanos",
+   "Virus",
+   "Archivos de datos maliciosos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; son programas informáticos que ocultan un virus o un programa potencialmente dañino.",
+  "options": [
+   "Troyanos",
+   "Gusanos",
+   "Virus",
+   "Archivos de datos maliciosos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; son archivos no ejecutables que aprovechan los puntos débiles del programa de software utilizado para abrirlo.",
+  "options": [
+   "Archivos de datos maliciosos",
+   "Ataques de ingeniería social",
+   "Código malicioso (malware)",
+   "Ataque de gemelo malvado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; software malicioso que los ciberdelincuentes utilizan para negar el acceso a sistemas o datos.",
+  "options": [
+   "Ransomware",
+   "Keyloggers",
+   "Ciberarmas",
+   "Ciberarma"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; ciberagente malicioso mantiene los sistemas o datos como rehenes hasta que se paga un rescate.",
+  "options": [
+   "Ransomware",
+   "Keyloggers",
+   "Ciberarmas",
+   "Ciberarma"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; software que se instala con el fin ocultar otros programas o procesos que tienen fines maliciosos.",
+  "options": [
+   "Rootkit",
+   "Gusanos",
+   "Vishing",
+   "Malware"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; utiliza la interacción humana para obtener o comprometer información sobre una organización o sus sistemas informáticos.",
+  "options": [
+   "Ataques de ingeniería social",
+   "Técnicas de ingeniería social",
+   "Ataques Distribuidos de Denegación de Servicios",
+   "Archivos de datos maliciosos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; utiliza el correo electrónico o sitios web maliciosos para solicitar información personal haciéndose pasar por una organización de confianza.",
+  "options": [
+   "Phishing",
+   "Troyanos",
+   "Smishing",
+   "Ciberarma"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; este método aprovecha la comunicación por voz, incitan a la víctima a llamar a un número determinado y divulgar información confidencial.",
+  "options": [
+   "Vishing",
+   "Gusanos",
+   "Rootkit",
+   "Malware"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; utiliza el servicio de mensajes cortos (SMS) o mensajes de texto, pueden contener enlaces a páginas web, direcciones de correo electrónico o números de teléfono que, al pulsarlos, abren automáticamente una ventana del navegador o un mensaje de correo electrónico o marcan un número.",
+  "options": [
+   "Smishing",
+   "Troyanos",
+   "Phishing",
+   "Ciberarma"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; recopilan información de un sistema informático sin el consentimiento de la persona usuaria, pueden capturar pulsaciones de teclas, capturas de pantalla, credenciales de autenticación, direcciones de correo electrónico, datos de formularios web, y hábitos de uso de Internet.",
+  "options": [
+   "Programas espía",
+   "Tráfico de red",
+   "Bombas lógicas",
+   "Criptojacking"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; cuantas son las principales subtécnicas de programas espía (spyware).",
+  "options": [
+   "2",
+   "3",
+   "4",
+   "5"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; capturan los eventos del teclado y registran los datos de las pulsaciones antes de enviarlos a la aplicación prevista para su procesamiento.",
+  "options": [
+   "Keyloggers",
+   "Ransomware",
+   "Ciberarmas",
+   "Ciberarma"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; pueden activar o desactivar su captura en función de palabras clave o eventos.",
+  "options": [
+   "Keyloggers",
+   "Ransomware",
+   "Ciberarmas",
+   "Ciberarma"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; son datos que suelen extraerse de las capturas de red incluyen nombres de usuario, contraseñas, mensajes de correo electrónico y contenido web.",
+  "options": [
+   "Tráfico de red",
+   "Bombas lógicas",
+   "Programas espía",
+   "Criptojacking"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; cuantas subtécnicas consideran las amenazas inalámbricas.",
+  "options": [
+   "3",
+   "2",
+   "4",
+   "5"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 139"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; la persona atacante recopila información sobre un punto de acceso público y configura su propio sistema para hacerse pasar por el punto de acceso real, mediante una señal de difusión más potente.",
+  "options": [
+   "Ataque de gemelo malvado",
+   "Ataque de fuerza bruta",
+   "Superficie de ataque",
+   "Código malicioso (malware)"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; los usuarios desprevenidos se conectarán utilizando la señal falsa; permitiendo al atacante utilizar herramientas especializadas para leer cualquier dato que la víctima envíe.",
+  "options": [
+   "Ataque de gemelo malvado",
+   "Ataque de fuerza bruta",
+   "Superficie de ataque",
+   "Código malicioso (malware)"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; permite a personas usuarias malintencionados utilizar herramientas para obtener información confidencial, como contraseñas, números de cuentas bancarias y de tarjetas de crédito.",
+  "options": [
+   "Olfateo inalámbrico",
+   "un día de la semana",
+   "Ataque de fuerza bruta",
+   "Denegación de Servicio"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se llevan a cabo con equipos portátiles que pueden crear redes para un propósito específico si se encuentran dentro del radio de alcance de otros, con el fin de obtener acceso no autorizado a archivos confidenciales.",
+  "options": [
+   "Conexiones entre iguales",
+   "Código malicioso (malware)",
+   "Ataque de gemelo malvado",
+   "Inyección de código SQL"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 169"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; lenguaje de programación estándar diseñado para administrar y manipular bases de datos relacionales.",
+  "options": [
+   "Lenguaje de Consulta Estructurada",
+   "borrar la información del disco duro",
+   "Archivos de datos maliciosos",
+   "Ataques de ingeniería social"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 171"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; permite realizar diversas operaciones, como la creación, modificación y eliminación de datos, así como la recuperación y manipulación de información almacenada en ellas.",
+  "options": [
+   "Lenguaje de Consulta Estructurada",
+   "borrar la información del disco duro",
+   "Archivos de datos maliciosos",
+   "Ataques de ingeniería social"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 171"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; permite a la persona atacante, a través de la inserción de datos de entrada para una consulta; leer datos confidenciales, modificarlos, ejecutar operaciones de administración, recuperar el contenido de un archivo determinado y en algunos casos emitir comandos al Sistema Operativo.",
+  "options": [
+   "Inyección de código SQL",
+   "Código malicioso (malware)",
+   "Repositorios de malware",
+   "Ataque de gemelo malvado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 172"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; software específicamente diseñado para causar un daño a un elemento del Ciberespacio.",
+  "options": [
+   "Ciberarma",
+   "Ransomware",
+   "Keyloggers",
+   "Troyanos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 173"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; software que en el contexto militar permite articular las ciberarmas.",
+  "options": [
+   "Malware",
+   "Gusanos",
+   "Rootkit",
+   "Vishing"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 173"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; representan los medios (vectores de ciberataque) que permiten transferir la munición o carga explosiva también conocida como payload (malware, exploits) a los objetivos (redes y sistemas).",
+  "options": [
+   "Ciberarmas",
+   "Ransomware",
+   "Keyloggers",
+   "Bomba lógica"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 174"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de manera práctica y por extensión, como se considera al conjunto de vector de ciberataque y carga explosiva.",
+  "options": [
+   "Ciberarma",
+   "Ransomware",
+   "Keyloggers",
+   "Troyanos"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 174"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; programas informáticos que se instalan en una computadora y permanecen ocultos hasta cumplirse una o más condiciones preprogramadas para entonces ejecutar una acción.",
+  "options": [
+   "Bombas lógicas",
+   "Tráfico de red",
+   "Programas espía",
+   "Criptojacking"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 175"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; ejemplos de condiciones preprogramadas.",
+  "options": [
+   "un día de la semana",
+   "Olfateo inalámbrico",
+   "Ataque de fuerza bruta",
+   "Denegación de Servicio"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 176"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; ejemplos de acciones de las bombas lógicas.",
+  "options": [
+   "borrar la información del disco duro",
+   "Lenguaje de Consulta Estructurada",
+   "Archivos de datos maliciosos",
+   "Ataques de ingeniería social"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 176"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; trasladando a conceptos militares, podría por analogía compararse con una mina antipersonal.",
+  "options": [
+   "Bomba lógica",
+   "Capa lógica",
+   "Criptojacking",
+   "Tráfico de red"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 177"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; ejecutará su acción destructiva hasta que la condición preestablecida se cumpla.",
+  "options": [
+   "Payload",
+   "Gusanos",
+   "Rootkit",
+   "Vishing"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 177"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo II · Ciberespacio · Riesgos y amenazas en el Ciberespacio",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "técnicas de amenaza del ciberespacio"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; sirven como una base de datos a la mano de los ciberatacantes para mejorar los payloads mediante ingeniería inversa.",
+  "options": [
+   "Repositorios de malware",
+   "Código malicioso (malware)",
+   "Inyección de código SQL",
+   "Ataque de gemelo malvado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 179"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; son aspectos centrales de la estrategia de Seguridad Nacional.",
+  "options": [
+   "La seguridad de la información",
+   "Manipulación de información",
+   "Definición de Políticas de Seguridad",
+   "Seguridad por diseño"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 180"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; son aspectos centrales de la estrategia de Seguridad Nacional.",
+  "options": [
+   "La protección de las infraestructuras críticas",
+   "Ataque a la cadena de suministros de las TIC",
+   "Sistemas de Salud gubernamentales y de negocios",
+   "Compromisos de las funciones derivados de errores"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 180"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; implica un compromiso multidimensional que abarca la innovación tecnológica, el desarrollo de políticas, la cooperación internacional y la educación en Ciberseguridad.",
+  "options": [
+   "La seguridad de la información y la protección de las infraestructuras críticas",
+   "Compromisos de las funciones derivados de errores, abusos o subversión",
+   "Infraestructura de Tecnologías de Información y Comunicaciones",
+   "Definición de Políticas de Seguridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 180"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "antecedentes"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; disciplina encargada de proteger los Sistemas de Información frente a accesos no autorizados, ataques o daños.",
+  "options": [
+   "Ciberseguridad",
+   "Phone phreaking",
+   "Disponibilidad",
+   "Ciberespionaje"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 191"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "antecedentes"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; esta protección abarca conceptos fundamentales como la integridad, confidencialidad y disponibilidad de los datos.",
+  "options": [
+   "Ciberseguridad",
+   "Phone phreaking",
+   "Disponibilidad",
+   "Ciberespionaje"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 192"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "antecedentes"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; marcada por momentos clave que no solo han revelado vulnerabilidades críticas, sino que también han impulsado una mayor concienciación y desarrollo de medidas de seguridad más robustas.",
+  "options": [
+   "La historia de la Ciberseguridad",
+   "La gestión de la Ciberseguridad",
+   "Desarrollo de estrategias robustas de Ciberseguridad",
+   "John Draper (Captain Crunch)"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 193"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "antecedentes"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; interceptó y manipuló una demostración pública de la tecnología de telégrafo inalámbrico, es frecuentemente citada como uno de los primeros ejemplos de hacking en la era moderna.",
+  "options": [
+   "Nevil Maskelyne 1903",
+   "John Draper (Captain Crunch)",
+   "Seguridad por diseño",
+   "Phone phreaking"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 193"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "antecedentes"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; alertó sobre la importancia de considerar la seguridad y la privacidad en el desarrollo de nuevas tecnologías de comunicación.",
+  "options": [
+   "Nevil Maskelyne 1903",
+   "Seguridad por diseño",
+   "John Draper (Captain Crunch)",
+   "Phone phreaking"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 193"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "antecedentes"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; adquiere relevancia en la historia de la Ciberseguridad por su habilidad para explotar las vulnerabilidades en los sistemas telefónicos de la época.",
+  "options": [
+   "John Draper (Captain Crunch)",
+   "La historia de la Ciberseguridad",
+   "Formación y concienciación",
+   "Nevil Maskelyne 1903"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 193"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "antecedentes"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; utilizaba un silbato de juguete que emitía un tono de 2600 Hz, para acceder gratuitamente a servicios de larga distancia.",
+  "options": [
+   "John Draper (Captain Crunch)",
+   "La historia de la Ciberseguridad",
+   "Formación y concienciación",
+   "Nevil Maskelyne 1903"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 193"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "antecedentes"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; acto de manipulación telefónica que puso de manifiesto las debilidades inherentes a los Sistemas de Comunicaciones y la necesidad de fortalecerlos.",
+  "options": [
+   "Phone phreaking",
+   "Ciberseguridad",
+   "Nevil Maskelyne 1903",
+   "Confidencialidad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 193"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "antecedentes"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; considerado el primer malware.",
+  "options": [
+   "Creeper",
+   "Reaper",
+   "Malware",
+   "Cifrado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 194"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "antecedentes"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; el primer software diseñado para eliminar un malware.",
+  "options": [
+   "Reaper",
+   "Creeper",
+   "Malware",
+   "Cifrado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 194"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "antecedentes"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se replicaba a sí mismo a través de la Red de Agencias de Proyectos de Investigación Avanzada (ARPANET).",
+  "options": [
+   "Creeper",
+   "Reaper",
+   "Malware",
+   "Cifrado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 195"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; piedra angular para proteger la integridad, la confidencialidad y la disponibilidad de la información en el entorno digital.",
+  "options": [
+   "Ciberseguridad",
+   "Disponibilidad",
+   "Ciberespionaje",
+   "Ciberamenazas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 196"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; La Ciberseguridad se sustenta en tres principios fundamentales que forman el núcleo de cualquier estrategia de protección de la información.",
+  "options": [
+   "Confidencialidad, Integridad y Disponibilidad",
+   "Sistemas de Salud gubernamentales y de negocios",
+   "Desarrollo de estrategias robustas de Ciberseguridad",
+   "Adaptación a nuevas tácticas enemigas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 198"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de los principios fundamentales de protección de la información, protege la información para asegurar que solo las personas autorizadas tengan acceso a ella.",
+  "options": [
+   "Confidencialidad",
+   "Software malicioso",
+   "Formación continua",
+   "Ciberseguridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 199"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de los principios fundamentales de protección de la información, previene la divulgación no autorizada de datos, un aspecto fundamental para la Seguridad Nacional, donde la información sensible debe ser resguardada contra espionaje o filtraciones.",
+  "options": [
+   "Confidencialidad",
+   "Software malicioso",
+   "Formación continua",
+   "Ciberseguridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 199"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de los principios fundamentales de protección de la información, garantiza que la información y los sistemas se modifiquen únicamente por personas usuarias autorizadas.",
+  "options": [
+   "Integridad",
+   "EternalBlue",
+   "WannaCry",
+   "Ciberamenazas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 199"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de los principios fundamentales de protección de la información, asegura que la información crítica, incluidos los datos de inteligencia y las comunicaciones estratégicas, permanezca precisa y sin alteraciones.",
+  "options": [
+   "Integridad",
+   "EternalBlue",
+   "WannaCry",
+   "Ciberamenazas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 199"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de los principios fundamentales de protección de la información, evita la manipulación que podría comprometer las Operaciones de Seguridad Nacional.",
+  "options": [
+   "Integridad",
+   "EternalBlue",
+   "WannaCry",
+   "Ciberamenazas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 199"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de los principios fundamentales de protección de la información, asegura que la información y los recursos de computación estén accesibles para las personas usuarias autorizadas cuando se necesiten.",
+  "options": [
+   "Disponibilidad",
+   "Ciberseguridad",
+   "Ciberespionaje",
+   "Ciberamenazas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 199"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; de los principios fundamentales de protección de la información, es vital para garantizar que las operaciones sensibles no se vean interrumpidas, especialmente en situaciones críticas donde el acceso oportuno a la información puede ser crucial para la toma de decisiones.",
+  "options": [
+   "Disponibilidad",
+   "Ciberseguridad",
+   "Ciberespionaje",
+   "Ciberamenazas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 199"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; representan un riesgo para la seguridad de la información de las Operaciones Militares y la estabilidad de los Estados.",
+  "options": [
+   "Ciberamenazas",
+   "Cibersabotaje",
+   "Ciberseguridad",
+   "Disponibilidad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 200"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es cualquier tipo de software diseñado para infiltrarse, dañar o explotar Sistemas Informáticos, redes o dispositivos sin el consentimiento de la persona usuaria.",
+  "options": [
+   "Malware",
+   "WannaCry",
+   "Creeper",
+   "Cifrado"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 201"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; su propósito es realizar actividades malintencionadas que pueden incluir robo de datos, corrupción de archivos, secuestro de sistemas y espionaje.",
+  "options": [
+   "Software malicioso",
+   "Formación continua",
+   "Código malicioso (malware)",
+   "Confidencialidad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 201"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; vulnerabilidad de seguridad que es descubierta por primera vez por los atacantes.",
+  "options": [
+   "Vulnerabilidades de día cero",
+   "Técnicas de ingeniería social",
+   "Manipulación de información",
+   "un día de la semana"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 202"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; significa que los desarrolladores del software aún no han tenido tiempo de crear un parche o solución para protegerse contra ella.",
+  "options": [
+   "Vulnerabilidades de día cero",
+   "Técnicas de ingeniería social",
+   "Manipulación de información",
+   "un día de la semana"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 202"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; vulnerabilidad en los Sistemas Operativos Windows que permitía la ejecución de código remoto y fue explotada por el ransomware WannaCry.",
+  "options": [
+   "EternalBlue",
+   "Integridad",
+   "Ciberamenazas",
+   "Cibersabotaje"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 203"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; la rápida difusión de este ransomware en mayo de 2017 afectó a más de 200,000 computadoras en 150 países, cifró archivos y demandó rescates en Bitcoin.",
+  "options": [
+   "WannaCry",
+   "Malware",
+   "Integridad",
+   "EternalBlue"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 203"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; estos sistemas se vieron particularmente afectados, evidenció la importancia crítica de mantener los sistemas actualizados y la necesidad de una respuesta rápida ante la divulgación de vulnerabilidades críticas.",
+  "options": [
+   "Sistemas de Salud gubernamentales y de negocios",
+   "Confidencialidad, Integridad y Disponibilidad",
+   "Desarrollo de estrategias robustas de Ciberseguridad",
+   "El Grupo de Expertos Gubernamentales de la ONU"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 204"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se manifiestan de diversas formas, cada una con sus propias implicaciones para la Seguridad Nacional y la integridad de las instituciones.",
+  "options": [
+   "Ciberamenazas",
+   "Cibersabotaje",
+   "Ciberseguridad",
+   "Disponibilidad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 205"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es una de las formas más prominentes de ciberamenazas.",
+  "options": [
+   "Manipulación de información",
+   "La seguridad de la información",
+   "Sistema de información",
+   "Vulnerabilidades de día cero"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 205"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; son tres de las formas más prominentes de estas amenazas, incluyen el ciberespionaje, el cibersabotaje y la manipulación de información, representan diferentes técnicas utilizadas por ciberdelincuentes para comprometer, dañar o influir en objetivos estratégicos.",
+  "options": [
+   "Ciberamenazas",
+   "Cibersabotaje",
+   "Ciberseguridad",
+   "Disponibilidad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 205"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; uso de TIC para infiltrarse en sistemas y redes con el fin de obtener información sensible.",
+  "options": [
+   "Ciberespionaje",
+   "Ciberseguridad",
+   "Disponibilidad",
+   "Ciberamenazas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 205"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; esta práctica se dirige a recolectar datos que pueden tener valor estratégico, político o económico, sin el conocimiento o permiso de las personas propietarias de dicha información.",
+  "options": [
+   "Ciberespionaje",
+   "Ciberseguridad",
+   "Disponibilidad",
+   "Ciberamenazas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 205"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; implica la ejecución de ciberataques destinados a perturbar, dañar o destruir la infraestructura crítica de una entidad, como sistemas financieros o redes de energía.",
+  "options": [
+   "Cibersabotaje",
+   "Ciberamenazas",
+   "Ciberseguridad",
+   "Disponibilidad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 205"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; el objetivo puede ser desestabilizar operaciones, causar pérdidas económicas o disminuir la confianza en las instituciones afectadas.",
+  "options": [
+   "Cibersabotaje",
+   "Ciberamenazas",
+   "Ciberseguridad",
+   "Disponibilidad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 205"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; técnica consiste en alterar, fabricar o difundir información falsa a través de medios digitales para influir en la opinión pública, en las decisiones políticas o militares.",
+  "options": [
+   "Manipulación de Información",
+   "La seguridad de la información",
+   "Sistema de información",
+   "Vulnerabilidades de día cero"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 205"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; puede ser utilizada para confundir, engañar o cambiar la percepción de la ciudadanía y/o decisiones de los líderes.",
+  "options": [
+   "Manipulación de Información",
+   "La seguridad de la información",
+   "Sistema de información",
+   "Vulnerabilidades de día cero"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 205"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; pilar fundamental en la protección de la Soberanía Nacional, salvaguardando la integridad, confidencialidad y disponibilidad de la información crítica en el entorno digital.",
+  "options": [
+   "Ciberseguridad",
+   "Disponibilidad",
+   "Ciberespionaje",
+   "Ciberamenazas"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 206"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; buscan vulnerar la seguridad a través del engaño humano y su importancia trasciende el ámbito técnico para convertirse en una cuestión de Seguridad Nacional.",
+  "options": [
+   "Técnicas de ingeniería social",
+   "Ataques de ingeniería social",
+   "Vulnerabilidades de día cero",
+   "Manipulación de información"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 207"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; en contextos militares y de defensa de infraestructuras críticas, son esenciales para prevenir, responder y mitigar ciberamenazas.",
+  "options": [
+   "Desarrollo de estrategias robustas de Ciberseguridad",
+   "La historia de la Ciberseguridad",
+   "Sistemas de Salud gubernamentales y de negocios",
+   "La gestión de la Ciberseguridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 208"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; en contextos militares y de defensa de infraestructuras críticas, son esenciales para prevenir, responder y mitigar ciberamenazas.",
+  "options": [
+   "Formación continua",
+   "Formación y concienciación",
+   "Software malicioso",
+   "Confidencialidad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 208"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "fundamentos de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; en contextos militares y de defensa de infraestructuras críticas, son esenciales para prevenir, responder y mitigar ciberamenazas.",
+  "options": [
+   "Adaptación a nuevas tácticas enemigas",
+   "Confidencialidad, Integridad y Disponibilidad",
+   "Sistemas de Salud gubernamentales y de negocios",
+   "Técnicas de ingeniería social"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 208"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tecnologías y herramientas clave en ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; las tecnologías de ciberseguridad, cuantas son.",
+  "options": [
+   "4",
+   "5",
+   "3",
+   "6"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 212"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tecnologías y herramientas clave en ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; constituyen la primera línea de defensa en la protección de redes informáticas.",
+  "options": [
+   "Firewalls",
+   "Antimalware",
+   "Cifrado",
+   "Integridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 212"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tecnologías y herramientas clave en ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; permiten filtran el tráfico entrante y saliente basándose en un conjunto de reglas predefinidas e impiden el acceso no autorizado a la red.",
+  "options": [
+   "Firewalls",
+   "Antimalware",
+   "Cifrado",
+   "Integridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 212"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tecnologías y herramientas clave en ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; software esencial para detectar, prevenir y eliminar software malicioso.",
+  "options": [
+   "Antimalware",
+   "Firewalls",
+   "EternalBlue",
+   "Integridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 212"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tecnologías y herramientas clave en ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; emplea diversas técnicas basadas en comportamiento y heurísticas para identificar malware previamente desconocido.",
+  "options": [
+   "Antimalware",
+   "Firewalls",
+   "EternalBlue",
+   "Integridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 212"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tecnologías y herramientas clave en ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es fundamental para proteger la confidencialidad e integridad de la información, en la Secretaría de la Defensa Nacional.",
+  "options": [
+   "Cifrado",
+   "Creeper",
+   "Malware",
+   "Firewalls"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 212"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tecnologías y herramientas clave en ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; se utilizan para asegurar la comunicación y almacenamiento de datos.",
+  "options": [
+   "Cifrado",
+   "Creeper",
+   "Malware",
+   "Firewalls"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 212"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tecnologías y herramientas clave en ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; esta tecnología añade una capa adicional de seguridad a los procesos de autenticación.",
+  "options": [
+   "Autenticación MultiFactor",
+   "John Draper (Captain Crunch)",
+   "Formación y concienciación",
+   "Manipulación de información"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 212"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tecnologías y herramientas clave en ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; combina algo que la persona usuaria sabe, con algo que la persona usuaria tiene y lo que es.",
+  "options": [
+   "Autenticación MultiFactor",
+   "John Draper (Captain Crunch)",
+   "Formación y concienciación",
+   "Manipulación de información"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 212"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "tecnologías y herramientas clave en ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es crítica para proteger el acceso a sistemas y redes militares, asegura que solo el personal autorizado pueda acceder a recursos sensibles.",
+  "options": [
+   "Autenticación MultiFactor",
+   "John Draper (Captain Crunch)",
+   "Formación y concienciación",
+   "Manipulación de información"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 212"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "gestión de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; implica la implementación de una serie de estrategias clave que abarcan desde la definición de políticas de seguridad hasta la educación y concienciación de las personas usuarias.",
+  "options": [
+   "La gestión de la Ciberseguridad",
+   "La historia de la Ciberseguridad",
+   "Desarrollo de estrategias robustas de Ciberseguridad",
+   "Definición de Políticas de Seguridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 214"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "gestión de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; pasa por la integración de la seguridad desde el diseño de sistemas y la constante actualización de hardware y software, el parcheo de vulnerabilidades.",
+  "options": [
+   "La gestión de la Ciberseguridad",
+   "La historia de la Ciberseguridad",
+   "Desarrollo de estrategias robustas de Ciberseguridad",
+   "Definición de Políticas de Seguridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 214"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "gestión de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; la gestión de la Ciberseguridad implica la implementación de una serie de estrategias clave, establece las reglas para todas las personas usuarias de los sistemas y la información, estas políticas deben cubrir aspectos como el manejo de datos, la autenticación de personas usuarias, el uso aceptable de los recursos tecnológicos y el manejo de incidentes.",
+  "options": [
+   "Definición de Políticas de Seguridad",
+   "La seguridad de la información",
+   "Seguridad por diseño",
+   "La gestión de la Ciberseguridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 215"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "gestión de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; la gestión de la Ciberseguridad implica la implementación de una serie de estrategias clave, es vital proporcionar formación continua y programas de concienciación sobre los ciberriesgos y las mejores prácticas de seguridad.",
+  "options": [
+   "Formación y concienciación",
+   "Formación continua",
+   "Actualización y parcheo",
+   "La gestión de la Ciberseguridad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 215"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "gestión de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; es a menudo el eslabón más débil de la cadena de seguridad.",
+  "options": [
+   "El elemento humano",
+   "Seguridad por diseño",
+   "Software malicioso",
+   "Formación continua"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 215"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "gestión de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; la gestión de la Ciberseguridad implica la implementación de una serie de estrategias clave, garantiza que las medidas de protección sean intrínsecas y no añadidas como un proceso tardío, esto implica realizar evaluaciones de riesgo y pruebas de penetración durante las etapas de desarrollo.",
+  "options": [
+   "Seguridad por diseño",
+   "La seguridad de la información",
+   "Definición de Políticas de Seguridad",
+   "Hecho por la humanidad"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 215"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "gestión de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; la gestión de la Ciberseguridad implica la implementación de una serie de estrategias clave, mantener el software y el hardware actualizados es crucial para protegerse contra vulnerabilidades conocidas.",
+  "options": [
+   "Actualización y parcheo",
+   "Formación y concienciación",
+   "Seguridad por diseño",
+   "El elemento humano"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 215"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "gestión de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; la gestión de la Ciberseguridad implica la implementación de una serie de estrategias clave, pueden ayudar a asegurar que todas las herramientas y sistemas estén protegidos contra las últimas amenazas, reduciendo así la superficie de ataque disponible para los adversarios.",
+  "options": [
+   "Actualización y parcheo",
+   "Formación y concienciación",
+   "Seguridad por diseño",
+   "El elemento humano"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 215"
+ },
+ {
+  "subject": "Aspecto Técnico",
+  "ord": "Manual de Ciberseguridad y Ciberdefensa",
+  "loc": "Capítulo III · Ciberseguridad · Introducción a la Ciberseguridad",
+  "type": "OM",
+  "dif": "medio",
+  "status": "nuevo",
+  "tags": [
+   "gestión de la ciberseguridad"
+  ],
+  "q": "De conformidad con el Manual de Ciberseguridad y Ciberdefensa; son estrategias para fortalecer la ciberseguridad, cuantas son.",
+  "options": [
+   "4",
+   "5",
+   "3",
+   "6"
+  ],
+  "answer": 0,
+  "explain": "",
+  "ref": "Manual de Ciberseguridad y Ciberdefensa · núm. 215"
+ }
+]
