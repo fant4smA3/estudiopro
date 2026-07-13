@@ -3,6 +3,23 @@
 **Fecha:** 2026-07-13 · **Enfoque:** DevOps · DevSecOps · Frontend/UI-UX
 **Objetivo declarado:** dejar todo conectado para **comenzar las pruebas reales de práctica**: estudiar, subir preguntas, crear, editar, eliminar y revisar.
 
+> **Estado (2026-07-13): las 4 fases del menú están EJECUTADAS y verificadas** (53 tests
+> unitarios/humo/a11y + 17 verificaciones E2E en navegador sobre el build de producción).
+> - **Fase 1**: banco curado a 263 preguntas válidas (0 placeholders, 15 filas basura fuera)
+>   con `scripts/curar-banco.mjs`; banco empaquetado en la PWA con botón «Cargar» en Importar;
+>   curva de olvido sobre datos SM-2 reales; matriz de confusiones real (materia × dificultad).
+>   Las explicaciones no se generaron: deben salir del manual (editables por pregunta).
+> - **Fase 2**: `importJSON` valida esquema y descarta entradas corruptas; snapshot versionado
+>   con migraciones; copia automática diaria (últimas 5) restaurable desde Respaldo +
+>   recordatorio de exportación; «Deshacer» en borrados de preguntas/tarjetas.
+> - **Fase 3**: CI en PRs (lint + typecheck + tests + build); typecheck real en el build
+>   (antes `--noCheck || true`); ESLint (0 errores); regresión axe estructural en 17 pantallas.
+> - **Fase 4**: fuera el selector de idioma decorativo, botones de respaldo unificados,
+>   «SQLite»→IndexedDB, áreas táctiles ampliadas (switch/pager/breadcrumbs) sin cambio visual.
+> - **Seguimiento pendiente**: `npm audit` reporta vulnerabilidades en tooling de desarrollo
+>   (esbuild/vite dev server); el arreglo exige saltos mayores de Vite/Vitest — planificar
+>   después del examen. No afectan a la PWA desplegada.
+
 ---
 
 ## 1. Veredicto ejecutivo
