@@ -345,7 +345,10 @@ function Respaldo() {
         </section>
       </div>
       <section className="panel">
-        <div className="panel-h"><span className="panel-idx">❄</span><h2 className="panel-t">Copias automáticas</h2><span className="panel-meta">una por día · se conservan las últimas 5</span></div>
+        <div className="panel-h">
+          <div className="panel-h-l"><span className="panel-idx">❄</span><span className="panel-title">Copias automáticas</span></div>
+          <div className="panel-h-r"><span className="panel-meta">una por día · se conservan las últimas 5</span></div>
+        </div>
         <div className="panel-b">
           {backups.length === 0
             ? <p className="resp-d" style={{ margin: 0 }}>Aún no hay copias automáticas. Se crean solas al abrir la app cada día; aquí podrás restaurarlas si algo sale mal.</p>
