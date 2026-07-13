@@ -141,16 +141,29 @@ function Confusiones() {
   const m = window.confusionMatrix();
   const cellColor = (v) => v >= 60 ? "var(--danger)" : v >= 40 ? "var(--warn)" : v >= 20 ? "color-mix(in srgb,var(--accent) 40%,#fff)" : "var(--surface-2)";
   const cellInk = (v) => v >= 40 ? "#fff" : "var(--mute)";
+  if (!m.hasData) {
+    return (
+      <main className="main">
+        <PageHeadK title="Matriz de confusión" sub="Dónde pierdes puntos exactamente: materia × dificultad"
+          crumbs={[["Progreso", "inteligencia"], "Confusiones"]} />
+        <EmptyStateK icon="🎯" title="Aún no hay respuestas registradas"
+          desc="Responde cuestionarios o simulacros; aquí verás en qué materias y dificultades pierdes puntos, con tus datos reales."
+          actions={<button className="btn btn-accent" onClick={() => go("cuestionarios")}>Ir a cuestionarios ▸</button>} />
+      </main>
+    );
+  }
   return (
     <main className="main">
-      <PageHeadK title="Matriz de confusión" sub="Dónde pierdes puntos exactamente: materia × tipo de error"
+      <PageHeadK title="Matriz de confusión" sub="Dónde pierdes puntos exactamente: materia × dificultad (% de falladas sobre respondidas)"
         crumbs={[["Progreso", "inteligencia"], "Confusiones"]} />
-      <section className="panel cf-peak" style={{ borderLeft: "3px solid var(--danger)" }}>
-        <div className="cf-peak-ic">🎯</div>
-        <div><div className="cf-peak-t">Tu mayor fuga de puntos</div>
-          <div className="cf-peak-d"><b style={{ color: subjTextColor(m.peak.subj) }}>{m.peak.subj}</b> · {m.peak.col.toLowerCase()}</div></div>
-        <button className="btn btn-accent" onClick={() => { window.__epSubject = m.peak.subj; go("repaso"); }}>Practicar esto ▸</button>
-      </section>
+      {m.peak && (
+        <section className="panel cf-peak" style={{ borderLeft: "3px solid var(--danger)" }}>
+          <div className="cf-peak-ic">🎯</div>
+          <div><div className="cf-peak-t">Tu mayor fuga de puntos</div>
+            <div className="cf-peak-d"><b style={{ color: subjTextColor(m.peak.subj) }}>{m.peak.subj}</b> · preguntas de dificultad {m.peak.col.toLowerCase()} ({m.peak.fall} falladas)</div></div>
+          <button className="btn btn-accent" onClick={() => { window.__epSubject = m.peak.subj; go("repaso"); }}>Practicar esto ▸</button>
+        </section>
+      )}
       <section className="panel">
         <div className="panel-b cf-scroll">
           <table className="cf-table">
@@ -159,8 +172,8 @@ function Confusiones() {
               {m.rows.map((r) => (
                 <tr key={r.subj}>
                   <th className="cf-rowh"><span className="cron-dot" style={{ background: subjColor(r.subj) }}></span>{r.subj}</th>
-                  {r.cells.map((v, ci) => (
-                    <td key={ci} className="cf-cell" style={{ background: cellColor(v), color: cellInk(v), outline: ci === r.worst ? "2px solid var(--danger)" : "none", outlineOffset: "-2px" }} title={r.subj + " · " + m.cols[ci] + ": " + v + "% de error relativo"}>{v}</td>
+                  {r.cells.map((c, ci) => (
+                    <td key={ci} className="cf-cell" style={{ background: c ? cellColor(c.v) : "var(--surface-2)", color: c ? cellInk(c.v) : "var(--mute)", outline: ci === r.worst ? "2px solid var(--danger)" : "none", outlineOffset: "-2px" }} title={c ? (r.subj + " · " + m.cols[ci] + ": " + c.fall + " falladas de " + c.answered + " respondidas") : (r.subj + " · " + m.cols[ci] + ": sin respuestas aún")}>{c ? c.v : "–"}</td>
                   ))}
                 </tr>
               ))}
@@ -168,7 +181,7 @@ function Confusiones() {
           </table>
         </div>
       </section>
-      <div className="cf-legend"><span>Menos error</span><i className="mapa-sw" style={{ background: "var(--surface-2)" }}></i><i className="mapa-sw" style={{ background: "#9DBBE4" }}></i><i className="mapa-sw" style={{ background: "var(--warn)" }}></i><i className="mapa-sw" style={{ background: "var(--danger)" }}></i><span>Más error</span><span className="cf-legend-note">El recuadro rojo marca tu peor tipo de error por materia.</span></div>
+      <div className="cf-legend"><span>Menos error</span><i className="mapa-sw" style={{ background: "var(--surface-2)" }}></i><i className="mapa-sw" style={{ background: "#9DBBE4" }}></i><i className="mapa-sw" style={{ background: "var(--warn)" }}></i><i className="mapa-sw" style={{ background: "var(--danger)" }}></i><span>Más error</span><span className="cf-legend-note">El recuadro rojo marca tu peor dificultad por materia; «–» = sin respuestas aún.</span></div>
     </main>
   );
 }

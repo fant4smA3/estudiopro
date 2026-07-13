@@ -753,7 +753,7 @@ function Config() {
         <div className="cfg-metric"><div className="cfg-metric-v">{st.cards.filter((c) => c.nivel === "dominado").length}</div><div className="cfg-metric-k">Dominadas</div></div>
         <div className="cfg-metric"><div className="cfg-metric-v">{st.sessions.length}</div><div className="cfg-metric-k">Sesiones</div></div>
         <div className="cfg-metric"><div className="cfg-metric-v">{st.plan.dias ? st.plan.dias.length : 0}</div><div className="cfg-metric-k">Días de plan</div></div>
-        <div className="cfg-metric"><div className="cfg-metric-v">v1.0</div><div className="cfg-metric-k">Local · SQLite</div></div>
+        <div className="cfg-metric"><div className="cfg-metric-v">v1.0</div><div className="cfg-metric-k">Local · IndexedDB</div></div>
       </div>
       <div className="settings">
         <Panel idx="01" title="Aspirante y examen">
@@ -773,14 +773,13 @@ function Config() {
 
         <Panel idx="03" title="Apariencia">
           <div className="set-row"><div><div className="set-label">Menú lateral</div><div className="set-desc">Reordena u oculta páginas y agrega separadores o espacios.</div></div><button className="btn btn-sm" onClick={() => window.dispatchEvent(new Event("ep:editnav"))}>Personalizar…</button></div>
-          <div className="set-row"><div><div className="set-label">Idioma</div><div className="set-desc">Idioma de la interfaz.</div></div><select className="input input-sm" aria-label="Idioma"><option>Español</option><option>English</option></select></div>
           <div className="set-row"><div><div className="set-label">Instalar como app (PWA)</div><div className="set-desc">{canInstall ? "Úsala como programa de escritorio, sin navegador." : "En iPhone: Safari → Compartir → Agregar a pantalla de inicio. En escritorio, tu navegador la ofrecerá al usarla."}</div></div><button className="btn btn-sm" onClick={instalar} disabled={!canInstall} title={canInstall ? undefined : "Este navegador no expone el aviso de instalación"}>{canInstall ? "Instalar app" : "Instalación manual"}</button></div>
         </Panel>
 
         <Panel idx="04" title="Datos">
           <div className="set-row"><div><div className="set-label">Autoguardado</div><div className="set-desc">Guarda el progreso automáticamente.</div></div><Switch on={s.autoguardar} onClick={() => t("autoguardar")} label="Autoguardado" /></div>
-          <div className="set-row"><div><div className="set-label">Respaldo y exportación</div><div className="set-desc">Base de datos local (SQLite).</div></div>
-            <div className="set-btns"><button className="btn btn-sm" onClick={() => { const n = window.EPStore.exportJSON(); window.toast && window.toast("Respaldo exportado (" + n + " elementos)", "ok"); }}>Exportar JSON</button><button className="btn btn-sm" onClick={() => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); }}>Respaldar</button></div></div>
+          <div className="set-row"><div><div className="set-label">Respaldo y exportación</div><div className="set-desc">Base de datos local (IndexedDB) en este dispositivo.</div></div>
+            <div className="set-btns"><button className="btn btn-sm" onClick={() => { const n = window.EPStore.exportJSON(); window.toast && window.toast("Respaldo exportado (" + n + " elementos)", "ok"); }}>Exportar respaldo</button><button className="btn btn-sm" onClick={() => go("respaldo")}>Copias y restauración ▸</button></div></div>
           <div className="set-row"><div><div className="set-label">Importar banco</div><div className="set-desc">CSV, JSON o texto.</div></div><div className="set-btns"><button className="btn btn-sm" onClick={() => go("importar")}>Importar…</button></div></div>
           <div className="set-row"><div><div className="set-label danger-text">Borrar todos los datos</div><div className="set-desc">Acción irreversible.</div></div><button className="btn btn-sm btn-danger" onClick={() => setConfirmDel(true)}>Borrar</button></div>
         </Panel>
@@ -885,6 +884,41 @@ function Importar() {
     reader.readAsText(file);
   };
 
+  // bancos incluidos en la app (empaquetados con la PWA, funcionan offline)
+  const [banks, setBanks] = React.useState([]);
+  const [bankBusy, setBankBusy] = React.useState("");
+  React.useEffect(() => {
+    if (import.meta.env && import.meta.env.MODE === "test") return; // sin red en pruebas
+    let alive = true;
+    try {
+      fetch("data/bancos.json").then((r) => r.ok ? r.json() : [])
+        .then((list) => { if (alive && Array.isArray(list)) setBanks(list); })
+        .catch(() => { /* sin manifiesto: se oculta la sección */ });
+    } catch (e) { /* entorno sin fetch relativo (tests) */ }
+    return () => { alive = false; };
+  }, []);
+  const loadBank = (b) => {
+    setBankBusy(b.file); setError("");
+    Promise.resolve()
+      .then(() => fetch("data/" + b.file))
+      .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then((arr) => {
+        if (!Array.isArray(arr) || !arr.length) throw new Error("vacío");
+        const list = arr.filter((o) => o.q && String(o.q).length > 3).map((o) => ({
+          subject: (o.subject && SUBJECTS.includes(o.subject)) ? o.subject : (b.materia || destSubj),
+          ord: o.ord || "", loc: o.loc || "", type: o.type || "OM", dif: o.dif || "medio",
+          status: "nuevo", tags: o.tags || [], q: o.q, options: o.options, answer: o.answer,
+          explain: o.explain || "", ref: o.ref || "" }));
+        const res = window.EPStore.addQuestions(list);
+        setFileName(b.nombre);
+        setResult({ detected: arr.length, valid: list.length, ...res });
+        setStep(4);
+        window.toast && window.toast(res.added + " preguntas importadas" + (res.skipped ? " · " + res.skipped + " duplicadas omitidas" : ""), "ok");
+      })
+      .catch(() => setError("No se pudo cargar el banco incluido. Revisa tu conexión e inténtalo de nuevo."))
+      .finally(() => setBankBusy(""));
+  };
+
   const loadSample = () => {
     const sample = "enunciado,tipo,respuesta,opcion a,opcion b,opcion c,opcion d,dificultad,etiquetas\n" +
       '"¿Cómo se clasifican los delitos según la voluntad del agente?",OM,"Intencionales y no intencionales","Intencionales y no intencionales","Graves y no graves","Comunes y federales","Dolosos y de querella",medio,"cjm;delitos"\n' +
@@ -979,6 +1013,22 @@ function Importar() {
             <button className="btn btn-accent" onClick={() => fileRef.current && fileRef.current.click()}>Seleccionar archivo</button>
           </div>
           <div className="imp-hint">⚠ Las preguntas duplicadas (mismo enunciado) se detectan y omiten automáticamente al importar.</div>
+        </Panel>
+      )}
+
+      {step === 1 && banks.length > 0 && (
+        <Panel idx="02" title="Banco incluido en la app" meta="sin archivo · funciona offline">
+          {banks.map((b) => (
+            <div className="set-row" key={b.file}>
+              <div>
+                <div className="set-label">{b.nombre}</div>
+                <div className="set-desc">{b.n} preguntas{b.desc ? " · " + b.desc : ""}</div>
+              </div>
+              <button className="btn btn-sm btn-accent" disabled={bankBusy === b.file} onClick={() => loadBank(b)}>
+                {bankBusy === b.file ? "Cargando…" : "Cargar " + b.n + " preguntas ▸"}
+              </button>
+            </div>
+          ))}
         </Panel>
       )}
 

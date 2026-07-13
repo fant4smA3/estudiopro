@@ -88,6 +88,24 @@ describe("EstudioPro — humo", () => {
     });
   });
 
+  it("el banco curado empaquetado es válido (sin placeholders, manifiesto consistente)", () => {
+    const fs = require("fs");
+    const bancos = JSON.parse(fs.readFileSync(process.cwd() + "/public/data/bancos.json", "utf8"));
+    expect(bancos.length).toBeGreaterThan(0);
+    for (const b of bancos) {
+      const data = JSON.parse(fs.readFileSync(process.cwd() + "/public/data/" + b.file, "utf8"));
+      expect(data.length, b.file + ": el manifiesto declara " + b.n).toBe(b.n);
+      data.forEach((q) => {
+        expect(q.q.length).toBeGreaterThan(10);
+        expect(q.options.length).toBe(4);
+        expect(q.answer).toBeGreaterThanOrEqual(0);
+        expect(q.answer).toBeLessThan(q.options.length);
+        q.options.forEach((o) => expect(W.epIsPlaceholder(o), b.file + " trae placeholder: " + o).toBe(false));
+        expect(new Set(q.options.map(W.epNorm)).size, "opciones repetidas en: " + q.q.slice(0, 60)).toBe(4);
+      });
+    }
+  });
+
   it("reparar distractores: detecta, sugiere y aplica", () => {
     const r0 = W.EPStore.addQuestions([
       { subject: "Aspecto Técnico", ord: "Manual Y", loc: "Cap. I", q: "¿Concepto base de prueba de reparación?", type: "OM",

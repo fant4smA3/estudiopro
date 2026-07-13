@@ -14,10 +14,12 @@ import React from "react";
 import * as ReactDOMClient from "react-dom/client";
 import { createPortal } from "react-dom";
 import { registerSW } from "virtual:pwa-register";
-import { epLoadSnapshot, epFlush, epRequestPersist } from "./db";
+import { epLoadSnapshot, epFlush, epRequestPersist, epListBackups, epGetBackup } from "./db";
 
 window.React = React;
 window.ReactDOM = { ...ReactDOMClient, createPortal };
+// copias de seguridad automáticas (para la pantalla Respaldo)
+window.epBackups = { list: epListBackups, get: epGetBackup };
 
 // PWA: service worker + captura del prompt de instalación (Android/desktop)
 registerSW({ immediate: true });

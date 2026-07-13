@@ -475,26 +475,31 @@ function Toast({ msg }) {
   return <div className="toast">{msg}</div>;
 }
 
-/* Toast host + global window.toast(msg, tone) */
+/* Toast host + global window.toast(msg, tone, action?)
+   action = { label, run }: muestra un botón (p. ej. «Deshacer») y alarga la duración. */
 (function () {
   let pushFn = null;
-  window.toast = (msg, tone) => { if (pushFn) pushFn(msg, tone || "ok"); };
+  window.toast = (msg, tone, action) => { if (pushFn) pushFn(msg, tone || "ok", action); };
   window.ToastHost = function ToastHost() {
     const [items, setItems] = React.useState([]);
     React.useEffect(() => {
-      pushFn = (msg, tone) => {
+      pushFn = (msg, tone, action) => {
         const id = Date.now() + Math.random();
-        setItems((xs) => [...xs, { id, msg, tone }]);
-        setTimeout(() => setItems((xs) => xs.filter((x) => x.id !== id)), 2600);
+        setItems((xs) => [...xs, { id, msg, tone, action }]);
+        setTimeout(() => setItems((xs) => xs.filter((x) => x.id !== id)), action ? 6000 : 2600);
       };
       return () => { pushFn = null; };
     }, []);
+    const runAction = (t) => {
+      try { t.action.run(); } finally { setItems((xs) => xs.filter((x) => x.id !== t.id)); }
+    };
     return (
       <div className="toast-host">
         {items.map((t) => (
           <div key={t.id} className={"toast toast-" + t.tone}>
             <span className="toast-ic">{t.tone === "danger" ? "⚠" : t.tone === "warn" ? "!" : "✓"}</span>
             <span className="toast-msg">{t.msg}</span>
+            {t.action && <button type="button" className="toast-act" onClick={() => runAction(t)}>{t.action.label}</button>}
           </div>
         ))}
       </div>

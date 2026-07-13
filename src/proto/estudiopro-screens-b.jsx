@@ -160,13 +160,13 @@ function Banco() {
 
       <ConfirmDialog open={bulkDel} danger confirmLabel={"Eliminar " + sel.size + " pregunta" + (sel.size === 1 ? "" : "s")}
         title="¿Eliminar las preguntas seleccionadas?"
-        body={<span>Se eliminarán <b>{sel.size}</b> pregunta{sel.size === 1 ? "" : "s"} del banco. Esta acción no se puede deshacer.</span>}
-        onClose={() => setBulkDel(false)} onConfirm={() => { EPStore.deleteQuestions([...sel]); setBulkDel(false); clearSel(); window.toast && window.toast("Preguntas eliminadas", "ok"); }} />
+        body={<span>Se eliminarán <b>{sel.size}</b> pregunta{sel.size === 1 ? "" : "s"} del banco. Podrás deshacerlo justo después desde el aviso.</span>}
+        onClose={() => setBulkDel(false)} onConfirm={() => { const n = sel.size; EPStore.deleteQuestions([...sel]); setBulkDel(false); clearSel(); window.undoableToast && window.undoableToast(n + " pregunta" + (n === 1 ? " eliminada" : "s eliminadas")); }} />
 
       <ConfirmDialog open={!!delRow} danger confirmLabel="Eliminar pregunta"
         title="¿Eliminar esta pregunta?"
-        body={delRow && <span>Se eliminará <b>“{delRow.q}”</b> del banco. Esta acción no se puede deshacer.</span>}
-        onClose={() => setDelRow(null)} onConfirm={() => { EPStore.deleteQuestion(delRow._id); setDelRow(null); }} />
+        body={delRow && <span>Se eliminará <b>“{delRow.q}”</b> del banco. Podrás deshacerlo justo después desde el aviso.</span>}
+        onClose={() => setDelRow(null)} onConfirm={() => { EPStore.deleteQuestion(delRow._id); setDelRow(null); window.undoableToast && window.undoableToast("Pregunta eliminada"); }} />
     </main>
   );
 }
@@ -447,8 +447,8 @@ function Tarjetas() {
         </Panel>
         <ConfirmDialog open={!!delCard} danger confirmLabel="Eliminar tarjeta"
           title="¿Eliminar esta tarjeta?"
-          body={delCard && <span>Se eliminará <b>“{delCard.front}”</b>. Esta acción no se puede deshacer.</span>}
-          onClose={() => setDelCard(null)} onConfirm={() => { EPStore.deleteCard(delCard._id); setDelCard(null); window.toast && window.toast("Tarjeta eliminada", "ok"); }} />
+          body={delCard && <span>Se eliminará <b>“{delCard.front}”</b>. Podrás deshacerlo justo después desde el aviso.</span>}
+          onClose={() => setDelCard(null)} onConfirm={() => { EPStore.deleteCard(delCard._id); setDelCard(null); window.undoableToast && window.undoableToast("Tarjeta eliminada"); }} />
       </main>
     );
   }

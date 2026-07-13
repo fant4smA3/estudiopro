@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -27,7 +27,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,woff2,png,svg,ico}"],
+        globPatterns: ["**/*.{js,css,html,woff2,png,svg,ico,json}"],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       },
     }),
@@ -39,4 +39,4 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.{ts,jsx}"],
   },
-} as any);
+});
