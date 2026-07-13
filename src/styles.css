@@ -325,6 +325,8 @@
 
   /* ---- Bank table ---- */
   .tbl-wrap { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); overflow: hidden; box-shadow: var(--shadow); }
+  /* la tabla se desliza dentro de su panel si el contenido es más ancho (el pager queda fijo) */
+  .tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .tbl-bank { table-layout: fixed; }
   .tbl-bank col.c-q { width: auto; }
   .tbl-bank th {
@@ -337,12 +339,14 @@
   .tbl-bank tbody tr { transition: background .12s; }
   .tbl-bank tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface-2) 45%, var(--surface)); }
   .tbl-bank tbody tr:hover { background: var(--accent-tint); }
-  /* column widths */
-  .tbl-bank th:nth-child(1), .tbl-bank td:nth-child(1) { width: 36px; }
-  .tbl-bank th:nth-child(3), .tbl-bank td:nth-child(3) { width: 64px; }
-  .tbl-bank th:nth-child(4), .tbl-bank td:nth-child(4) { width: 96px; }
-  .tbl-bank th:nth-child(5), .tbl-bank td:nth-child(5) { width: 122px; }
-  .tbl-bank th:nth-child(6), .tbl-bank td:nth-child(6) { width: 104px; }
+  /* column widths (solo cuando se muestra como tabla; en móvil son tarjetas apiladas) */
+  @media (min-width: 721px) {
+    .tbl-bank th:nth-child(1), .tbl-bank td:nth-child(1) { width: 36px; }
+    .tbl-bank th:nth-child(3), .tbl-bank td:nth-child(3) { width: 64px; }
+    .tbl-bank th:nth-child(4), .tbl-bank td:nth-child(4) { width: 96px; }
+    .tbl-bank th:nth-child(5), .tbl-bank td:nth-child(5) { width: 122px; }
+    .tbl-bank th:nth-child(6), .tbl-bank td:nth-child(6) { width: 104px; }
+  }
   /* question cell: title + location subline */
   .t-q { min-width: 0; }
   .t-q-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 600; font-size: 12.5px; line-height: 1.35; color: var(--ink); }
@@ -1485,9 +1489,55 @@
     .quiz-meta { flex-wrap: wrap; gap: 8px; }
     .quiz-rail { max-height: 220px; overflow-y: auto; }
 
-    /* tablas: scroll horizontal */
-    .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .tbl-bank { min-width: 560px; }
+    /* topbar: aire a la derecha (el botón + Pregunta quedaba al ras del borde) */
+    .qbar { padding-right: max(12px, env(safe-area-inset-right)); }
+    /* en teléfonos angostos la marca queda solo con el logo EP para que las acciones
+       (◎ ☾ + Pregunta y avatar) entren completas sin cortarse */
+    @media (max-width: 480px) {
+      .brand-name { display: none; }
+      .qbar { gap: 6px; }
+    }
+
+    /* encabezados de panel: el meta baja de línea en vez de encimarse con el título */
+    .panel-h { flex-wrap: wrap; row-gap: 3px; }
+    .panel-title { white-space: normal; }
+    .panel-h-r { min-width: 0; flex-wrap: wrap; }
+    .panel-meta { white-space: normal; }
+
+    /* stepper (Importar): solo el paso activo muestra su nombre */
+    .step:not(.is-on) .step-l { display: none; }
+    .step-line { min-width: 10px; }
+
+    /* filtros de materia: carrusel horizontal de una línea */
+    .fb-selects { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .fb-selects::-webkit-scrollbar { display: none; }
+    .fb-selects .subjchip, .fb-selects .sel { flex: 0 0 auto; }
+
+    /* Banco de preguntas: la tabla se convierte en tarjetas apiladas */
+    .tbl-bank thead { display: none; }
+    .tbl-bank, .tbl-bank tbody, .tbl-bank tbody tr { display: block; width: 100%; }
+    .tbl-bank tbody tr { position: relative; padding: 12px 14px 10px 42px; border-bottom: 1px solid var(--soft-line); }
+    .tbl-bank tbody tr:last-child { border-bottom: 0; }
+    .tbl-bank tbody td { display: inline-block; border: 0; padding: 0; vertical-align: middle; }
+    .tbl-bank td.cb { position: absolute; left: 10px; top: 14px; width: auto; }
+    .tbl-bank td.t-q { display: block; margin-bottom: 9px; }
+    .tbl-bank td:nth-child(3), .tbl-bank td:nth-child(4), .tbl-bank td:nth-child(5) { margin: 0 6px 2px 0; }
+    .tbl-bank td.ta-c { display: block; margin-top: 9px; text-align: left; }
+    .tbl-bank .rowacts { gap: 8px; }
+    .tbl-bank .ra-btn { width: 40px; height: 36px; border: 1px solid var(--soft-line); background: var(--surface); }
+
+    /* avance por materia: la barra baja a su propia línea (los totales ya no se cortan) */
+    .matstat-row { grid-template-columns: 10px minmax(0, 1fr) 44px auto; row-gap: 5px; }
+    .matstat-track { grid-column: 2 / -1; grid-row: 2; }
+
+    /* Configuración: métricas 2 por fila y controles que bajan de línea */
+    .cfg-metrics { grid-template-columns: 1fr 1fr; }
+    .cfg-metric { border-bottom: 1px solid var(--soft-line); }
+    .cfg-metric:nth-child(2n) { border-right: 0; }
+    .cfg-metric:last-child { border-bottom: 0; grid-column: 1 / -1; }
+    .set-row { flex-wrap: wrap; }
+    .set-btns { flex-wrap: wrap; justify-content: flex-end; }
+    .dow-pick { flex-wrap: wrap; }
 
     /* resultado */
     .res-hero { flex-direction: column; align-items: flex-start; gap: 14px; }

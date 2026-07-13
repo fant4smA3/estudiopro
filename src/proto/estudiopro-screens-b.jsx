@@ -85,6 +85,7 @@ function Banco() {
           actions={<button className="btn" onClick={() => { setQ(""); setSubj("Todas"); setOnlyFall(false); }}>Limpiar filtros</button>} />
       ) : (
       <div className="tbl-wrap">
+        <div className="tbl-scroll">
         <table className="tbl tbl-bank">
           <thead>
             <tr>
@@ -126,6 +127,7 @@ function Banco() {
             ))}
           </tbody>
         </table>
+        </div>
         {totalPages > 1 && (
           <div className="pager">
             <button className="btn btn-sm" disabled={curPage === 0} onClick={() => setPage(curPage - 1)}>‹ Anterior</button>
@@ -408,7 +410,7 @@ function Tarjetas() {
         {SUBJECTS.map((s) => (
           <span key={s} className={"subjchip" + (s === subject ? " is-on" : "")} onClick={() => setSubject(s)}
             style={s === subject ? { background: subjColor(s), borderColor: subjColor(s), color: "#fff" } : { borderColor: subjColor(s) }}>
-            <i className="subjchip-dot" style={{ background: subjColor(s) }}></i>{s.split(" ")[0]}
+            <i className="subjchip-dot" style={{ background: subjColor(s) }}></i>{window.subjShort(s)}
           </span>
         ))}
       </div>
@@ -873,7 +875,7 @@ function Quiz() {
           </div>
           <div className="rail-cfg">
             <div className="rail-cfg-h">configuración</div>
-            <div className="cfg-row"><span>Materia</span><b style={{ color: window.subjTextColor(subject) }}>{subject.split(" ")[0]}</b></div>
+            <div className="cfg-row"><span>Materia</span><b style={{ color: window.subjTextColor(subject) }}>{window.subjShort(subject)}</b></div>
             <div className="cfg-row"><span>Mostrar respuestas</span><b>{strict ? "al final" : "tras responder"}</b></div>
             <div className="cfg-row"><span>Tiempo límite</span><b>{limitMin ? String(limitMin).padStart(2, "0") + ":00" : "Sin límite"}</b></div>
           </div>

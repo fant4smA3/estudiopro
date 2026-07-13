@@ -34,6 +34,14 @@ window.subjTextColor = (s) => {
   return window.SUBJECT_TEXT_COLORS[s] || window.subjColor(s);
 };
 
+/* Etiqueta corta de materia para chips estrechos. La primera palabra sola es ambigua
+   entre "Aspecto Administrativo" y "Aspecto Técnico", así que ahí se usa la segunda. */
+window.subjShort = (s) => {
+  const words = (s || "").split(" ");
+  if (words[0] === "Aspecto" && words[1]) return words[1];
+  return words[0] || s;
+};
+
 /* Banco de preguntas de ejemplo. type: OM (opción múltiple), VF (verdadero/falso), AB (abierta).
    status: ok=dominada, fall=fallada, nuevo=sin estudiar, imp=importante. */
 window.QUESTION_BANK = [
