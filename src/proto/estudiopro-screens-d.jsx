@@ -1,15 +1,26 @@
 /* EstudioPro · Prototipo — Pantallas D: Calendario, Simulacro (config + bloques), Alertas */
 const { useGo: useGoD, PageHead: PageHeadD, Panel: PanelD, Diff: DiffD, Crumbs: CrumbsD } = window;
 
-/* ============================ CALENDARIO ============================ */
+/* ============================ CALENDARIO + EDITOR DEL PLAN ============================
+   Una sola página: el mes es editable (arrastra un día sobre otro para intercambiarlos,
+   o suéltalo en un día libre para moverlo) y la hoja de cada día permite cambiar estado,
+   mover a otra fecha o quitarlo. La pestaña Lista conserva el reordenado lineal. */
 function Calendario() {
   const go = useGoD();
   const st = window.useStore();
   const subjColor = window.subjColor;
+  const { ConfirmDialog } = window;
   const [cursor, setCursor] = React.useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const [sel, setSel] = React.useState(null);
+  const [vista, setVista] = React.useState("mes");     // mes | lista
+  const [dragDate, setDragDate] = React.useState(null); // arrastre entre celdas del mes
+  const [overDate, setOverDate] = React.useState(null);
+  const [dragIdx, setDragIdx] = React.useState(null);   // arrastre en la vista lista
+  const [overIdx, setOverIdx] = React.useState(null);
+  const [confirmRegen, setConfirmRegen] = React.useState(false);
+  const [moveTo, setMoveTo] = React.useState("");
   React.useEffect(() => { if (!st.plan.generado) window.generarPlan(); }, []);
-  const dias = st.plan.dias || [];
+  const dias = (st.plan.dias || []).slice().sort((a, b) => a.fecha.localeCompare(b.fecha));
   const byDate = {}; dias.forEach((d) => { byDate[d.fecha] = d; });
 
   const MES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
@@ -20,6 +31,7 @@ function Calendario() {
   const daysInMonth = new Date(y, m + 1, 0).getDate();
   const todayStr = new Date().toISOString().slice(0, 10);
   const examStr = st.plan.examDate;
+  const examTxt = examStr ? new Date(examStr + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" }) : "";
   const fmt = (dd) => new Date(y, m, dd).toISOString().slice(0, 10);
 
   const cells = [];
@@ -30,30 +42,74 @@ function Calendario() {
   const planMonth = dias.filter((d) => d.fecha.startsWith(y + "-" + String(m + 1).padStart(2, "0")));
   const hechos = planMonth.filter((d) => d.estado === "hecho").length;
 
-  const openDay = (dd) => { const d = byDate[fmt(dd)]; if (d) setSel(d); };
+  // --- edición del plan desde el calendario ---
+  // mover contenido a otra fecha: si la fecha destino ya tiene plan, se intercambian
+  const moveOrSwap = (fromFecha, toFecha) => {
+    if (!fromFecha || !toFecha || fromFecha === toFecha) return false;
+    const from = byDate[fromFecha];
+    if (!from) return false;
+    const to = byDate[toFecha];
+    let nuevo;
+    if (to) {
+      // intercambio: el contenido (y su estado) viaja; las fechas quedan fijas
+      nuevo = dias.map((d) => d.fecha === fromFecha ? { ...to, fecha: fromFecha } : d.fecha === toFecha ? { ...from, fecha: toFecha } : d);
+      window.toast && window.toast("Días intercambiados", "ok");
+    } else {
+      nuevo = dias.map((d) => d.fecha === fromFecha ? { ...d, fecha: toFecha } : d);
+      window.toast && window.toast("Día movido al " + new Date(toFecha + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short" }), "ok");
+    }
+    window.EPStore.updatePlan(nuevo.sort((a, b) => a.fecha.localeCompare(b.fecha)));
+    return true;
+  };
+  const removeDay = (d) => {
+    window.EPStore.updatePlan(dias.filter((x) => x.fecha !== d.fecha));
+    setSel(null);
+    window.toast && window.toast("Día quitado del plan", "ok");
+  };
+  const setEstado = (d, estado) => {
+    window.EPStore.setPlanDayState(d.fecha, estado);
+    setSel({ ...d, estado });
+    window.toast && window.toast(estado === "hecho" ? "Día marcado como estudiado" : "Día marcado como pendiente", "ok");
+  };
+  // vista lista: arrastrar reordena los contenidos sobre las fechas fijas (editor clásico)
+  const commitLista = (arr) => {
+    const fechas = dias.map((d) => d.fecha);
+    window.EPStore.updatePlan(arr.map((d, i) => ({ ...d, fecha: fechas[i] })));
+  };
+  const onDropLista = (idx) => {
+    if (dragIdx === null || dragIdx === idx) { setDragIdx(null); setOverIdx(null); return; }
+    const arr = dias.slice();
+    const [it] = arr.splice(dragIdx, 1);
+    arr.splice(idx, 0, it);
+    commitLista(arr); setDragIdx(null); setOverIdx(null);
+    window.toast && window.toast("Plan reprogramado", "ok");
+  };
+
+  const openDay = (dd) => { const d = byDate[fmt(dd)]; if (d) { setSel(d); setMoveTo(""); } };
   const startDay = (d) => {
     if (d.tipo === "simulacro") { go("simulacro"); return; }
     window.__epSimulacro = false; window.__epSubject = d.subject;
     window.EPStore.setNav({ subject: d.subject, ord: d.ord, mode: "practica" });
     go("quiz");
   };
-  const markDone = (d) => {
-    window.EPStore.get().plan.dias = dias.map((x) => x.fecha === d.fecha ? { ...x, estado: "hecho" } : x);
-    window.EPStore.setGoal(st.plan.dailyGoal); // fuerza emit
-    setSel({ ...d, estado: "hecho" });
-    window.toast && window.toast("Día marcado como estudiado", "ok");
-  };
 
   return (
     <main className="main">
-      <PageHeadD title="Calendario de estudio" sub="Plan hasta el examen · 27 jul 2026" crumbs={[["Inicio", "inicio"], "Calendario"]}
+      <PageHeadD title="Calendario y plan de estudio" sub={"Organiza tu plan hasta el examen" + (examTxt ? " · " + examTxt : "")} crumbs={[["Inicio", "inicio"], "Calendario"]}
         actions={<div className="cal-nav">
-          <button className="btn btn-sm" onClick={() => setCursor(new Date(y, m - 1, 1))}>‹</button>
-          <span className="cal-month">{MES[m]} {y}</span>
-          <button className="btn btn-sm" onClick={() => setCursor(new Date(y, m + 1, 1))}>›</button>
-          <button className="btn btn-sm" onClick={() => { window.generarPlan(); window.toast && window.toast("Plan regenerado", "ok"); }}>Regenerar plan</button>
+          {vista === "mes" && <React.Fragment>
+            <button className="btn btn-sm" onClick={() => setCursor(new Date(y, m - 1, 1))} aria-label="Mes anterior">‹</button>
+            <span className="cal-month">{MES[m]} {y}</span>
+            <button className="btn btn-sm" onClick={() => setCursor(new Date(y, m + 1, 1))} aria-label="Mes siguiente">›</button>
+          </React.Fragment>}
+          <div className="rep-tabs cal-tabs">
+            <button className={"rep-tab" + (vista === "mes" ? " is-on" : "")} onClick={() => setVista("mes")}>Mes</button>
+            <button className={"rep-tab" + (vista === "lista" ? " is-on" : "")} onClick={() => setVista("lista")}>Lista</button>
+          </div>
+          <button className="btn btn-sm" onClick={() => setConfirmRegen(true)}>Regenerar plan</button>
         </div>} />
 
+      {vista === "mes" && <React.Fragment>
       <div className="cal-legend">
         <span><i className="cal-dot cd-done"></i> Estudiado</span>
         <span><i className="cal-dot cd-partial"></i> Parcial</span>
@@ -61,6 +117,7 @@ function Calendario() {
         <span><i className="cal-dot cd-sim"></i> Simulacro (viernes)</span>
         <span className="cal-legend-r">{hechos} días estudiados este mes</span>
       </div>
+      <div className="cal-hint">Toca un día para editarlo (estado, mover, quitar). En computadora también puedes <b>arrastrar un día sobre otro</b> para intercambiarlos, o soltarlo en un día libre para moverlo.</div>
 
       <div className="calendar">
         <div className="cal-grid cal-head">
@@ -75,11 +132,17 @@ function Calendario() {
             const isExam = ds === examStr;
             const c = d && d.subject ? subjColor(d.subject) : null;
             return (
-              <div key={dd} className={"cal-cell" + (isToday ? " is-today" : "") + (isExam ? " is-exam" : "") + (d ? " has-plan" : "")}
-                onClick={() => openDay(dd)} role={d ? "button" : undefined}>
+              <div key={dd} className={"cal-cell" + (isToday ? " is-today" : "") + (isExam ? " is-exam" : "") + (d ? " has-plan" : "") + (dragDate === ds ? " is-drag" : "") + (overDate === ds && dragDate && dragDate !== ds ? " is-over" : "")}
+                onClick={() => openDay(dd)} role={d ? "button" : undefined}
+                draggable={!!d}
+                onDragStart={d ? () => setDragDate(ds) : undefined}
+                onDragOver={(e) => { if (dragDate && dragDate !== ds) { e.preventDefault(); setOverDate(ds); } }}
+                onDragLeave={() => { if (overDate === ds) setOverDate(null); }}
+                onDrop={() => { moveOrSwap(dragDate, ds); setDragDate(null); setOverDate(null); }}
+                onDragEnd={() => { setDragDate(null); setOverDate(null); }}>
                 <span className="cal-num">{dd}{isExam && <span className="cal-examflag">EXAMEN</span>}</span>
                 {d && d.tipo === "simulacro" && <span className="cal-chip cal-chip-sim">Simulacro 200</span>}
-                {d && d.tipo === "estudio" && <span className="cal-chip" style={{ background: c + "22", color: window.subjTextColor(d.subject) }}><i className="cal-dot" style={{ background: c }}></i>{d.subject.split(" ")[0]}</span>}
+                {d && d.tipo === "estudio" && <span className="cal-chip" style={{ background: c + "22", color: window.subjTextColor(d.subject) }}><i className="cal-dot" style={{ background: c }}></i>{window.subjShort(d.subject)}</span>}
                 {d && d.tipo === "repaso" && <span className="cal-chip cal-chip-rep">Repaso</span>}
                 {d && d.titulo && d.tipo !== "simulacro" && <span className="cal-cap">{d.titulo.replace(/^(Cap\.|Libro|Título)\s*/, "")}</span>}
                 {d && <span className={"cal-state " + (estadoCls[d.estado] || "")}></span>}
@@ -88,11 +151,43 @@ function Calendario() {
           })}
         </div>
       </div>
+      </React.Fragment>}
+
+      {vista === "lista" && <React.Fragment>
+      <div className="plan-ed-hint">Sujeta el punto <span className="plan-ed-grip">⠿</span> y arrastra un día sobre otro para intercambiar el orden. Las fechas se mantienen; solo cambia qué estudias cada día.</div>
+      <div className="plan-ed-list">
+        {dias.map((d, i) => {
+          const c = d.subject ? subjColor(d.subject) : "var(--accent)";
+          const isToday = d.fecha === todayStr;
+          return (
+            <div key={d.fecha} draggable
+              onDragStart={() => setDragIdx(i)} onDragOver={(e) => { e.preventDefault(); setOverIdx(i); }} onDrop={() => onDropLista(i)} onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+              className={"plan-ed-row" + (d.estado === "hecho" ? " is-done" : "") + (dragIdx === i ? " is-drag" : "") + (overIdx === i && dragIdx !== null && dragIdx !== i ? " is-over" : "") + (isToday ? " is-today" : "")}
+              style={{ borderLeft: "4px solid " + c }}
+              onClick={() => { setSel(d); setMoveTo(""); }}>
+              <span className="plan-ed-grip" aria-hidden="true">⠿</span>
+              <div className="plan-ed-date">
+                <b>{new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { weekday: "short", day: "numeric" })}</b>
+                <span>{new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { month: "short" })}</span>
+              </div>
+              <div className="plan-ed-body">
+                <div className="plan-ed-t">{d.tipo === "simulacro" ? "Simulacro general" : d.subject}</div>
+                <div className="plan-ed-s">{d.ord}{d.titulo ? " · " + d.titulo : ""}</div>
+              </div>
+              <span className={"plan-ed-chip plan-ed-" + d.tipo}>{d.tipo}</span>
+              <span className="plan-ed-min">{d.min}′</span>
+              <button className={"plan-ed-done" + (d.estado === "hecho" ? " is-on" : "")} onClick={(e) => { e.stopPropagation(); window.EPStore.setPlanDayState(d.fecha, d.estado === "hecho" ? "pendiente" : "hecho"); }} title="Marcar hecho" aria-label={"Marcar " + (d.estado === "hecho" ? "pendiente" : "hecho")}>✓</button>
+            </div>
+          );
+        })}
+        {dias.length === 0 && <div className="plan-ed-hint">Sin plan generado. Usa «Regenerar plan» para crearlo.</div>}
+      </div>
+      </React.Fragment>}
 
       {sel && (
         <div className="cal-sheet" onClick={() => setSel(null)}>
           <div className="cal-sheet-card" onClick={(e) => e.stopPropagation()} style={sel.subject ? { borderTop: "3px solid " + subjColor(sel.subject) } : { borderTop: "3px solid var(--accent)" }}>
-            <button className="cal-sheet-x" onClick={() => setSel(null)}>✕</button>
+            <button className="cal-sheet-x" onClick={() => setSel(null)} aria-label="Cerrar">✕</button>
             <div className="cal-sheet-date">{new Date(sel.fecha + "T00:00:00").toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" })}</div>
             <div className="cal-sheet-title">{sel.tipo === "simulacro" ? "Simulacro general" : sel.subject}</div>
             <div className="cal-sheet-sub">{sel.ord}{sel.titulo ? " · " + sel.titulo : ""}</div>
@@ -103,12 +198,30 @@ function Calendario() {
             </div>
             <div className="cal-sheet-acts">
               <button className="btn btn-accent" onClick={() => startDay(sel)}>{sel.tipo === "simulacro" ? "Ir al simulacro ▸" : "Estudiar ahora ▸"}</button>
-              {sel.estado !== "hecho" && <button className="btn" onClick={() => markDone(sel)}>Marcar hecho</button>}
-              <button className="btn" onClick={() => setSel(null)}>Cerrar</button>
+              {sel.estado !== "hecho"
+                ? <button className="btn" onClick={() => setEstado(sel, "hecho")}>Marcar hecho</button>
+                : <button className="btn" onClick={() => setEstado(sel, "pendiente")}>Marcar pendiente</button>}
+              <button className="btn btn-danger" onClick={() => removeDay(sel)}>Quitar del plan</button>
+            </div>
+            <div className="cal-sheet-move">
+              <label htmlFor="cal-move-date">Mover a otra fecha</label>
+              <div className="cal-sheet-move-row">
+                <input id="cal-move-date" type="date" className="input input-sm" value={moveTo} onChange={(e) => setMoveTo(e.target.value)} />
+                <button className="btn btn-sm" disabled={!moveTo || moveTo === sel.fecha} onClick={() => { if (moveOrSwap(sel.fecha, moveTo)) setSel(null); }}>
+                  {moveTo && byDate[moveTo] ? "Intercambiar ▸" : "Mover ▸"}
+                </button>
+              </div>
+              {moveTo && byDate[moveTo] && moveTo !== sel.fecha && <span className="cal-sheet-move-note">Esa fecha ya tiene «{byDate[moveTo].tipo === "simulacro" ? "Simulacro general" : byDate[moveTo].subject}» — se intercambiarán.</span>}
             </div>
           </div>
         </div>
       )}
+
+      <ConfirmDialog open={confirmRegen} title="¿Regenerar el plan completo?"
+        body="Se creará un plan nuevo desde hoy hasta el examen y se perderán los cambios manuales (días movidos, intercambiados o quitados)."
+        confirmLabel="Regenerar plan" danger
+        onClose={() => setConfirmRegen(false)}
+        onConfirm={() => { window.generarPlan(); setConfirmRegen(false); window.toast && window.toast("Plan regenerado", "ok"); }} />
     </main>
   );
 }

@@ -209,71 +209,8 @@ function HojaRepaso() {
   );
 }
 
-/* ============================ EDITOR DE PLAN (arrastrar y soltar) ============================ */
-function EditorPlan() {
-  const go = useGoI();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  React.useEffect(() => { if (!st.plan.generado) window.generarPlan(); }, []);
-  const dias = (st.plan.dias || []).slice().sort((a, b) => a.fecha.localeCompare(b.fecha));
-  const [drag, setDrag] = React.useState(null);
-  const [over, setOver] = React.useState(null);
-
-  const commit = (arr) => {
-    // reasignar las fechas fijas en orden a la nueva secuencia de contenidos
-    const fechas = dias.map((d) => d.fecha);
-    const nuevo = arr.map((d, i) => ({ ...d, fecha: fechas[i] }));
-    window.EPStore.updatePlan(nuevo);
-  };
-  const onDrop = (idx) => {
-    if (drag === null || drag === idx) { setDrag(null); setOver(null); return; }
-    const arr = dias.slice();
-    const [it] = arr.splice(drag, 1);
-    arr.splice(idx, 0, it);
-    commit(arr); setDrag(null); setOver(null);
-    window.toast && window.toast("Plan reprogramado", "ok");
-  };
-  const toggleDone = (d) => window.EPStore.setPlanDayState(d.fecha, d.estado === "hecho" ? "pendiente" : "hecho");
-
-  const hoy = new Date().toISOString().slice(0, 10);
-  return (
-    <main className="main">
-      <PageHeadI title="Editor del plan" sub="Arrastra para reprogramar · marca días como hechos · recalcula"
-        crumbs={[["Calendario", "calendario"], "Editor del plan"]}
-        actions={<div style={{ display: "flex", gap: "8px" }}>
-          <button className="btn" onClick={() => { window.generarPlan(); window.toast && window.toast("Plan regenerado", "ok"); }}>Regenerar</button>
-          <button className="btn" onClick={() => go("calendario")}>Ver calendario ▸</button>
-        </div>} />
-      <div className="plan-ed-hint">Sujeta el punto <span className="plan-ed-grip">⠿</span> y arrastra un día sobre otro para intercambiar el orden. Las fechas se mantienen; solo cambia qué estudias cada día.</div>
-      <div className="plan-ed-list">
-        {dias.map((d, i) => {
-          const c = d.subject ? subjColor(d.subject) : "var(--accent)";
-          const isToday = d.fecha === hoy;
-          return (
-            <div key={d.fecha} draggable
-              onDragStart={() => setDrag(i)} onDragOver={(e) => { e.preventDefault(); setOver(i); }} onDrop={() => onDrop(i)} onDragEnd={() => { setDrag(null); setOver(null); }}
-              className={"plan-ed-row" + (d.estado === "hecho" ? " is-done" : "") + (drag === i ? " is-drag" : "") + (over === i && drag !== null && drag !== i ? " is-over" : "") + (isToday ? " is-today" : "")}
-              style={{ borderLeft: "4px solid " + c }}>
-              <span className="plan-ed-grip" aria-hidden="true">⠿</span>
-              <div className="plan-ed-date">
-                <b>{new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { weekday: "short", day: "numeric" })}</b>
-                <span>{new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { month: "short" })}</span>
-              </div>
-              <div className="plan-ed-body">
-                <div className="plan-ed-t">{d.tipo === "simulacro" ? "Simulacro general" : d.subject}</div>
-                <div className="plan-ed-s">{d.ord}{d.titulo ? " · " + d.titulo : ""}</div>
-              </div>
-              <span className={"plan-ed-chip plan-ed-" + d.tipo}>{d.tipo}</span>
-              <span className="plan-ed-min">{d.min}′</span>
-              <button className={"plan-ed-done" + (d.estado === "hecho" ? " is-on" : "")} onClick={() => toggleDone(d)} title="Marcar hecho">✓</button>
-            </div>
-          );
-        })}
-        {dias.length === 0 && <EmptyStateI icon="🗓️" title="Sin plan generado" desc="Genera tu plan para poder editarlo." actions={<button className="btn btn-accent" onClick={() => window.generarPlan()}>Generar plan</button>} />}
-      </div>
-    </main>
-  );
-}
+/* (El editor del plan vive ahora dentro de Calendario — pestaña «Lista» y edición
+   directa sobre el mes en estudiopro-screens-d.jsx.) */
 
 /* ============================ PALETA DE COMANDOS (Cmd/Ctrl+K) ============================ */
 function CommandPalette() {
@@ -337,4 +274,4 @@ function CommandPalette() {
   );
 }
 
-Object.assign(window, { ActivityHeatmap, Informe, HojaRepaso, EditorPlan, CommandPalette });
+Object.assign(window, { ActivityHeatmap, Informe, HojaRepaso, CommandPalette });

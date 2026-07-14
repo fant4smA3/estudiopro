@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import React from "react";
 import * as ReactDOMClient from "react-dom/client";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import axe from "axe-core";
 
 let W;
@@ -19,15 +19,14 @@ beforeAll(async () => {
   W = window;
 });
 
+/* commit síncrono + desmontaje por prueba (ver smoke.test.jsx) */
 const mount = async (node) => {
   const div = document.createElement("div");
   document.body.appendChild(div);
   const root = ReactDOMClient.createRoot(div);
-  await new Promise((res) => {
-    root.render(node);
-    setTimeout(res, 30);
-  });
-  return div;
+  flushSync(() => root.render(node));
+  await new Promise((res) => setTimeout(res, 20));
+  return { div, root };
 };
 
 // reglas estructurales (sin geometría): las que la auditoría QA llevó a 0
@@ -37,22 +36,24 @@ const RUN_ONLY = [
   "aria-allowed-attr", "duplicate-id-aria", "image-alt", "list", "listitem",
 ];
 
-const SCREENS = ["Inicio", "Categorias", "Materias", "Banco", "Tarjetas", "TarjetaForm", "PreguntaForm", "Cuestionarios", "Simulacro", "Estadisticas", "Config", "Importar", "SesionHoy", "RepasoPrioritario", "Perfil", "Respaldo", "ReparaDistractores"];
+const SCREENS = ["Inicio", "Categorias", "Materias", "Banco", "Tarjetas", "TarjetaForm", "PreguntaForm", "Cuestionarios", "Simulacro", "Calendario", "Estadisticas", "Config", "Importar", "SesionHoy", "RepasoPrioritario", "Perfil", "Respaldo", "ReparaDistractores"];
 
 describe("EstudioPro — a11y estructural (axe)", () => {
   for (const name of SCREENS) {
     it("pantalla " + name + " sin violaciones axe", async () => {
       const C = W[name];
       expect(C, name + " no existe en window").toBeTypeOf("function");
-      const div = await mount(
+      const { div, root } = await mount(
         React.createElement(W.NavCtx.Provider, { value: () => {} }, React.createElement(C))
       );
+      expect(div.querySelector("main.main"), name + " no renderizó <main>").toBeTruthy();
       const res = await axe.run(div, {
         runOnly: { type: "rule", values: RUN_ONLY },
         resultTypes: ["violations"],
       });
       const resumen = res.violations.map((v) => v.id + ": " + v.nodes.length + " nodo(s) — " + v.nodes.slice(0, 3).map((n) => n.html).join(" | "));
       expect(resumen, name + " tiene violaciones:\n" + resumen.join("\n")).toEqual([]);
+      root.unmount(); div.remove();
     });
   }
 });

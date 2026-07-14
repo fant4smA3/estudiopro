@@ -4,7 +4,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import React from "react";
 import * as ReactDOMClient from "react-dom/client";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 
 let App, W;
 
@@ -17,23 +17,24 @@ beforeAll(async () => {
   W = window;
 });
 
+/* commit síncrono (flushSync): el resultado no depende de cuántos árboles previos
+   estén re-renderizando; la pausa corta deja correr los useEffect */
 const mount = async (node) => {
   const div = document.createElement("div");
   document.body.appendChild(div);
   const root = ReactDOMClient.createRoot(div);
-  await new Promise((res) => {
-    root.render(node);
-    setTimeout(res, 30);
-  });
-  return div;
+  flushSync(() => root.render(node));
+  await new Promise((res) => setTimeout(res, 20));
+  return { div, root };
 };
 
 describe("EstudioPro — humo", () => {
   it("la app completa monta y muestra el Inicio", async () => {
-    const div = await mount(React.createElement(App));
+    const { div, root } = await mount(React.createElement(App));
     expect(div.querySelector(".proapp")).toBeTruthy();
     expect(div.querySelector(".main")).toBeTruthy();
     expect(div.textContent).toContain("Resumen");
+    root.unmount(); div.remove();
   });
 
   it("el store siembra el banco de ejemplo", () => {
@@ -130,15 +131,16 @@ describe("EstudioPro — humo", () => {
     expect(fixed.options[0]).toBe("Protección de activos de información"); // correcta intacta
   });
 
-  const SCREENS = ["Inicio", "Categorias", "Materias", "Banco", "Tarjetas", "TarjetaForm", "PreguntaForm", "Cuestionarios", "Simulacro", "Estadisticas", "Config", "Importar", "SesionHoy", "RepasoPrioritario", "Perfil", "Respaldo", "ReparaDistractores"];
+  const SCREENS = ["Inicio", "Categorias", "Materias", "Banco", "Tarjetas", "TarjetaForm", "PreguntaForm", "Cuestionarios", "Simulacro", "Calendario", "Estadisticas", "Config", "Importar", "SesionHoy", "RepasoPrioritario", "Perfil", "Respaldo", "ReparaDistractores"];
   for (const name of SCREENS) {
     it("pantalla " + name + " renderiza", async () => {
       const C = W[name];
       expect(C, name + " no existe en window").toBeTypeOf("function");
-      const div = await mount(
+      const { div, root } = await mount(
         React.createElement(W.NavCtx.Provider, { value: () => {} }, React.createElement(C))
       );
       expect(div.querySelector("main.main"), name + " no renderizó <main>").toBeTruthy();
+      root.unmount(); div.remove(); // sin árboles residuales que re-rendericen en las siguientes pruebas
     });
   }
 });
