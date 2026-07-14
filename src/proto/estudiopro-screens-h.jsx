@@ -142,7 +142,7 @@ function Evolucion() {
               </g>
             ))}
             <line x1={padL} y1={yOf(6)} x2={W - padR} y2={yOf(6)} stroke="var(--warn)" strokeWidth="1" strokeDasharray="4 4" opacity="0.6" />
-            {/* global tenue si hay foco de materia */}
+            {/* línea global tenue cuando hay foco de materia (nota: no empezar este comentario con "global": ESLint lo lee como directiva) */}
             {focoPts && <path d={line(globalPts)} fill="none" stroke="var(--line-strong)" strokeWidth="1.5" strokeDasharray="3 3" />}
             <path d={line(focoPts || globalPts)} fill="none" stroke={focoColor} strokeWidth="2.5" strokeLinejoin="round" />
             {(focoPts || globalPts).map((p, i) => (

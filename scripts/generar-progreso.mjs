@@ -112,7 +112,7 @@ caps.forEach((c) => {
     const sufijo = ronda === 2 ? " · segunda vuelta" : "";
     for (let f = 0; f < 5 && n < 50; f++) {
       for (let v = 0; v < 5 && n < 50; v++) {
-        let item = null;
+        let item;
         if (f === 0) { // ordenamiento
           const { options, answer } = arma(c.ord, otrosOrds, TODOS_ORDS);
           item = { q: F_ORD[v](c) + sufijo, options, answer, type: "OM" };
