@@ -28,6 +28,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,woff2,png,svg,ico,json}"],
+        // los datos de prueba (~3.7 MB) se descargan bajo demanda, no se precachean
+        globIgnores: ["**/progreso-prueba.json"],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       },
     }),

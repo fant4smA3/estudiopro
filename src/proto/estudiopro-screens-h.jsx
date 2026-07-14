@@ -285,6 +285,22 @@ function Respaldo() {
   // recordatorio: días desde la última exportación (null = nunca)
   const diasSinExportar = st.lastExport ? Math.floor((Date.now() - new Date(st.lastExport).getTime()) / 86400000) : null;
   const recordar = diasSinExportar === null || diasSinExportar >= 7;
+  // datos de prueba (~80% de avance): descarga bajo demanda + importJSON validado
+  const [confirmDemo, setConfirmDemo] = React.useState(false);
+  const [demoBusy, setDemoBusy] = React.useState(false);
+  const loadDemo = () => {
+    setConfirmDemo(false); setDemoBusy(true);
+    Promise.resolve()
+      .then(() => fetch("data/progreso-prueba.json"))
+      .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then((payload) => {
+        const res = window.EPStore.importJSON(payload);
+        if (res.ok) window.toast && window.toast("Datos de prueba cargados: " + res.n.toLocaleString("es-MX") + " preguntas con progreso al 80%", "ok");
+        else window.toast && window.toast(res.msg || "No se pudo cargar", "danger");
+      })
+      .catch(() => window.toast && window.toast("No se pudieron descargar los datos de prueba. Revisa tu conexión.", "danger"))
+      .finally(() => setDemoBusy(false));
+  };
 
   const stats = [
     ["Preguntas", (st.questions || []).length],
@@ -363,6 +379,21 @@ function Respaldo() {
               ))}
         </div>
       </section>
+      <section className="panel">
+        <div className="panel-h">
+          <div className="panel-h-l"><span className="panel-idx">🧪</span><span className="panel-title">Datos de prueba</span></div>
+          <div className="panel-h-r"><span className="panel-meta">~80% de avance simulado · 4,500+ reactivos</span></div>
+        </div>
+        <div className="panel-b">
+          <div className="set-row">
+            <div>
+              <div className="set-label">Cargar estado de prueba (progreso al 80%)</div>
+              <div className="set-desc">Banco completo por capítulo del temario + banco real de Aspecto Técnico, con repaso SM-2, sesiones, tiempos, racha y simulacros ya avanzados. Ideal para probar el sistema como si llevaras semanas estudiando. <b>Reemplaza todos tus datos actuales.</b></div>
+            </div>
+            <button className="btn btn-sm" disabled={demoBusy} onClick={() => setConfirmDemo(true)}>{demoBusy ? "Cargando…" : "Cargar datos de prueba…"}</button>
+          </div>
+        </div>
+      </section>
       <p className="resp-note">Tus datos se guardan localmente en este navegador. Exporta con regularidad para no perder tu avance.</p>
       <ConfirmDialog open={!!pending} title="¿Restaurar este respaldo?"
         body={info ? "El archivo contiene " + info.q + " preguntas, " + info.n + " apuntes y " + info.s + " sesiones. Esto reemplazará tus datos actuales." : ""}
@@ -370,6 +401,9 @@ function Respaldo() {
       <ConfirmDialog open={!!restoreDate} title={"¿Restaurar la copia del " + restoreDate + "?"}
         body="Tus datos actuales se reemplazarán por el estado guardado ese día. Si tienes dudas, exporta un respaldo antes."
         confirmLabel="Restaurar copia" danger onConfirm={doRestoreBackup} onClose={() => setRestoreDate(null)} />
+      <ConfirmDialog open={confirmDemo} title="¿Cargar los datos de prueba?"
+        body={<span>Se reemplazarán <b>todos</b> tus datos actuales por un estado simulado con ~80% de avance (4,500+ preguntas, repaso SM-2, sesiones, racha y simulacros). Si tienes progreso real, <b>exporta un respaldo antes</b>. Requiere conexión la primera vez (~4 MB).</span>}
+        confirmLabel="Sí, cargar datos de prueba" danger onConfirm={loadDemo} onClose={() => setConfirmDemo(false)} />
     </main>
   );
 }
