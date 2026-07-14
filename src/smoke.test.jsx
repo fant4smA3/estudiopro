@@ -143,4 +143,28 @@ describe("EstudioPro — humo", () => {
       root.unmount(); div.remove(); // sin árboles residuales que re-rendericen en las siguientes pruebas
     });
   }
+
+  it("los datos de prueba (80%) importan limpio y las analíticas calculan valores coherentes", () => {
+    const fs = require("fs");
+    const payload = JSON.parse(fs.readFileSync(process.cwd() + "/public/data/progreso-prueba.json", "utf8"));
+    const res = W.EPStore.importJSON(payload);
+    expect(res.ok).toBe(true);
+    expect(res.dropped).toBe(0);
+    expect(res.n).toBeGreaterThan(4000);
+    const st = W.EPStore.get();
+    // ~80% con estado SRS real
+    const conSrs = Object.keys(st.cardSrs).length;
+    expect(conSrs / st.questions.length).toBeGreaterThan(0.7);
+    expect(st.cards.filter((c) => c.nivel === "dominado").length).toBeGreaterThan(1000);
+    // las analíticas DERIVAN del estado (nada pintado)
+    expect(W.realStreak()).toBeGreaterThanOrEqual(10);
+    const intel = W.intel();
+    expect(intel.nota).toBeGreaterThan(5);
+    expect(intel.debil.subj).toBe("Normatividad Gubernamental"); // materia débil sembrada
+    const ready = W.readiness();
+    expect(ready.prob).toBeGreaterThan(50);
+    expect(W.dueCards().length).toBeGreaterThan(0);      // hay repasos que vencen hoy
+    expect((st.simHistory || []).length).toBeGreaterThanOrEqual(7);
+    expect(st.sessions.filter((s) => s.state === "done").length).toBeGreaterThan(30);
+  });
 });
