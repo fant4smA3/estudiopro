@@ -6,7 +6,7 @@ const {
   ToastHost, Calendario, Simulacro, SimRun, Alertas, RepasoPrioritario, SesionHoy, Onboarding,
   Inteligencia, CreaRapido,
   Preparacion, Evolucion, MapaTemario, Respaldo, Reportes,
-  Informe, HojaRepaso, EditorPlan, CommandPalette,
+  Informe, HojaRepaso, CommandPalette,
   Duplicados, Habitos, Bitacora,
   Confusiones, Metas, Glosario, Simulador,
   ReparaDistractores,
@@ -15,7 +15,7 @@ const {
 
 const React = window.React;
 
-const ACTIVE = { materia: "materias", pregunta: "banco", tarjeta: "tarjetas", resultado: "cuestionarios", quiz: "cuestionarios", simrun: "simulacro", sesion: "inicio", "crear-rapido": "banco", reportes: "reportes", plan: "plan", imprimir: "imprimir", informe: "informe", duplicados: "duplicados", habitos: "habitos", bitacora: "bitacora", confusiones: "confusiones", metas: "metas", glosario: "glosario", simulador: "simulador" };
+const ACTIVE = { materia: "materias", pregunta: "banco", tarjeta: "tarjetas", resultado: "cuestionarios", quiz: "cuestionarios", simrun: "simulacro", sesion: "inicio", "crear-rapido": "banco", reportes: "reportes", plan: "calendario", imprimir: "imprimir", informe: "informe", duplicados: "duplicados", habitos: "habitos", bitacora: "bitacora", confusiones: "confusiones", metas: "metas", glosario: "glosario", simulador: "simulador" };
 
 const TWEAK_DEFAULTS = { estilo: "sereno", acento: "#1B8FBE", densidad: "compacta", tema: "claro" };
 
@@ -27,7 +27,7 @@ export default function App() {
   const [navOpen, setNavOpen] = React.useState(false);
   const go = React.useCallback((r) => setRoute(r), []);
   React.useEffect(() => { const m = document.querySelector(".main"); if (m) m.scrollTop = 0; setNavOpen(false); }, [route]);
-  const screens = { inicio: Inicio, categorias: Categorias, materias: Materias, materia: MateriaDetalle, banco: Banco, pregunta: PreguntaForm, "crear-rapido": CreaRapido, tarjetas: Tarjetas, tarjeta: TarjetaForm, cuestionarios: Cuestionarios, quiz: Quiz, resultado: Resultado, importar: Importar, estadisticas: Estadisticas, config: Config, perfil: Perfil, calendario: Calendario, simulacro: Simulacro, simrun: SimRun, alertas: Alertas, repaso: RepasoPrioritario, sesion: SesionHoy, onboarding: Onboarding, inteligencia: Inteligencia, preparacion: Preparacion, evolucion: Evolucion, mapa: MapaTemario, respaldo: Respaldo, reportes: Reportes, informe: Informe, imprimir: HojaRepaso, plan: EditorPlan, duplicados: Duplicados, habitos: Habitos, bitacora: Bitacora, confusiones: Confusiones, metas: Metas, glosario: Glosario, simulador: Simulador, distractores: ReparaDistractores };
+  const screens = { inicio: Inicio, categorias: Categorias, materias: Materias, materia: MateriaDetalle, banco: Banco, pregunta: PreguntaForm, "crear-rapido": CreaRapido, tarjetas: Tarjetas, tarjeta: TarjetaForm, cuestionarios: Cuestionarios, quiz: Quiz, resultado: Resultado, importar: Importar, estadisticas: Estadisticas, config: Config, perfil: Perfil, calendario: Calendario, simulacro: Simulacro, simrun: SimRun, alertas: Alertas, repaso: RepasoPrioritario, sesion: SesionHoy, onboarding: Onboarding, inteligencia: Inteligencia, preparacion: Preparacion, evolucion: Evolucion, mapa: MapaTemario, respaldo: Respaldo, reportes: Reportes, informe: Informe, imprimir: HojaRepaso, plan: Calendario, duplicados: Duplicados, habitos: Habitos, bitacora: Bitacora, confusiones: Confusiones, metas: Metas, glosario: Glosario, simulador: Simulador, distractores: ReparaDistractores };
   const Screen = screens[route] || Inicio;
   const estiloCls = ESTILO_CLS[t.estilo] || "opt-sereno";
   const densCls = t.densidad === "compacta" ? "dens-compact" : (t.densidad === "amplia" ? "dens-comfy" : "");

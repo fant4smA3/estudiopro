@@ -24,8 +24,7 @@ const NAV = [
     ["repaso", "Repaso prioritario"],
     ["cuestionarios", "Cuestionarios"],
     ["simulacro", "Simulacro"],
-    ["calendario", "Calendario"],
-    ["plan", "Editor del plan"],
+    ["calendario", "Calendario y plan"],
     ["reportes", "Reportes"],
   ]},
   { g: "progreso", items: [
