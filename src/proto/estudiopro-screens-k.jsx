@@ -146,6 +146,7 @@ function Confusiones() {
       <main className="main">
         <PageHeadK title="Matriz de confusión" sub="Dónde pierdes puntos exactamente: materia × dificultad"
           crumbs={[["Progreso", "inteligencia"], "Confusiones"]} />
+        <window.SubTabs group="estadisticas" active="confusiones" />
         <EmptyStateK icon="🎯" title="Aún no hay respuestas registradas"
           desc="Responde cuestionarios o simulacros; aquí verás en qué materias y dificultades pierdes puntos, con tus datos reales."
           actions={<button className="btn btn-accent" onClick={() => go("cuestionarios")}>Ir a cuestionarios ▸</button>} />
@@ -156,6 +157,7 @@ function Confusiones() {
     <main className="main">
       <PageHeadK title="Matriz de confusión" sub="Dónde pierdes puntos exactamente: materia × dificultad (% de falladas sobre respondidas)"
         crumbs={[["Progreso", "inteligencia"], "Confusiones"]} />
+      <window.SubTabs group="estadisticas" active="confusiones" />
       {m.peak && (
         <section className="panel cf-peak" style={{ borderLeft: "3px solid var(--danger)" }}>
           <div className="cf-peak-ic">🎯</div>
@@ -186,10 +188,10 @@ function Confusiones() {
   );
 }
 
-/* ============================ METAS SEMANALES + CONGELAR RACHA ============================ */
-function Metas() {
+/* ============================ METAS SEMANALES + CONGELAR RACHA ============================
+   El cuerpo (MetasBody) también se incrusta en Inicio; la ruta «metas» sigue viva. */
+function MetasBody() {
   const st = window.useStore();
-  const subjColor = window.subjColor;
   const w = window.weeklyProgress();
   const DOW = ["L", "M", "X", "J", "V", "S", "D"];
   const R = 66, C = 2 * Math.PI * R, frac = Math.min(1, w.active / w.goal);
@@ -197,9 +199,6 @@ function Metas() {
   const yaCongeladoHoy = (st.plan.frozenDates || []).includes(hoyISO);
   const freeze = () => { const ok = window.EPStore.useFreeze(); window.toast && window.toast(ok ? "Día congelado — tu racha está a salvo" : "No quedan comodines o ya congelaste hoy", ok ? "ok" : "warn"); };
   return (
-    <main className="main">
-      <PageHeadK title="Metas semanales" sub="Constancia por semana, no solo por día — y un comodín para no perder la racha"
-        crumbs={[["Inicio", "inicio"], "Metas semanales"]} />
       <div className="mt-grid">
         <section className="panel mt-ring-panel">
           <div className="mt-ring-wrap">
@@ -233,9 +232,18 @@ function Metas() {
           </PanelK>
         </div>
       </div>
+  );
+}
+function Metas() {
+  return (
+    <main className="main">
+      <PageHeadK title="Metas semanales" sub="Constancia por semana, no solo por día — y un comodín para no perder la racha"
+        crumbs={[["Inicio", "inicio"], "Metas semanales"]} />
+      <MetasBody />
     </main>
   );
 }
+window.MetasBody = MetasBody;
 
 /* ============================ PODCAST DE REPASO (audio continuo) ============================ */
 function Podcast() {
@@ -337,6 +345,7 @@ function Glosario() {
       <PageHeadK title="Glosario" sub="Términos clave del temario, con su fundamento"
         crumbs={[["Inicio", "inicio"], "Glosario"]}
         actions={<button className="btn btn-accent" onClick={() => setAdding(true)}>+ Nuevo término</button>} />
+      <window.SubTabs group="cuaderno" active="glosario" />
       <div className="notas-hub-bar">
         <input className="input search-input" placeholder="Buscar término…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}><option value="todas">Todas</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>
@@ -369,6 +378,7 @@ function Simulador() {
     <main className="main">
       <PageHeadK title="Simulador de nota final" sub="Tu nota estimada el 27 de julio según cómo sigas estudiando"
         crumbs={[["Progreso", "inteligencia"], "Simulador de nota"]} />
+      <window.SubTabs group="preparacion" active="simulador" />
       <div className="prep-kpis">
         <div className="kpi prep-kpi"><div className="kpi-v">{s.base}</div><div className="kpi-l">Nota base (hoy)</div></div>
         <div className="kpi prep-kpi"><div className="kpi-v">{s.dias}</div><div className="kpi-l">Días al examen</div></div>

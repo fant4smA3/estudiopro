@@ -54,6 +54,7 @@ function Cuestionarios() {
             <span className={"segchip" + (tab === "historial" ? " is-on" : "")} onClick={() => setTab("historial")}>Historial</span>
           </div>
         } />
+      <window.SubTabs group="practica" active="cuestionarios" />
 
       {tab === "config" && (
         <div className="quiz-config">

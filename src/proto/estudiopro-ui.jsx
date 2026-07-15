@@ -5,45 +5,61 @@
 const NavCtx = React.createContext(() => {});
 const useGo = () => React.useContext(NavCtx);
 
+/* Menú simplificado: cada entrada agrupa páginas afines mediante sub-pestañas
+   (SubTabs + SUBNAV). Las rutas viejas siguen vivas como alias — ver ACTIVE en app.jsx. */
 const NAV = [
   { g: "estudio", items: [
     ["inicio", "Inicio"],
-    ["categorias", "Categorías"],
     ["materias", "Materias"],
-    ["imprimir", "Hoja de repaso"],
-    ["glosario", "Glosario"],
-    ["metas", "Metas semanales"],
-    ["bitacora", "Bitácora"],
+    ["glosario", "Cuaderno"],
   ]},
   { g: "banco", items: [
     ["banco", "Banco de preguntas"],
-    ["crear-rapido", "Crear preguntas"],
-    ["duplicados", "Duplicados"],
-    ["distractores", "Reparar distractores"],
     ["tarjetas", "Tarjetas"],
-    ["repaso", "Repaso prioritario"],
-    ["cuestionarios", "Cuestionarios"],
-    ["simulacro", "Simulacro"],
+    ["cuestionarios", "Práctica"],
     ["calendario", "Calendario y plan"],
-    ["reportes", "Reportes"],
+    ["duplicados", "Mantenimiento del banco"],
   ]},
   { g: "progreso", items: [
-    ["preparacion", "Índice de preparación"],
-    ["inteligencia", "Inteligencia"],
+    ["preparacion", "Mi preparación"],
     ["estadisticas", "Estadísticas"],
-    ["evolucion", "Evolución simulacros"],
-    ["mapa", "Mapa del temario"],
-    ["confusiones", "Matriz de confusión"],
-    ["simulador", "Simulador de nota"],
-    ["informe", "Informe semanal"],
-    ["habitos", "Hábitos"],
   ]},
   { g: "gestión", items: [
-    ["importar", "Importar"],
-    ["respaldo", "Respaldo"],
-    ["alertas", "Alertas"],
+    ["importar", "Datos"],
     ["config", "Configuración"],
   ]},
+];
+
+/* Sub-navegación de páginas agrupadas: pestañas que cambian de ruta */
+const SUBNAV = {
+  materias: [["materias", "Materias"], ["mapa", "Mapa del temario"], ["categorias", "Categorías"]],
+  cuaderno: [["glosario", "Glosario"], ["bitacora", "Bitácora"]],
+  practica: [["cuestionarios", "Cuestionario"], ["simulacro", "Simulacro"]],
+  mantenimiento: [["duplicados", "Duplicados"], ["distractores", "Reparar distractores"], ["reportes", "Reportes"]],
+  preparacion: [["preparacion", "Índice de preparación"], ["inteligencia", "Inteligencia"], ["simulador", "Simulador de nota"]],
+  estadisticas: [["estadisticas", "Resumen"], ["evolucion", "Simulacros"], ["habitos", "Hábitos"], ["confusiones", "Errores"], ["informe", "Informe semanal"]],
+  datos: [["importar", "Importar"], ["respaldo", "Respaldo y copias"]],
+  config: [["config", "Preferencias"], ["alertas", "Alertas"]],
+};
+function SubTabs({ group, active }) {
+  const go = useGo();
+  const items = SUBNAV[group] || [];
+  return (
+    <div className="rep-tabs subnav">
+      {items.map(([r, l]) => (
+        <button key={r} type="button" className={"rep-tab" + (r === active ? " is-on" : "")} aria-current={r === active ? "page" : undefined} onClick={() => { if (r !== active) go(r); }}>{l}</button>
+      ))}
+    </div>
+  );
+}
+window.SubTabs = SubTabs;
+window.SUBNAV = SUBNAV;
+/* Páginas fuera del menú pero vivas (accesibles por botones y ⌘K) */
+window.NAV_EXTRA = [
+  ["crear-rapido", "Crear preguntas"],
+  ["imprimir", "Hoja de repaso"],
+  ["metas", "Metas semanales"],
+  ["repaso", "Repaso prioritario"],
 ];
 
 /* Registro de etiquetas por id (fuente de verdad de qué páginas existen) */

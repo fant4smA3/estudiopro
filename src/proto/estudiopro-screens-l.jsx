@@ -122,6 +122,7 @@ function ReparaDistractores() {
     return (
       <main className="main">
         <PageHeadL title="Reparar distractores" sub="opciones placeholder o repetidas en el banco" crumbs={[["Inicio", "inicio"], "Reparar distractores"]} />
+        <window.SubTabs group="mantenimiento" active="distractores" />
         <EmptyStateL tone="ok" icon="✓" title="Banco en orden"
           desc="No hay preguntas con distractores placeholder («Respuesta idéntica», «Distractor 1»…) ni opciones duplicadas."
           actions={<button className="btn btn-accent" onClick={() => go("banco")}>Ir al banco ▸</button>} />
@@ -134,6 +135,7 @@ function ReparaDistractores() {
     <main className="main">
       <PageHeadL title="Reparar distractores" sub={found.length + " preguntas con opciones placeholder o repetidas"} crumbs={[["Inicio", "inicio"], "Reparar distractores"]}
         actions={<button className="btn btn-accent" onClick={() => setConfirmAll(true)}>Reparar todas ({found.length}) ▸</button>} />
+      <window.SubTabs group="mantenimiento" active="distractores" />
 
       <PanelL idx="—" title="Cómo funciona" meta="sugerencias del mismo tema">
         <p className="t-mute" style={{ margin: 0, fontSize: "12.5px", lineHeight: 1.6 }}>

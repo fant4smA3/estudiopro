@@ -250,6 +250,7 @@ function Simulacro() {
   return (
     <main className="main">
       <PageHeadD title="Simulacro de examen" sub="200 preguntas · 120 + 15 descanso + 120 min" crumbs={[["Inicio", "inicio"], "Simulacro"]} />
+      <window.SubTabs group="practica" active="simulacro" />
 
       <div className="quiz-config">
         <div className="qc-main">
@@ -545,7 +546,8 @@ function Alertas() {
   ];
   return (
     <main className="main">
-      <PageHeadD title="Alertas y recordatorios" sub="Notificaciones del plan de estudio" crumbs={[["Inicio", "inicio"], "Alertas"]} />
+      <PageHeadD title="Alertas y recordatorios" sub="Notificaciones del plan de estudio" crumbs={[["Inicio", "inicio"], ["Configuración", "config"], "Alertas"]} />
+      <window.SubTabs group="config" active="alertas" />
 
       <Panel idx="01" title="Próximas notificaciones">
         <div className="alert-list">
@@ -856,6 +858,7 @@ function Inteligencia() {
   return (
     <main className="main">
       <PageHeadD title="Inteligencia de estudio" sub="Análisis de tu desempeño y qué estudiar a continuación" crumbs={[["Inicio", "inicio"], "Inteligencia"]} />
+      <window.SubTabs group="preparacion" active="inteligencia" />
 
       {/* Predicción de nota */}
       <div className="intel-hero">

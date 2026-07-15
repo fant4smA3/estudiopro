@@ -15,7 +15,21 @@ const {
 
 const React = window.React;
 
-const ACTIVE = { materia: "materias", pregunta: "banco", tarjeta: "tarjetas", resultado: "cuestionarios", quiz: "cuestionarios", simrun: "simulacro", sesion: "inicio", "crear-rapido": "banco", reportes: "reportes", plan: "calendario", imprimir: "imprimir", informe: "informe", duplicados: "duplicados", habitos: "habitos", bitacora: "bitacora", confusiones: "confusiones", metas: "metas", glosario: "glosario", simulador: "simulador" };
+/* ruta → entrada del menú que se resalta (las páginas agrupadas apuntan a su grupo) */
+const ACTIVE = {
+  materia: "materias", categorias: "materias", mapa: "materias",
+  bitacora: "glosario",
+  pregunta: "banco", "crear-rapido": "banco", imprimir: "banco",
+  tarjeta: "tarjetas", repaso: "tarjetas",
+  resultado: "cuestionarios", quiz: "cuestionarios", simulacro: "cuestionarios", simrun: "cuestionarios",
+  distractores: "duplicados", reportes: "duplicados",
+  plan: "calendario",
+  inteligencia: "preparacion", simulador: "preparacion",
+  evolucion: "estadisticas", habitos: "estadisticas", confusiones: "estadisticas", informe: "estadisticas",
+  respaldo: "importar",
+  alertas: "config",
+  sesion: "inicio", metas: "inicio",
+};
 
 const TWEAK_DEFAULTS = { estilo: "sereno", acento: "#1B8FBE", densidad: "compacta", tema: "claro" };
 

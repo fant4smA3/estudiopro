@@ -135,6 +135,7 @@ function Duplicados() {
     <main className="main">
       <PageHeadJ title="Duplicados" sub="Reactivos con enunciado casi idéntico en tu banco"
         crumbs={[["Banco de preguntas", "banco"], "Duplicados"]} />
+      <window.SubTabs group="mantenimiento" active="duplicados" />
       {groups.length === 0
         ? <EmptyStateJ icon="✓" title="Sin duplicados" desc="Tu banco no tiene reactivos repetidos. ¡Bien!" tone="ok" />
         : <React.Fragment>
@@ -255,6 +256,7 @@ function Habitos() {
     <main className="main">
       <PageHeadJ title="Hábitos de estudio" sub="Cuándo rindes mejor y qué estás por olvidar"
         crumbs={[["Inicio", "inicio"], "Hábitos"]} />
+      <window.SubTabs group="estadisticas" active="habitos" />
       <PanelJ idx="◷" title="Mejor hora para estudiar" meta={bh.total ? ("pico: " + fmtH(bh.best) + " · " + franja) : "sin registros aún"}>
         {bh.total === 0
           ? <EmptyStateJ icon="◷" title="Aún no hay registros de tiempo" desc="Usa el cronómetro o el temporizador de enfoque; aquí verás en qué horas rindes más." />
@@ -302,6 +304,7 @@ function Bitacora() {
     <main className="main">
       <PageHeadJ title="Bitácora de estudio" sub="Anota cómo te fue hoy; la constancia también se reflexiona"
         crumbs={[["Inicio", "inicio"], "Bitácora"]} />
+      <window.SubTabs group="cuaderno" active="bitacora" />
       <section className="panel">
         <div className="panel-b bit-new">
           <div className="bit-moods">{MOODS.map((m) => <button key={m} className={"bit-mood" + (mood === m ? " is-on" : "")} onClick={() => setMood(m)}>{m}</button>)}</div>

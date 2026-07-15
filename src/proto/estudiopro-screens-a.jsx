@@ -235,6 +235,9 @@ function Inicio() {
           </div>
         </Panel>
       </div>
+
+      {/* metas semanales y racha (antes página propia; la ruta «metas» sigue viva) */}
+      <window.MetasBody />
     </main>
   );
 }
@@ -256,6 +259,7 @@ function Categorias() {
     <main className="main">
       <PageHead title="Categorías" sub={cats.length + (cats.length === 1 ? " categoría" : " categorías") + " · organiza tus exámenes o convocatorias"} crumbs={[["Inicio", "inicio"], "Categorías"]}
         actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva categoría</button>} />
+      <window.SubTabs group="materias" active="categorias" />
       <div className="cat-grid">
         {cats.map((cat, i) => {
           const isPrimary = i === 0;
@@ -337,6 +341,7 @@ function Materias() {
     <main className="main">
       <PageHead title="Materias" sub={mats.length + " materias · edita nombre, color o crea las tuyas"} crumbs={[["Inicio", "inicio"], ["Categorías", "categorias"], "Materias"]}
         actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva materia</button>} />
+      <window.SubTabs group="materias" active="materias" />
       <div className="cat-grid">
         {mats.map((mt) => (
           <div className="catcard" key={mt.name}>
@@ -644,6 +649,7 @@ function Estadisticas() {
   return (
     <main className="main" tabIndex={0} aria-label="Estadísticas de estudio, región desplazable">
       <PageHead title="Estadísticas" sub="Resumen de tu actividad de estudio" crumbs={[["Inicio", "inicio"], "Estadísticas"]} />
+      <window.SubTabs group="estadisticas" active="estadisticas" />
 
       <div className="kpis">
         {kpis.map(([k, v, s]) => (
@@ -748,6 +754,7 @@ function Config() {
   return (
     <main className="main">
       <PageHead title="Configuración" sub="Preferencias locales del sistema" crumbs={[["Inicio", "inicio"], "Configuración"]} />
+      <window.SubTabs group="config" active="config" />
       <div className="cfg-metrics">
         <div className="cfg-metric"><div className="cfg-metric-v">{st.questions.length}</div><div className="cfg-metric-k">Preguntas</div></div>
         <div className="cfg-metric"><div className="cfg-metric-v">{st.cards.filter((c) => c.nivel === "dominado").length}</div><div className="cfg-metric-k">Dominadas</div></div>
@@ -980,6 +987,7 @@ function Importar() {
   return (
     <main className="main">
       <PageHead title="Importar banco de preguntas" sub="CSV · JSON — o usa la plantilla de ejemplo" crumbs={[["Inicio", "inicio"], "Importar"]} />
+      <window.SubTabs group="datos" active="importar" />
 
       <div className="stepper">
         {steps.map((s, i) => (

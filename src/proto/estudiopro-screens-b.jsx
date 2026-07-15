@@ -58,7 +58,7 @@ function Banco() {
   return (
     <main className="main">
       <PageHeadB title="Banco de preguntas" sub={bank.length + " preguntas · cada una es también una tarjeta de repaso"} crumbs={[["Inicio", "inicio"], "Banco de preguntas"]}
-        actions={<div className="qr-head-acts"><button className="btn" onClick={() => go("crear-rapido")}>✨ Creación rápida</button><button className="btn btn-accent" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ Nueva pregunta</button></div>} />
+        actions={<div className="qr-head-acts"><button className="btn" onClick={() => go("imprimir")}>🖨 Hoja de repaso</button><button className="btn" onClick={() => go("crear-rapido")}>✨ Creación rápida</button><button className="btn btn-accent" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ Nueva pregunta</button></div>} />
 
       <div className="filterbar">
         <div className="fb-search">
@@ -398,6 +398,7 @@ function Tarjetas() {
         <div className="seg seg-tabs">
           <span className={"segchip" + (vista === "estudiar" ? " is-on" : "")} onClick={() => setVista("estudiar")}>Estudiar</span>
           <span className={"segchip" + (vista === "gestionar" ? " is-on" : "")} onClick={() => setVista("gestionar")}>Gestionar</span>
+          <span className="segchip" onClick={() => go("repaso")}>⚡ Repaso prioritario</span>
         </div>
         {vista === "estudiar" && total > 0 && (
           <div className="study-prog">

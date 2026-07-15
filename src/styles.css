@@ -1780,6 +1780,13 @@
   .rep-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .rep-tabs { display: flex; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 999px; }
   .rep-tab { border: 0; background: transparent; padding: 7px 16px; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--mute); cursor: pointer; }
+  /* sub-navegación de páginas agrupadas (una entrada de menú → varias rutas) */
+  .subnav { align-self: flex-start; max-width: 100%; }
+  .subnav .rep-tab { white-space: nowrap; flex: 0 0 auto; }
+  @media (max-width: 720px) {
+    .subnav { align-self: stretch; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .subnav::-webkit-scrollbar { display: none; }
+  }
   .rep-tab.is-on { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
   .rep-count { font-size: 12.5px; color: var(--mute); }
   .rep-list { display: flex; flex-direction: column; gap: 10px; }
