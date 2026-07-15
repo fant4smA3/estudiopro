@@ -36,7 +36,7 @@ const RUN_ONLY = [
   "aria-allowed-attr", "duplicate-id-aria", "image-alt", "list", "listitem",
 ];
 
-const SCREENS = ["Inicio", "Categorias", "Materias", "Banco", "Tarjetas", "TarjetaForm", "PreguntaForm", "Cuestionarios", "Simulacro", "Calendario", "Estadisticas", "Config", "Importar", "SesionHoy", "RepasoPrioritario", "Perfil", "Respaldo", "ReparaDistractores"];
+const SCREENS = ["Inicio", "MateriasHub", "Cuaderno", "Banco", "Tarjetas", "Practica", "PracticaSimulacro", "Calendario", "Mantenimiento", "MiPreparacion", "EstadisticasHub", "Datos", "Config", "TarjetaForm", "PreguntaForm", "SesionHoy", "RepasoPrioritario", "Perfil"];
 
 describe("EstudioPro — a11y estructural (axe)", () => {
   for (const name of SCREENS) {

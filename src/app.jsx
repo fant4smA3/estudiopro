@@ -1,32 +1,29 @@
 /* Shell de la aplicación (portado del prototipo). Requiere que ./proto/index.js
    ya se haya evaluado (todos los componentes viven en window.*). */
 const {
-  NavCtx, Topbar, Side, Inicio, Categorias, Materias, MateriaDetalle, Estadisticas, Config,
-  Importar, Banco, PreguntaForm, Tarjetas, TarjetaForm, Quiz, Resultado, Cuestionarios, Perfil,
-  ToastHost, Calendario, Simulacro, SimRun, Alertas, RepasoPrioritario, SesionHoy, Onboarding,
-  Inteligencia, CreaRapido,
-  Preparacion, Evolucion, MapaTemario, Respaldo, Reportes,
-  Informe, HojaRepaso, CommandPalette,
-  Duplicados, Habitos, Bitacora,
-  Confusiones, Metas, Glosario, Simulador,
-  ReparaDistractores,
+  NavCtx, Topbar, Side, Inicio, MateriaDetalle, Config,
+  Banco, PreguntaForm, Tarjetas, TarjetaForm, Quiz, Resultado, Perfil,
+  ToastHost, Calendario, SimRun, RepasoPrioritario, SesionHoy, Onboarding,
+  CreaRapido, HojaRepaso, CommandPalette,
+  MateriasHub, Cuaderno, Practica, PracticaSimulacro, Mantenimiento, MiPreparacion, EstadisticasHub, Datos,
   useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor,
 } = window;
 
 const React = window.React;
 
-/* ruta → entrada del menú que se resalta (las páginas agrupadas apuntan a su grupo) */
+/* ruta → entrada del menú que se resalta. Las rutas viejas son alias de las
+   12 páginas fusionadas (el contenido vive como secciones dentro de ellas). */
 const ACTIVE = {
   materia: "materias", categorias: "materias", mapa: "materias",
-  bitacora: "glosario",
+  glosario: "cuaderno", bitacora: "cuaderno",
   pregunta: "banco", "crear-rapido": "banco", imprimir: "banco",
   tarjeta: "tarjetas", repaso: "tarjetas",
-  resultado: "cuestionarios", quiz: "cuestionarios", simulacro: "cuestionarios", simrun: "cuestionarios",
-  distractores: "duplicados", reportes: "duplicados",
+  cuestionarios: "practica", simulacro: "practica", resultado: "practica", quiz: "practica", simrun: "practica",
+  duplicados: "mantenimiento", distractores: "mantenimiento", reportes: "mantenimiento",
   plan: "calendario",
   inteligencia: "preparacion", simulador: "preparacion",
   evolucion: "estadisticas", habitos: "estadisticas", confusiones: "estadisticas", informe: "estadisticas",
-  respaldo: "importar",
+  importar: "datos", respaldo: "datos",
   alertas: "config",
   sesion: "inicio", metas: "inicio",
 };
@@ -41,7 +38,23 @@ export default function App() {
   const [navOpen, setNavOpen] = React.useState(false);
   const go = React.useCallback((r) => setRoute(r), []);
   React.useEffect(() => { const m = document.querySelector(".main"); if (m) m.scrollTop = 0; setNavOpen(false); }, [route]);
-  const screens = { inicio: Inicio, categorias: Categorias, materias: Materias, materia: MateriaDetalle, banco: Banco, pregunta: PreguntaForm, "crear-rapido": CreaRapido, tarjetas: Tarjetas, tarjeta: TarjetaForm, cuestionarios: Cuestionarios, quiz: Quiz, resultado: Resultado, importar: Importar, estadisticas: Estadisticas, config: Config, perfil: Perfil, calendario: Calendario, simulacro: Simulacro, simrun: SimRun, alertas: Alertas, repaso: RepasoPrioritario, sesion: SesionHoy, onboarding: Onboarding, inteligencia: Inteligencia, preparacion: Preparacion, evolucion: Evolucion, mapa: MapaTemario, respaldo: Respaldo, reportes: Reportes, informe: Informe, imprimir: HojaRepaso, plan: Calendario, duplicados: Duplicados, habitos: Habitos, bitacora: Bitacora, confusiones: Confusiones, metas: Metas, glosario: Glosario, simulador: Simulador, distractores: ReparaDistractores };
+  const screens = {
+    // 12 páginas destino
+    inicio: Inicio, materias: MateriasHub, cuaderno: Cuaderno, banco: Banco, tarjetas: Tarjetas,
+    practica: Practica, calendario: Calendario, mantenimiento: Mantenimiento,
+    preparacion: MiPreparacion, estadisticas: EstadisticasHub, datos: Datos, config: Config,
+    // flujos y detalle (no son destinos del menú)
+    materia: MateriaDetalle, pregunta: PreguntaForm, "crear-rapido": CreaRapido, tarjeta: TarjetaForm,
+    quiz: Quiz, resultado: Resultado, simrun: SimRun, repaso: RepasoPrioritario,
+    sesion: SesionHoy, onboarding: Onboarding, imprimir: HojaRepaso, perfil: Perfil,
+    // alias de rutas viejas → página fusionada que contiene esa sección
+    categorias: MateriasHub, mapa: MateriasHub, glosario: Cuaderno, bitacora: Cuaderno,
+    cuestionarios: Practica, simulacro: PracticaSimulacro,
+    duplicados: Mantenimiento, distractores: Mantenimiento, reportes: Mantenimiento,
+    inteligencia: MiPreparacion, simulador: MiPreparacion,
+    evolucion: EstadisticasHub, habitos: EstadisticasHub, confusiones: EstadisticasHub, informe: EstadisticasHub,
+    importar: Datos, respaldo: Datos, alertas: Config, metas: Inicio, plan: Calendario,
+  };
   const Screen = screens[route] || Inicio;
   const estiloCls = ESTILO_CLS[t.estilo] || "opt-sereno";
   const densCls = t.densidad === "compacta" ? "dens-compact" : (t.densidad === "amplia" ? "dens-comfy" : "");

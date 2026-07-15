@@ -83,7 +83,7 @@ window.epRepairApply = (q, bad, suggestions) => {
   window.EPStore.updateQuestion(q._id, { options });
 };
 
-function ReparaDistractores() {
+function ReparaDistractoresBody() {
   const go = useGoL();
   const st = window.useStore();
   const subjColor = window.subjColor;
@@ -120,22 +120,20 @@ function ReparaDistractores() {
 
   if (!found.length) {
     return (
-      <main className="main">
-        <PageHeadL title="Reparar distractores" sub="opciones placeholder o repetidas en el banco" crumbs={[["Inicio", "inicio"], "Reparar distractores"]} />
-        <window.SubTabs group="mantenimiento" active="distractores" />
+      <React.Fragment>
+        <window.SectionHead icon="✎" title="Reparar distractores" desc="Opciones placeholder o repetidas en el banco" />
         <EmptyStateL tone="ok" icon="✓" title="Banco en orden"
           desc="No hay preguntas con distractores placeholder («Respuesta idéntica», «Distractor 1»…) ni opciones duplicadas."
           actions={<button className="btn btn-accent" onClick={() => go("banco")}>Ir al banco ▸</button>} />
-      </main>
+      </React.Fragment>
     );
   }
 
   const { ConfirmDialog } = window;
   return (
-    <main className="main">
-      <PageHeadL title="Reparar distractores" sub={found.length + " preguntas con opciones placeholder o repetidas"} crumbs={[["Inicio", "inicio"], "Reparar distractores"]}
+    <React.Fragment>
+      <window.SectionHead icon="✎" title="Reparar distractores" desc={found.length + " preguntas con opciones placeholder o repetidas"}
         actions={<button className="btn btn-accent" onClick={() => setConfirmAll(true)}>Reparar todas ({found.length}) ▸</button>} />
-      <window.SubTabs group="mantenimiento" active="distractores" />
 
       <PanelL idx="—" title="Cómo funciona" meta="sugerencias del mismo tema">
         <p className="t-mute" style={{ margin: 0, fontSize: "12.5px", lineHeight: 1.6 }}>
@@ -194,8 +192,8 @@ function ReparaDistractores() {
         title="¿Reparar todas las preguntas?"
         body={<span>Se reemplazarán las opciones placeholder o repetidas de <b>{found.length}</b> preguntas con las sugerencias actuales. Las respuestas correctas no se tocan. Puedes ajustar cualquier pregunta después desde el banco.</span>}
         onClose={() => setConfirmAll(false)} onConfirm={applyAll} />
-    </main>
+    </React.Fragment>
   );
 }
 
-Object.assign(window, { ReparaDistractores });
+Object.assign(window, { ReparaDistractoresBody });

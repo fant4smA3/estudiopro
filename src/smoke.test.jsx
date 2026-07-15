@@ -131,7 +131,8 @@ describe("EstudioPro — humo", () => {
     expect(fixed.options[0]).toBe("Protección de activos de información"); // correcta intacta
   });
 
-  const SCREENS = ["Inicio", "Categorias", "Materias", "Banco", "Tarjetas", "TarjetaForm", "PreguntaForm", "Cuestionarios", "Simulacro", "Calendario", "Estadisticas", "Config", "Importar", "SesionHoy", "RepasoPrioritario", "Perfil", "Respaldo", "ReparaDistractores"];
+  // 12 páginas destino (varias fusionan pantallas que antes eran páginas propias) + flujos clave
+  const SCREENS = ["Inicio", "MateriasHub", "Cuaderno", "Banco", "Tarjetas", "Practica", "PracticaSimulacro", "Calendario", "Mantenimiento", "MiPreparacion", "EstadisticasHub", "Datos", "Config", "TarjetaForm", "PreguntaForm", "SesionHoy", "RepasoPrioritario", "Perfil"];
   for (const name of SCREENS) {
     it("pantalla " + name + " renderiza", async () => {
       const C = W[name];

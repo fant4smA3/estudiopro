@@ -228,7 +228,7 @@ function Calendario() {
 window.Calendario = Calendario;
 
 /* ====================== SIMULACRO (config + bloques) ====================== */
-function Simulacro() {
+function SimulacroBody() {
   const go = useGoD();
   const st = window.useStore();
   const subjColor = window.subjColor;
@@ -248,9 +248,8 @@ function Simulacro() {
   const repartirPorPeso = () => setDist(DEF);
 
   return (
-    <main className="main">
-      <PageHeadD title="Simulacro de examen" sub="200 preguntas · 120 + 15 descanso + 120 min" crumbs={[["Inicio", "inicio"], "Simulacro"]} />
-      <window.SubTabs group="practica" active="simulacro" />
+    <React.Fragment>
+      <window.SectionHead icon="📝" title="Simulacro de examen" desc="200 preguntas · 120 + 15 descanso + 120 min" />
 
       <div className="quiz-config">
         <div className="qc-main">
@@ -324,10 +323,10 @@ function Simulacro() {
           </div>
         </aside>
       </div>
-    </main>
+    </React.Fragment>
   );
 }
-window.Simulacro = Simulacro;
+window.SimulacroBody = SimulacroBody;
 
 /* ====================== SIMULACRO en curso (2 bloques + descanso) ====================== */
 function SimRun() {
@@ -526,7 +525,7 @@ function SimRun() {
 window.SimRun = SimRun;
 
 /* ============================ ALERTAS ============================ */
-function Alertas() {
+function AlertasBody() {
   const go = useGoD();
   const [cfg, setCfg] = React.useState({ diaria: true, vencidas: true, simulacro: true, racha: true, meta: false });
   const [perm, setPerm] = React.useState(typeof Notification !== "undefined" ? Notification.permission : "unsupported");
@@ -545,9 +544,8 @@ function Alertas() {
     ["meta", "🎯", "Meta diaria no cumplida", "Te faltan 12 preguntas para tu meta", "9:30 p.m.", "#7A57C2"],
   ];
   return (
-    <main className="main">
-      <PageHeadD title="Alertas y recordatorios" sub="Notificaciones del plan de estudio" crumbs={[["Inicio", "inicio"], ["Configuración", "config"], "Alertas"]} />
-      <window.SubTabs group="config" active="alertas" />
+    <React.Fragment>
+      <window.SectionHead icon="🔔" title="Alertas y recordatorios" desc="Notificaciones del plan de estudio" />
 
       <Panel idx="01" title="Próximas notificaciones">
         <div className="alert-list">
@@ -593,10 +591,10 @@ function Alertas() {
           ))}
         </div>
       </Panel>
-    </main>
+    </React.Fragment>
   );
 }
-window.Alertas = Alertas;
+window.AlertasBody = AlertasBody;
 
 /* ====================== REPASO PRIORITARIO (cola SRS) ====================== */
 function RepasoPrioritario() {
@@ -843,7 +841,7 @@ function Onboarding() {
 window.Onboarding = Onboarding;
 
 /* ====================== INTELIGENCIA DE ESTUDIO ====================== */
-function Inteligencia() {
+function InteligenciaBody() {
   const go = useGoD();
   const st = window.useStore();
   const subjColor = window.subjColor;
@@ -856,9 +854,8 @@ function Inteligencia() {
     go("quiz");
   };
   return (
-    <main className="main">
-      <PageHeadD title="Inteligencia de estudio" sub="Análisis de tu desempeño y qué estudiar a continuación" crumbs={[["Inicio", "inicio"], "Inteligencia"]} />
-      <window.SubTabs group="preparacion" active="inteligencia" />
+    <React.Fragment>
+      <window.SectionHead icon="🧠" title="Inteligencia de estudio" desc="Análisis de tu desempeño y qué estudiar a continuación" />
 
       {/* Predicción de nota */}
       <div className="intel-hero">
@@ -966,10 +963,10 @@ function Inteligencia() {
       <div className="rp-note">
         <b>¿Cómo se calcula?</b> La nota proyectada combina tu <b>dominio por materia</b> (avance, aciertos y fallos) ponderado por el peso de cada área en el examen. Las recomendaciones priorizan lo débil, lo fallado y lo que llevas más tiempo sin repasar.
       </div>
-    </main>
+    </React.Fragment>
   );
 }
-window.Inteligencia = Inteligencia;
+window.InteligenciaBody = InteligenciaBody;
 
 /* helper local: Panel ya viene del window */
 const Panel = window.Panel;

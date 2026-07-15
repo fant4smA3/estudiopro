@@ -134,7 +134,7 @@ function ExamenAdaptativo() {
 }
 
 /* ============================ CONFUSIONES (matriz + drill) ============================ */
-function Confusiones() {
+function ConfusionesBody() {
   const go = useGoK();
   const st = window.useStore();
   const subjColor = window.subjColor;
@@ -143,21 +143,17 @@ function Confusiones() {
   const cellInk = (v) => v >= 40 ? "#fff" : "var(--mute)";
   if (!m.hasData) {
     return (
-      <main className="main">
-        <PageHeadK title="Matriz de confusión" sub="Dónde pierdes puntos exactamente: materia × dificultad"
-          crumbs={[["Progreso", "inteligencia"], "Confusiones"]} />
-        <window.SubTabs group="estadisticas" active="confusiones" />
+      <React.Fragment>
+        <window.SectionHead icon="🎯" title="Matriz de confusión" desc="Dónde pierdes puntos: materia × dificultad" />
         <EmptyStateK icon="🎯" title="Aún no hay respuestas registradas"
           desc="Responde cuestionarios o simulacros; aquí verás en qué materias y dificultades pierdes puntos, con tus datos reales."
           actions={<button className="btn btn-accent" onClick={() => go("cuestionarios")}>Ir a cuestionarios ▸</button>} />
-      </main>
+      </React.Fragment>
     );
   }
   return (
-    <main className="main">
-      <PageHeadK title="Matriz de confusión" sub="Dónde pierdes puntos exactamente: materia × dificultad (% de falladas sobre respondidas)"
-        crumbs={[["Progreso", "inteligencia"], "Confusiones"]} />
-      <window.SubTabs group="estadisticas" active="confusiones" />
+    <React.Fragment>
+      <window.SectionHead icon="🎯" title="Matriz de confusión" desc="Dónde pierdes puntos: materia × dificultad (% de falladas sobre respondidas)" />
       {m.peak && (
         <section className="panel cf-peak" style={{ borderLeft: "3px solid var(--danger)" }}>
           <div className="cf-peak-ic">🎯</div>
@@ -184,7 +180,7 @@ function Confusiones() {
         </div>
       </section>
       <div className="cf-legend"><span>Menos error</span><i className="mapa-sw" style={{ background: "var(--surface-2)" }}></i><i className="mapa-sw" style={{ background: "#9DBBE4" }}></i><i className="mapa-sw" style={{ background: "var(--warn)" }}></i><i className="mapa-sw" style={{ background: "var(--danger)" }}></i><span>Más error</span><span className="cf-legend-note">El recuadro rojo marca tu peor dificultad por materia; «–» = sin respuestas aún.</span></div>
-    </main>
+    </React.Fragment>
   );
 }
 
@@ -232,15 +228,6 @@ function MetasBody() {
           </PanelK>
         </div>
       </div>
-  );
-}
-function Metas() {
-  return (
-    <main className="main">
-      <PageHeadK title="Metas semanales" sub="Constancia por semana, no solo por día — y un comodín para no perder la racha"
-        crumbs={[["Inicio", "inicio"], "Metas semanales"]} />
-      <MetasBody />
-    </main>
   );
 }
 window.MetasBody = MetasBody;
@@ -327,7 +314,7 @@ function Podcast() {
 }
 
 /* ============================ GLOSARIO ============================ */
-function Glosario() {
+function GlosarioBody() {
   const st = window.useStore();
   const subjColor = window.subjColor;
   const SUBJECTS = kSubjects();
@@ -341,11 +328,9 @@ function Glosario() {
     return okS && (!needle || (t.term + " " + t.def).toLowerCase().includes(needle));
   }).sort((a, b) => a.term.localeCompare(b.term));
   return (
-    <main className="main">
-      <PageHeadK title="Glosario" sub="Términos clave del temario, con su fundamento"
-        crumbs={[["Inicio", "inicio"], "Glosario"]}
+    <React.Fragment>
+      <window.SectionHead icon="📖" title="Glosario" desc="Términos clave del temario, con su fundamento"
         actions={<button className="btn btn-accent" onClick={() => setAdding(true)}>+ Nuevo término</button>} />
-      <window.SubTabs group="cuaderno" active="glosario" />
       <div className="notas-hub-bar">
         <input className="input search-input" placeholder="Buscar término…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className="input" aria-label="Materia" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ maxWidth: "220px" }}><option value="todas">Todas</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}</select>
@@ -365,20 +350,18 @@ function Glosario() {
       <PromptDialog open={adding} title="Nuevo término"
         fields={[{ key: "term", label: "Término", placeholder: "p. ej. Insubordinación", required: true }, { key: "subject", label: "Materia", placeholder: SUBJECTS[0], required: true }, { key: "def", label: "Definición", type: "textarea", placeholder: "Definición breve…", required: true }, { key: "ref", label: "Fundamento (opcional)", placeholder: "CJM · Art. …" }]}
         confirmLabel="Guardar término" onConfirm={(v) => { window.EPStore.addGlossary(v); setAdding(false); window.toast && window.toast("Término añadido", "ok"); }} onClose={() => setAdding(false)} />
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ============================ SIMULADOR DE NOTA FINAL ============================ */
-function Simulador() {
+function SimuladorBody() {
   const go = useGoK();
   const s = window.scoreScenarios();
   const yOf = (n, h) => h - (n / 10) * h;
   return (
-    <main className="main">
-      <PageHeadK title="Simulador de nota final" sub="Tu nota estimada el 27 de julio según cómo sigas estudiando"
-        crumbs={[["Progreso", "inteligencia"], "Simulador de nota"]} />
-      <window.SubTabs group="preparacion" active="simulador" />
+    <React.Fragment>
+      <window.SectionHead icon="📐" title="Simulador de nota final" desc="Tu nota estimada según cómo sigas estudiando" />
       <div className="prep-kpis">
         <div className="kpi prep-kpi"><div className="kpi-v">{s.base}</div><div className="kpi-l">Nota base (hoy)</div></div>
         <div className="kpi prep-kpi"><div className="kpi-v">{s.dias}</div><div className="kpi-l">Días al examen</div></div>
@@ -415,8 +398,8 @@ function Simulador() {
         </div>
       </section>
       <section className="panel sim-cta"><span>La diferencia entre aprobar y no está en la constancia de las próximas {s.semanas} semanas.</span><button className="btn btn-accent" onClick={() => go("repaso")}>Empezar a cerrar la brecha ▸</button></section>
-    </main>
+    </React.Fragment>
   );
 }
 
-Object.assign(window, { ExamenAdaptativo, Confusiones, Metas, Podcast, Glosario, Simulador });
+Object.assign(window, { ExamenAdaptativo, ConfusionesBody, Podcast, GlosarioBody, SimuladorBody });

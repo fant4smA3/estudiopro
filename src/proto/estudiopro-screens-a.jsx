@@ -243,7 +243,7 @@ function Inicio() {
 }
 
 /* ========================== CATEGORÍAS ========================== */
-function Categorias() {
+function CategoriasBody() {
   const go = useGo();
   const { TaxEditDialog, ConfirmDialog } = window;
   const st = window.useStore();
@@ -256,10 +256,8 @@ function Categorias() {
   const cats = st.categories || [];
   const avancePct = nQ ? Math.round(nDom / nQ * 100) : 0;
   return (
-    <main className="main">
-      <PageHead title="Categorías" sub={cats.length + (cats.length === 1 ? " categoría" : " categorías") + " · organiza tus exámenes o convocatorias"} crumbs={[["Inicio", "inicio"], "Categorías"]}
-        actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva categoría</button>} />
-      <window.SubTabs group="materias" active="categorias" />
+    <React.Fragment>
+      <window.SectionHead icon="🗂" title="Categorías" desc={cats.length + (cats.length === 1 ? " categoría" : " categorías") + " · organiza tus exámenes o convocatorias"} actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva categoría</button>} />
       <div className="cat-grid">
         {cats.map((cat, i) => {
           const isPrimary = i === 0;
@@ -306,12 +304,12 @@ function Categorias() {
         body={del && <span>Se eliminará <b>“{del.name}”</b>. Tus materias y preguntas no se tocan; solo desaparece esta agrupación.</span>}
         onClose={() => setDel(null)}
         onConfirm={() => { window.EPStore.deleteCategory(del.id); setDel(null); window.toast && window.toast("Categoría eliminada", "ok"); }} />
-    </main>
+    </React.Fragment>
   );
 }
 
 /* =========================== MATERIAS =========================== */
-function Materias() {
+function MateriasBody() {
   const go = useGo();
   const { TaxEditDialog, ConfirmDialog } = window;
   const st = window.useStore();
@@ -338,10 +336,8 @@ function Materias() {
     setDel({ name, count });
   };
   return (
-    <main className="main">
-      <PageHead title="Materias" sub={mats.length + " materias · edita nombre, color o crea las tuyas"} crumbs={[["Inicio", "inicio"], ["Categorías", "categorias"], "Materias"]}
-        actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva materia</button>} />
-      <window.SubTabs group="materias" active="materias" />
+    <React.Fragment>
+      <window.SectionHead icon="📚" title="Materias" desc={mats.length + " materias · edita nombre, color o crea las tuyas"} actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva materia</button>} />
       <div className="cat-grid">
         {mats.map((mt) => (
           <div className="catcard" key={mt.name}>
@@ -400,7 +396,7 @@ function Materias() {
           if (del.count > 0) { setDel(null); return; }
           window.EPStore.deleteSubject(del.name); setDel(null); window.toast && window.toast("Materia eliminada", "ok");
         }} />
-    </main>
+    </React.Fragment>
   );
 }
 
@@ -586,7 +582,7 @@ function NotasPanel({ keyName, color }) {
 }
 
 /* ========================= ESTADÍSTICAS ========================= */
-function Estadisticas() {
+function EstadisticasBody() {
   const go = useGo();
   const st = window.useStore();
   // actividad real de los últimos 7 días (unidades ≈ min: tarjetas, cuestionarios y tiempo registrado)
@@ -647,9 +643,8 @@ function Estadisticas() {
     ["Banco", st.questions.length.toLocaleString(), "preguntas = tarjetas"],
   ];
   return (
-    <main className="main" tabIndex={0} aria-label="Estadísticas de estudio, región desplazable">
-      <PageHead title="Estadísticas" sub="Resumen de tu actividad de estudio" crumbs={[["Inicio", "inicio"], "Estadísticas"]} />
-      <window.SubTabs group="estadisticas" active="estadisticas" />
+    <React.Fragment>
+      <window.SectionHead icon="📊" title="Resumen" desc="Tu actividad de estudio de un vistazo" />
 
       <div className="kpis">
         {kpis.map(([k, v, s]) => (
@@ -727,7 +722,7 @@ function Estadisticas() {
           <div className="heat-legend"><span>menos</span><span className="heat-c heat-0"></span><span className="heat-c heat-2"></span><span className="heat-c heat-4"></span><span>más</span></div>
         </Panel>
       </div>
-    </main>
+    </React.Fragment>
   );
 }
 
@@ -753,8 +748,7 @@ function Config() {
   const t = (k) => setS((p) => ({ ...p, [k]: !p[k] }));
   return (
     <main className="main">
-      <PageHead title="Configuración" sub="Preferencias locales del sistema" crumbs={[["Inicio", "inicio"], "Configuración"]} />
-      <window.SubTabs group="config" active="config" />
+      <PageHead title="Configuración" sub="Preferencias del sistema, alertas y recordatorios" crumbs={[["Inicio", "inicio"], "Configuración"]} />
       <div className="cfg-metrics">
         <div className="cfg-metric"><div className="cfg-metric-v">{st.questions.length}</div><div className="cfg-metric-k">Preguntas</div></div>
         <div className="cfg-metric"><div className="cfg-metric-v">{st.cards.filter((c) => c.nivel === "dominado").length}</div><div className="cfg-metric-k">Dominadas</div></div>
@@ -792,6 +786,9 @@ function Config() {
         </Panel>
       </div>
 
+      {/* Alertas y recordatorios (antes página propia; la ruta «alertas» abre esta página) */}
+      <window.AlertasBody />
+
       <ConfirmDialog open={confirmDel} danger confirmLabel="Sí, borrar todo"
         title="¿Borrar todos los datos?"
         body={<span>Se eliminarán <b>todas</b> tus preguntas, tarjetas, sesiones y apuntes. Esta acción no se puede deshacer.</span>}
@@ -801,7 +798,7 @@ function Config() {
 }
 
 /* ============================ IMPORTAR =========================== */
-function Importar() {
+function ImportarBody() {
   const go = useGo();
   const [step, setStep] = React.useState(1);
   const [fileName, setFileName] = React.useState("");
@@ -985,9 +982,8 @@ function Importar() {
   };
 
   return (
-    <main className="main">
-      <PageHead title="Importar banco de preguntas" sub="CSV · JSON — o usa la plantilla de ejemplo" crumbs={[["Inicio", "inicio"], "Importar"]} />
-      <window.SubTabs group="datos" active="importar" />
+    <React.Fragment>
+      <window.SectionHead icon="⇪" title="Importar banco de preguntas" desc="CSV · JSON · banco incluido — o usa la plantilla de ejemplo" />
 
       <div className="stepper">
         {steps.map((s, i) => (
@@ -1106,8 +1102,8 @@ function Importar() {
           </div>
         </Panel>
       )}
-    </main>
+    </React.Fragment>
   );
 }
 
-Object.assign(window, { Inicio, Categorias, Materias, MateriaDetalle, Estadisticas, Config, Importar });
+Object.assign(window, { Inicio, CategoriasBody, MateriasBody, MateriaDetalle, EstadisticasBody, Config, ImportarBody });

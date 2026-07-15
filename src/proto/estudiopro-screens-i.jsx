@@ -80,7 +80,7 @@ function ActivityHeatmap() {
 }
 
 /* ============================ INFORME SEMANAL CON IA ============================ */
-function Informe() {
+function InformeBody() {
   const st = window.useStore();
   const r = window.readiness();
   const x = window.intel();
@@ -123,11 +123,9 @@ function Informe() {
   const copiar = () => { try { navigator.clipboard.writeText(report); window.toast && window.toast("Informe copiado", "ok"); } catch (e) {} };
 
   return (
-    <main className="main">
-      <PageHeadI title="Informe semanal" sub="Un resumen con IA de tu semana y el plan para la siguiente"
-        crumbs={[["Inicio", "inicio"], "Informe semanal"]}
+    <React.Fragment>
+      <window.SectionHead icon="📋" title="Informe semanal" desc="Un resumen de tu semana y el plan para la siguiente"
         actions={<button className="btn btn-accent" onClick={generar} disabled={loading}>{loading ? "Generando…" : report ? "Regenerar" : "✨ Generar informe"}</button>} />
-      <window.SubTabs group="estadisticas" active="informe" />
       <div className="prep-kpis">
         <div className="kpi prep-kpi"><div className="kpi-v">{Math.round(r.min7 / 60 * 10) / 10} h</div><div className="kpi-l">Estudio (7 días)</div></div>
         <div className="kpi prep-kpi"><div className="kpi-v">{r.diasActivos}</div><div className="kpi-l">Días activos (7)</div></div>
@@ -146,7 +144,7 @@ function Informe() {
           })}</div>}
         </div>
       </section>
-    </main>
+    </React.Fragment>
   );
 }
 
@@ -280,4 +278,4 @@ function CommandPalette() {
   );
 }
 
-Object.assign(window, { ActivityHeatmap, Informe, HojaRepaso, CommandPalette });
+Object.assign(window, { ActivityHeatmap, InformeBody, HojaRepaso, CommandPalette });

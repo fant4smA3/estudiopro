@@ -15,3 +15,4 @@ import "./estudiopro-screens-i.jsx";
 import "./estudiopro-screens-j.jsx";
 import "./estudiopro-screens-k.jsx";
 import "./estudiopro-screens-l.jsx";
+import "./estudiopro-merged.jsx";
