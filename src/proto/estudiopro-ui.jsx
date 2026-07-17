@@ -91,6 +91,34 @@ window.NAV_LABELS = NAV_LABELS;
 window.sidebarDefault = sidebarDefault;
 window.sidebarLayout = sidebarLayout;
 
+/* Barra inferior móvil (≤720px): destinos al alcance del pulgar + botón central
+   «Estudiar» que lanza la acción inteligente (window.smartStudy). */
+function TabBar({ active, onMore }) {
+  const go = useGo();
+  const estudiar = () => { const s = window.smartStudy(); s.act(go); };
+  const Item = ({ id, label, icon, onClick }) => (
+    <button type="button" className={"tab-item" + (active === id ? " is-on" : "")}
+      aria-current={active === id ? "page" : undefined}
+      onClick={onClick || (() => go(id))}>
+      <span className="tab-ic" aria-hidden="true">{icon}</span>
+      <span className="tab-l">{label}</span>
+    </button>
+  );
+  return (
+    <nav className="tabbar" aria-label="Navegación principal">
+      <Item id="inicio" label="Inicio" icon="⌂" />
+      <Item id="practica" label="Práctica" icon="📝" />
+      <div className="tab-study-wrap">
+        <button type="button" className="tab-study" onClick={estudiar} aria-label="Estudiar ahora">⚡</button>
+        <span className="tab-study-l">Estudiar</span>
+      </div>
+      <Item id="banco" label="Banco" icon="📚" />
+      <Item id="mas" label="Más" icon="☰" onClick={onMore} />
+    </nav>
+  );
+}
+window.TabBar = TabBar;
+
 function Topbar({ onMenu, onFocus, onDark, dark }) {
   const go = useGo();
   return (

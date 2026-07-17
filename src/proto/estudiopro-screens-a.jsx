@@ -76,33 +76,10 @@ function Inicio() {
       </main>
     );
   }
-  // --- BENTO: banner de "siguiente paso" (reanudar cuestionario o sesión de hoy) ---
-  const tp = window.todayPlan && window.todayPlan();
-  const nextStep = (() => {
-    if (st.resume) {
-      const at = st.resume.at, total = st.resume.total || 1;
-      return {
-        badge: "Continúa donde quedaste",
-        title: st.resume.label,
-        desc: "Cuestionario en pausa · pregunta " + at + " de " + total,
-        done: Math.min(3, Math.max(1, Math.round(at / total * 3))), of: 3,
-        cta: "Reanudar ▸",
-        act: () => { window.__epSimulacro = false; window.__epSubject = st.resume.subject; window.EPStore.setNav({ subject: st.resume.subject, mode: "practica", at: st.resume.at }); go("quiz"); },
-      };
-    }
-    if (tp && tp.tipo === "simulacro") {
-      return { badge: "Hoy: simulacro", title: "Simulacro general · 200 preguntas", desc: "Examen completo cronometrado · ≈ " + (tp.min || 180) + " min", done: 0, of: 3, cta: "Ir al simulacro ▸", act: () => go("simulacro") };
-    }
-    if (tp) {
-      return {
-        badge: "Sesión de hoy", title: tp.subject,
-        desc: (tp.ord ? tp.ord + (tp.titulo ? " · " + tp.titulo : "") + " · " : "") + "3 pasos · ≈ " + tp.min + " min",
-        done: 1, of: 3, cta: "Empezar sesión ▸",
-        act: () => { window.__epSesion = { subject: tp.subject, ord: tp.ord, titulo: tp.titulo, step: 0 }; go("sesion"); },
-      };
-    }
-    return { badge: "Empieza hoy", title: "Practica " + vencenHoy + " tarjetas", desc: "Repaso espaciado priorizado para hoy", done: 0, of: 3, cta: "Iniciar repaso ▸", act: () => go("repaso") };
-  })();
+  // --- héroe «Estudiar ahora» inteligente: misma lógica que el botón central de la barra
+  //     (window.smartStudy decide: reanudar → vencidas → plan de hoy → falladas → materia débil) ---
+  const smart = window.smartStudy();
+  const nextStep = { ...smart, act: () => smart.act(go) };
   const streakDays = window.realStreak ? window.realStreak() : 0;
   const weekMark = Array.from({ length: 7 }, (_, i) => i < Math.min(7, streakDays));
   // materias del examen desde la lista editable (icono por materia conocida; genérico para las nuevas)

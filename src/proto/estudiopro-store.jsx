@@ -596,6 +596,57 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     return s.plan.dias.find((d) => d.fecha === today) || s.plan.dias.find((d) => d.estado !== "hecho") || null;
   };
 
+  // ===== «Estudiar ahora» inteligente: decide UNA acción según tu estado real =====
+  // Prioridad: cuestionario en pausa → tarjetas vencidas (SM-2) → plan de hoy →
+  // falladas en cola → cuestionario de tu materia más débil. act(go) navega y prepara todo.
+  window.smartStudy = function () {
+    const s = window.EPStore.get();
+    if (!s.questions.length) {
+      return { badge: "Primer paso", title: "Carga tu banco de preguntas", desc: "Importa el banco incluido o tu archivo CSV/JSON", done: 0, of: 3, cta: "Ir a Datos ▸", act: (go) => go("datos") };
+    }
+    if (s.resume) {
+      const at = s.resume.at, total = s.resume.total || 1;
+      return {
+        badge: "Continúa donde quedaste", title: s.resume.label,
+        desc: "Cuestionario en pausa · pregunta " + at + " de " + total,
+        done: Math.min(3, Math.max(1, Math.round(at / total * 3))), of: 3, cta: "Reanudar ▸",
+        act: (go) => { window.__epSimulacro = false; window.__epSubject = s.resume.subject; window.EPStore.setNav({ subject: s.resume.subject, mode: "practica", at: s.resume.at }); go("quiz"); },
+      };
+    }
+    const due = window.dueCards().length;
+    if (due > 0) {
+      return {
+        badge: "Repaso espaciado", title: "Repasa " + due.toLocaleString("es-MX") + " tarjeta" + (due === 1 ? "" : "s") + " de hoy",
+        desc: "SM-2: lo que estás por olvidar va primero", done: 0, of: 3, cta: "Repasar ▸",
+        act: (go) => { window.__epCardVista = "estudiar"; window.__epCardFilter = "hoy"; go("tarjetas"); },
+      };
+    }
+    const tp = window.todayPlan();
+    if (tp && tp.estado !== "hecho" && tp.tipo === "simulacro") {
+      return { badge: "Hoy: simulacro", title: "Simulacro general · 200 preguntas", desc: "Examen completo cronometrado · ≈ " + (tp.min || 180) + " min", done: 0, of: 3, cta: "Ir al simulacro ▸", act: (go) => go("simulacro") };
+    }
+    if (tp && tp.estado !== "hecho") {
+      return {
+        badge: "Sesión de hoy", title: tp.subject,
+        desc: (tp.ord ? tp.ord + (tp.titulo ? " · " + tp.titulo : "") + " · " : "") + "3 pasos · ≈ " + tp.min + " min",
+        done: 1, of: 3, cta: "Empezar sesión ▸",
+        act: (go) => { window.__epSesion = { subject: tp.subject, ord: tp.ord, titulo: tp.titulo, step: 0 }; go("sesion"); },
+      };
+    }
+    const falladas = s.questions.filter((q) => q.status === "fall").length;
+    if (falladas > 0) {
+      return { badge: "Cierra huecos", title: "Repasa tus " + falladas + " falladas", desc: "Repaso prioritario: falladas e importantes primero", done: 0, of: 3, cta: "Iniciar repaso ▸", act: (go) => go("repaso") };
+    }
+    const debil = window.intel().debil;
+    const subj = debil ? debil.subj : window.subjectNames()[0];
+    return {
+      badge: "Refuerza tu punto débil", title: "20 preguntas de " + subj,
+      desc: debil ? "Tu materia con menor dominio (" + debil.dominio + "%)" : "Práctica dirigida",
+      done: 0, of: 3, cta: "Empezar ▸",
+      act: (go) => { window.__epSimulacro = false; window.__epSubject = subj; window.EPStore.setNav({ subject: subj, mode: "practica", n: 20 }); go("quiz"); },
+    };
+  };
+
   // vista previa SM-2 por tarjeta: texto del próximo intervalo por calificación
   window.srsPreview = function (cardId) {
     const srs = store.cardSrs[cardId] || {};
