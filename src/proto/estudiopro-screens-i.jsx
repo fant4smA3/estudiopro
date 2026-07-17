@@ -80,7 +80,7 @@ function ActivityHeatmap() {
 }
 
 /* ============================ INFORME SEMANAL CON IA ============================ */
-function Informe() {
+function InformeBody() {
   const st = window.useStore();
   const r = window.readiness();
   const x = window.intel();
@@ -123,9 +123,8 @@ function Informe() {
   const copiar = () => { try { navigator.clipboard.writeText(report); window.toast && window.toast("Informe copiado", "ok"); } catch (e) {} };
 
   return (
-    <main className="main">
-      <PageHeadI title="Informe semanal" sub="Un resumen con IA de tu semana y el plan para la siguiente"
-        crumbs={[["Inicio", "inicio"], "Informe semanal"]}
+    <React.Fragment>
+      <window.SectionHead icon="📋" title="Informe semanal" desc="Un resumen de tu semana y el plan para la siguiente"
         actions={<button className="btn btn-accent" onClick={generar} disabled={loading}>{loading ? "Generando…" : report ? "Regenerar" : "✨ Generar informe"}</button>} />
       <div className="prep-kpis">
         <div className="kpi prep-kpi"><div className="kpi-v">{Math.round(r.min7 / 60 * 10) / 10} h</div><div className="kpi-l">Estudio (7 días)</div></div>
@@ -145,7 +144,7 @@ function Informe() {
           })}</div>}
         </div>
       </section>
-    </main>
+    </React.Fragment>
   );
 }
 
@@ -222,7 +221,12 @@ function CommandPalette() {
 
   const items = React.useMemo(() => {
     const nav = [];
-    (window.NAV || []).forEach((grp) => grp.items.forEach(([route, label]) => nav.push({ label, hint: grp.g, run: () => go(route) })));
+    const vistos = new Set();
+    const add = (route, label, hint) => { if (vistos.has(route)) return; vistos.add(route); nav.push({ label, hint, run: () => go(route) }); };
+    (window.NAV || []).forEach((grp) => grp.items.forEach(([route, label]) => add(route, label, grp.g)));
+    // páginas agrupadas en sub-pestañas y páginas sin entrada de menú: también buscables
+    Object.values(window.SUBNAV || {}).forEach((tabs) => tabs.forEach(([route, label]) => add(route, label, "página")));
+    (window.NAV_EXTRA || []).forEach(([route, label]) => add(route, label, "página"));
     const actions = [
       { label: "Exportar respaldo", hint: "acción", run: () => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); } },
       { label: "Regenerar plan de estudio", hint: "acción", run: () => { window.generarPlan(); window.toast && window.toast("Plan regenerado", "ok"); go("calendario"); } },
@@ -274,4 +278,4 @@ function CommandPalette() {
   );
 }
 
-Object.assign(window, { ActivityHeatmap, Informe, HojaRepaso, CommandPalette });
+Object.assign(window, { ActivityHeatmap, InformeBody, HojaRepaso, CommandPalette });

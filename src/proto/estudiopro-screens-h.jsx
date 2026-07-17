@@ -5,7 +5,7 @@ const hSubjects = () => window.subjectNames();
 const hHash = (s) => { let h = 0; for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) >>> 0; } return h; };
 
 /* ============================ ÍNDICE DE PREPARACIÓN ============================ */
-function Preparacion() {
+function PreparacionBody() {
   const go = useGoH();
   const st = window.useStore();
   const subjColor = window.subjColor;
@@ -23,9 +23,8 @@ function Preparacion() {
   ];
 
   return (
-    <main className="main">
-      <PageHeadH title="Índice de preparación" sub="¿Qué tan listo estás para el 27 de julio?"
-        crumbs={[["Inicio", "inicio"], "Índice de preparación"]} />
+    <React.Fragment>
+      <window.SectionHead icon="🎯" title="Índice de preparación" desc="¿Qué tan listo estás para el examen?" />
       <section className="panel prep-hero">
         <div className="prep-gauge-wrap">
           <svg viewBox="0 0 220 220" className="prep-gauge">
@@ -79,12 +78,12 @@ function Preparacion() {
           </ol>
         </PanelH>
       </div>
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ============================ EVOLUCIÓN DE SIMULACROS ============================ */
-function Evolucion() {
+function EvolucionBody() {
   const st = window.useStore();
   const subjColor = window.subjColor;
   const SUBJECTS = hSubjects();
@@ -92,8 +91,8 @@ function Evolucion() {
   const [foco, setFoco] = React.useState("global");
 
   if (hist.length < 2) {
-    return (<main className="main"><PageHeadH title="Evolución de simulacros" crumbs={[["Inicio", "inicio"], "Evolución"]} />
-      <EmptyStateH icon="📈" title="Aún no hay suficientes simulacros" desc="Completa al menos dos simulacros para ver tu tendencia." /></main>);
+    return (<React.Fragment><window.SectionHead icon="📈" title="Evolución de simulacros" desc="Tendencia de tu nota hacia el examen" />
+      <EmptyStateH icon="📈" title="Aún no hay suficientes simulacros" desc="Completa al menos dos simulacros para ver tu tendencia." /></React.Fragment>);
   }
 
   // geometría del gráfico
@@ -115,9 +114,8 @@ function Evolucion() {
   const mejora = +(last.global - hist[0].global).toFixed(1);
 
   return (
-    <main className="main">
-      <PageHeadH title="Evolución de simulacros" sub="Tendencia de tu nota global y por materia hacia el 27 de julio"
-        crumbs={[["Inicio", "inicio"], "Evolución"]} />
+    <React.Fragment>
+      <window.SectionHead icon="📈" title="Evolución de simulacros" desc="Tendencia de tu nota global y por materia hacia el examen" />
       <div className="prep-kpis">
         <div className="kpi prep-kpi"><div className="kpi-v">{last.global}</div><div className="kpi-l">Último simulacro</div></div>
         <div className="kpi prep-kpi"><div className="kpi-v" style={{ color: mejora >= 0 ? "var(--ok)" : "var(--danger)" }}>{(mejora >= 0 ? "+" : "") + mejora}</div><div className="kpi-l">Mejora total</div></div>
@@ -181,12 +179,12 @@ function Evolucion() {
           })}
         </div>
       </PanelH>
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ============================ MAPA DE CALOR DEL TEMARIO ============================ */
-function MapaTemario() {
+function MapaTemarioBody() {
   const go = useGoH();
   const st = window.useStore();
   const subjColor = window.subjColor;
@@ -215,9 +213,8 @@ function MapaTemario() {
   SUBJECTS.forEach((s) => ordsOf(s).forEach((ord) => DETAIL[ord].titulos.forEach((t) => t.caps.forEach((c) => { counts[bucket(capScore(ord, c[0]))]++; counts.total++; }))));
 
   return (
-    <main className="main">
-      <PageHeadH title="Mapa del temario" sub="Dominio estimado capítulo por capítulo — detecta tus huecos de un vistazo"
-        crumbs={[["Inicio", "inicio"], "Mapa del temario"]}
+    <React.Fragment>
+      <window.SectionHead icon="🗺" title="Mapa del temario" desc="Dominio estimado capítulo por capítulo — detecta tus huecos"
         actions={<select className="input" aria-label="Materia en foco" value={foco} onChange={(e) => setFoco(e.target.value)} style={{ maxWidth: "220px" }}>
           <option value="todas">Todas las materias</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}
         </select>} />
@@ -256,12 +253,12 @@ function MapaTemario() {
           </section>
         );
       })}
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ============================ RESPALDO (exportar / importar JSON) ============================ */
-function Respaldo() {
+function RespaldoBody() {
   const st = window.useStore();
   const { ConfirmDialog } = window;
   const fileRef = React.useRef(null);
@@ -333,9 +330,8 @@ function Respaldo() {
   };
 
   return (
-    <main className="main">
-      <PageHeadH title="Respaldo de datos" sub="Exporta tu progreso a un archivo o restáuralo en otro dispositivo"
-        crumbs={[["Inicio", "inicio"], "Respaldo"]} />
+    <React.Fragment>
+      <window.SectionHead icon="🛟" title="Respaldo y copias" desc="Exporta tu progreso, restáuralo o usa las copias automáticas" />
       <div className="prep-kpis">
         {stats.map(([l, v]) => <div className="kpi prep-kpi" key={l}><div className="kpi-v">{v}</div><div className="kpi-l">{l}</div></div>)}
       </div>
@@ -404,12 +400,12 @@ function Respaldo() {
       <ConfirmDialog open={confirmDemo} title="¿Cargar los datos de prueba?"
         body={<span>Se reemplazarán <b>todos</b> tus datos actuales por un estado simulado con ~80% de avance (4,500+ preguntas, repaso SM-2, sesiones, racha y simulacros). Si tienes progreso real, <b>exporta un respaldo antes</b>. Requiere conexión la primera vez (~4 MB).</span>}
         confirmLabel="Sí, cargar datos de prueba" danger onConfirm={loadDemo} onClose={() => setConfirmDemo(false)} />
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ============================ REPORTES DE ERRORES DEL BANCO ============================ */
-function Reportes() {
+function ReportesBody() {
   const go = useGoH();
   const st = window.useStore();
   const subjColor = window.subjColor;
@@ -436,9 +432,8 @@ function Reportes() {
   };
 
   return (
-    <main className="main">
-      <PageHeadH title="Reportes del banco" sub="Marca reactivos con datos desactualizados o errores para revisarlos"
-        crumbs={[["Banco de preguntas", "banco"], "Reportes"]}
+    <React.Fragment>
+      <window.SectionHead icon="🚩" title="Reportes del banco" desc="Reactivos con datos desactualizados o errores"
         actions={<button className="btn btn-accent" onClick={() => setOpen(true)}>+ Reportar reactivo</button>} />
       <div className="rep-bar">
         <div className="rep-tabs">
@@ -507,8 +502,8 @@ function Reportes() {
           <button className="btn btn-accent" disabled={!pickId} onClick={submit}>Registrar reporte</button>
         </div>
       </Modal>
-    </main>
+    </React.Fragment>
   );
 }
 
-Object.assign(window, { Preparacion, Evolucion, MapaTemario, Respaldo, Reportes });
+Object.assign(window, { PreparacionBody, EvolucionBody, MapaTemarioBody, RespaldoBody, ReportesBody });

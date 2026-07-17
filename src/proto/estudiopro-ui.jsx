@@ -5,45 +5,68 @@
 const NavCtx = React.createContext(() => {});
 const useGo = () => React.useContext(NavCtx);
 
+/* Menú simplificado: las páginas afines están FUSIONADAS en una sola página
+   (secciones con SectionHead). Las rutas viejas siguen vivas como alias — ver app.jsx. */
 const NAV = [
   { g: "estudio", items: [
     ["inicio", "Inicio"],
-    ["categorias", "Categorías"],
     ["materias", "Materias"],
-    ["imprimir", "Hoja de repaso"],
-    ["glosario", "Glosario"],
-    ["metas", "Metas semanales"],
-    ["bitacora", "Bitácora"],
+    ["cuaderno", "Cuaderno"],
   ]},
   { g: "banco", items: [
     ["banco", "Banco de preguntas"],
-    ["crear-rapido", "Crear preguntas"],
-    ["duplicados", "Duplicados"],
-    ["distractores", "Reparar distractores"],
     ["tarjetas", "Tarjetas"],
-    ["repaso", "Repaso prioritario"],
-    ["cuestionarios", "Cuestionarios"],
-    ["simulacro", "Simulacro"],
+    ["practica", "Práctica"],
     ["calendario", "Calendario y plan"],
-    ["reportes", "Reportes"],
+    ["mantenimiento", "Mantenimiento del banco"],
   ]},
   { g: "progreso", items: [
-    ["preparacion", "Índice de preparación"],
-    ["inteligencia", "Inteligencia"],
+    ["preparacion", "Mi preparación"],
     ["estadisticas", "Estadísticas"],
-    ["evolucion", "Evolución simulacros"],
-    ["mapa", "Mapa del temario"],
-    ["confusiones", "Matriz de confusión"],
-    ["simulador", "Simulador de nota"],
-    ["informe", "Informe semanal"],
-    ["habitos", "Hábitos"],
   ]},
   { g: "gestión", items: [
-    ["importar", "Importar"],
-    ["respaldo", "Respaldo"],
-    ["alertas", "Alertas"],
+    ["datos", "Datos"],
     ["config", "Configuración"],
   ]},
+];
+
+/* Encabezado de sección dentro de páginas fusionadas (varias pantallas → una página) */
+function SectionHead({ icon, title, desc, actions }) {
+  return (
+    <div className="sec-head">
+      <div className="sec-head-l">
+        {icon && <span className="sec-ic" aria-hidden="true">{icon}</span>}
+        <div>
+          <h2 className="sec-t">{title}</h2>
+          {desc && <div className="sec-d">{desc}</div>}
+        </div>
+      </div>
+      {actions && <div className="sec-a">{actions}</div>}
+    </div>
+  );
+}
+window.SectionHead = SectionHead;
+/* Secciones y páginas fuera del menú pero vivas (accesibles por botones, alias y ⌘K) */
+window.NAV_EXTRA = [
+  ["crear-rapido", "Crear preguntas"],
+  ["imprimir", "Hoja de repaso"],
+  ["metas", "Metas semanales"],
+  ["repaso", "Repaso prioritario"],
+  ["categorias", "Categorías"],
+  ["mapa", "Mapa del temario"],
+  ["glosario", "Glosario"],
+  ["bitacora", "Bitácora"],
+  ["simulacro", "Simulacro"],
+  ["distractores", "Reparar distractores"],
+  ["reportes", "Reportes del banco"],
+  ["inteligencia", "Inteligencia de estudio"],
+  ["simulador", "Simulador de nota"],
+  ["evolucion", "Evolución de simulacros"],
+  ["habitos", "Hábitos de estudio"],
+  ["confusiones", "Matriz de confusión"],
+  ["informe", "Informe semanal"],
+  ["respaldo", "Respaldo y copias"],
+  ["alertas", "Alertas"],
 ];
 
 /* Registro de etiquetas por id (fuente de verdad de qué páginas existen) */

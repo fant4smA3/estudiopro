@@ -1,7 +1,7 @@
 /* EstudioPro · Prototipo — Pantalla C: Cuestionarios (listado + configurar) */
 const { useGo: useGoC, PageHead: PageHeadC, Panel: PanelC, Diff: DiffC, EmptyState: EmptyStateC, Crumbs } = window;
 
-function Cuestionarios() {
+function CuestionariosBody() {
   const go = useGoC();
   const st = window.useStore();
   const [tab, setTab] = React.useState(() => { const t = window.__epQTab; window.__epQTab = null; return t === "historial" ? "historial" : "config"; });
@@ -46,8 +46,8 @@ function Cuestionarios() {
   const SUBJECTS6 = window.subjectNames();
 
   return (
-    <main className="main">
-      <PageHeadC title="Cuestionarios" sub="Configura una sesión o repasa tu historial" crumbs={[["Inicio", "inicio"], "Cuestionarios"]}
+    <React.Fragment>
+      <window.SectionHead icon="⚖️" title="Cuestionario por materia" desc="Configura una sesión o repasa tu historial"
         actions={
           <div className="seg seg-tabs">
             <span className={"segchip" + (tab === "config" ? " is-on" : "")} onClick={() => setTab("config")}>Por materia</span>
@@ -179,11 +179,11 @@ function Cuestionarios() {
           </table>
         </div>
       ))}
-    </main>
+    </React.Fragment>
   );
 }
 
-window.Cuestionarios = Cuestionarios;
+window.CuestionariosBody = CuestionariosBody;
 
 /* ========================= PERFIL ========================= */
 function Perfil() {

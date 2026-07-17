@@ -125,16 +125,15 @@ function ImportarIA() {
 }
 
 /* ============================ DETECCIÓN DE DUPLICADOS ============================ */
-function Duplicados() {
+function DuplicadosBody() {
   const st = window.useStore();
   const subjColor = window.subjColor;
   const groups = window.dedupeGroups();
   const total = groups.reduce((a, g) => a + g.length - 1, 0);
   const del = (id) => { window.EPStore.deleteQuestion(id); window.undoableToast && window.undoableToast("Duplicado eliminado"); };
   return (
-    <main className="main">
-      <PageHeadJ title="Duplicados" sub="Reactivos con enunciado casi idéntico en tu banco"
-        crumbs={[["Banco de preguntas", "banco"], "Duplicados"]} />
+    <React.Fragment>
+      <window.SectionHead icon="⧉" title="Duplicados" desc="Reactivos con enunciado casi idéntico en tu banco" />
       {groups.length === 0
         ? <EmptyStateJ icon="✓" title="Sin duplicados" desc="Tu banco no tiene reactivos repetidos. ¡Bien!" tone="ok" />
         : <React.Fragment>
@@ -154,7 +153,7 @@ function Duplicados() {
               ))}
             </div>
           </React.Fragment>}
-    </main>
+    </React.Fragment>
   );
 }
 
@@ -243,7 +242,7 @@ function RetoDiario() {
 }
 
 /* ============================ HÁBITOS (mejor hora + curva de olvido) ============================ */
-function Habitos() {
+function HabitosBody() {
   const go = useGoJ();
   const st = window.useStore();
   const subjColor = window.subjColor;
@@ -252,9 +251,8 @@ function Habitos() {
   const fmtH = (h) => (h % 12 === 0 ? 12 : h % 12) + (h < 12 ? " a.m." : " p.m.");
   const franja = bh.best < 6 ? "madrugada" : bh.best < 12 ? "mañana" : bh.best < 19 ? "tarde" : "noche";
   return (
-    <main className="main">
-      <PageHeadJ title="Hábitos de estudio" sub="Cuándo rindes mejor y qué estás por olvidar"
-        crumbs={[["Inicio", "inicio"], "Hábitos"]} />
+    <React.Fragment>
+      <window.SectionHead icon="◷" title="Hábitos de estudio" desc="Cuándo rindes mejor y qué estás por olvidar" />
       <PanelJ idx="◷" title="Mejor hora para estudiar" meta={bh.total ? ("pico: " + fmtH(bh.best) + " · " + franja) : "sin registros aún"}>
         {bh.total === 0
           ? <EmptyStateJ icon="◷" title="Aún no hay registros de tiempo" desc="Usa el cronómetro o el temporizador de enfoque; aquí verás en qué horas rindes más." />
@@ -286,12 +284,12 @@ function Habitos() {
               <div className="fg-foot"><button className="btn btn-accent" onClick={() => go("repaso")}>Repasar ahora ▸</button></div>
             </React.Fragment>}
       </PanelJ>
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ============================ BITÁCORA DE ESTUDIO ============================ */
-function Bitacora() {
+function BitacoraBody() {
   const st = window.useStore();
   const [text, setText] = React.useState("");
   const [mood, setMood] = React.useState("🙂");
@@ -299,9 +297,8 @@ function Bitacora() {
   const entries = st.journal || [];
   const add = () => { if (!text.trim()) return; window.EPStore.addJournal({ mood, text: text.trim() }); setText(""); setMood("🙂"); window.toast && window.toast("Entrada guardada", "ok"); };
   return (
-    <main className="main">
-      <PageHeadJ title="Bitácora de estudio" sub="Anota cómo te fue hoy; la constancia también se reflexiona"
-        crumbs={[["Inicio", "inicio"], "Bitácora"]} />
+    <React.Fragment>
+      <window.SectionHead icon="📓" title="Bitácora de estudio" desc="Anota cómo te fue hoy; la constancia también se reflexiona" />
       <section className="panel">
         <div className="panel-b bit-new">
           <div className="bit-moods">{MOODS.map((m) => <button key={m} className={"bit-mood" + (mood === m ? " is-on" : "")} onClick={() => setMood(m)}>{m}</button>)}</div>
@@ -320,8 +317,8 @@ function Bitacora() {
               </div>
             ))}
           </div>}
-    </main>
+    </React.Fragment>
   );
 }
 
-Object.assign(window, { ImportarIA, Duplicados, RetoDiario, Habitos, Bitacora });
+Object.assign(window, { ImportarIA, DuplicadosBody, RetoDiario, HabitosBody, BitacoraBody });
