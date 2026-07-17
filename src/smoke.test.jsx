@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /* Prueba de humo: monta la app completa y cada pantalla clave de la Fase 1,
    verificando que rendericen sin errores con el store real (datos semilla). */
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 import React from "react";
 import * as ReactDOMClient from "react-dom/client";
 import { createPortal, flushSync } from "react-dom";
@@ -148,6 +148,10 @@ describe("EstudioPro — humo", () => {
   it("los datos de prueba (80%) importan limpio y las analíticas calculan valores coherentes", () => {
     const fs = require("fs");
     const payload = JSON.parse(fs.readFileSync(process.cwd() + "/public/data/progreso-prueba.json", "utf8"));
+    // las fechas del archivo son relativas a su día de generación; la racha y los
+    // vencimientos se evalúan "como si hoy" fuera ese día (si no, el archivo envejece
+    // y la prueba fallaría con el paso del calendario)
+    vi.useFakeTimers({ now: new Date(payload.exportedAt), toFake: ["Date"] });
     const res = W.EPStore.importJSON(payload);
     expect(res.ok).toBe(true);
     expect(res.dropped).toBe(0);
@@ -167,5 +171,6 @@ describe("EstudioPro — humo", () => {
     expect(W.dueCards().length).toBeGreaterThan(0);      // hay repasos que vencen hoy
     expect((st.simHistory || []).length).toBeGreaterThanOrEqual(7);
     expect(st.sessions.filter((s) => s.state === "done").length).toBeGreaterThan(30);
+    vi.useRealTimers();
   });
 });
