@@ -1,7 +1,7 @@
 /* Shell de la aplicación (portado del prototipo). Requiere que ./proto/index.js
    ya se haya evaluado (todos los componentes viven en window.*). */
 const {
-  NavCtx, Topbar, Side, Inicio, MateriaDetalle, Config,
+  NavCtx, Topbar, Side, TabBar, Inicio, MateriaDetalle, Config,
   Banco, PreguntaForm, Tarjetas, TarjetaForm, Quiz, Resultado, Perfil,
   ToastHost, Calendario, SimRun, RepasoPrioritario, SesionHoy, Onboarding,
   CreaRapido, HojaRepaso, CommandPalette,
@@ -70,6 +70,7 @@ export default function App() {
           <Side active={ACTIVE[route] || route} open={navOpen} />
           <Screen />
         </div>
+        <TabBar active={ACTIVE[route] || route} onMore={() => setNavOpen(true)} />
         <CommandPalette />
       </NavCtx.Provider>
       <ToastHost />

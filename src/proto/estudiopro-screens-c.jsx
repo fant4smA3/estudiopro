@@ -55,6 +55,26 @@ function CuestionariosBody() {
           </div>
         } />
 
+      {tab === "config" && (() => {
+        const debil = window.intel && st.questions.length ? window.intel().debil : null;
+        if (!debil) return null;
+        const rapida = () => {
+          window.__epSimulacro = false; window.__epSubject = debil.subj;
+          window.EPStore.setNav({ subject: debil.subj, mode: "practica", n: 20 });
+          go("quiz");
+        };
+        return (
+          <div className="quick-cta" onClick={rapida} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") rapida(); }}>
+            <span className="quick-cta-ic" aria-hidden="true">⚡</span>
+            <div className="quick-cta-b">
+              <div className="quick-cta-t">Sesión rápida</div>
+              <div className="quick-cta-d">20 preguntas de <b>{debil.subj}</b>, tu materia con menor dominio ({debil.dominio}%) — sin configurar nada</div>
+            </div>
+            <button className="btn btn-accent" onClick={(e) => { e.stopPropagation(); rapida(); }}>Empezar ya ▸</button>
+          </div>
+        );
+      })()}
+
       {tab === "config" && (
         <div className="quiz-config">
           <div className="qc-main">
