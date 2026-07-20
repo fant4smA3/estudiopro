@@ -1,7 +1,7 @@
 /* EstudioPro · Prototipo — Pantalla E: Creación rápida de preguntas.
    Solo escribes pregunta + respuesta correcta; el sistema genera 3 distractores
    eligiendo, del mismo tema, las respuestas más parecidas a la correcta. */
-const { useGo: useGoE, PageHead: PageHeadE, Crumbs: CrumbsE, EmptyState: EmptyStateE, ConfirmDialog: ConfirmDialogE } = window;
+const { useGo: useGoE, PageHead: PageHeadE, EmptyState: EmptyStateE, ConfirmDialog: ConfirmDialogE } = window;
 
 /* --- normalización + similitud de cadenas (para elegir distractores plausibles) --- */
 window.epNorm = (s) => (s || "").toString().toLowerCase()

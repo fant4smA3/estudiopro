@@ -6,7 +6,6 @@ const jNorm = (t) => (t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\
 
 /* ============================ IMPORTAR CON IA (texto / PDF / imagen) ============================ */
 function ImportarIA() {
-  const subjColor = window.subjColor;
   const SUBJECTS = jSubjects();
   const [text, setText] = React.useState("");
   const [imgData, setImgData] = React.useState(null);
@@ -60,7 +59,7 @@ function ImportarIA() {
       setItems(arr);
       const s0 = {}; arr.forEach((it, k) => { s0[k] = !it.dup; });
       setSel(s0);
-    } catch (e) {
+    } catch {
       setErr(aiReady ? "No se pudo extraer (formato o servicio). Intenta con menos reactivos o revisa el material." : "La IA no está disponible en este entorno; la extracción real requiere conexión.");
     } finally { setLoading(false); }
   };
@@ -126,7 +125,7 @@ function ImportarIA() {
 
 /* ============================ DETECCIÓN DE DUPLICADOS ============================ */
 function DuplicadosBody() {
-  const st = window.useStore();
+  const _st = window.useStore();
   const subjColor = window.subjColor;
   const groups = window.dedupeGroups();
   const total = groups.reduce((a, g) => a + g.length - 1, 0);
@@ -244,7 +243,7 @@ function RetoDiario() {
 /* ============================ HÁBITOS (mejor hora + curva de olvido) ============================ */
 function HabitosBody() {
   const go = useGoJ();
-  const st = window.useStore();
+  const _st = window.useStore();
   const subjColor = window.subjColor;
   const bh = window.bestHours();
   const fg = window.forgetting().slice(0, 12);

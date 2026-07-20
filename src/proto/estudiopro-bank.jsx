@@ -13,7 +13,7 @@ window.subjColor = (s) => {
   try {
     const st = window.EPStore && window.EPStore.get && window.EPStore.get();
     if (st && st.subjects) { const m = st.subjects.find((x) => x.name === s); if (m && m.color) return m.color; }
-  } catch (e) { /* store aún no listo */ }
+  } catch { /* store aún no listo */ }
   return window.SUBJECT_COLORS[s] || "#2F73CE";
 };
 

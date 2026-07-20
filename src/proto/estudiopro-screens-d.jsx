@@ -526,7 +526,6 @@ window.SimRun = SimRun;
 
 /* ============================ ALERTAS ============================ */
 function AlertasBody() {
-  const go = useGoD();
   const [cfg, setCfg] = React.useState({ diaria: true, vencidas: true, simulacro: true, racha: true, meta: false });
   const [perm, setPerm] = React.useState(typeof Notification !== "undefined" ? Notification.permission : "unsupported");
   const pedirPermiso = async () => {
@@ -601,7 +600,6 @@ function RepasoPrioritario() {
   const go = useGoD();
   const st = window.useStore();
   const subjColor = window.subjColor;
-  const SUBJECTS = window.subjectNames();
   // construye la cola con el orden del plan §5: falladas → importantes → vencidas → nuevas
   const falladas = st.questions.filter((q) => q.status === "fall");
   const importantes = st.questions.filter((q) => q.status === "imp");

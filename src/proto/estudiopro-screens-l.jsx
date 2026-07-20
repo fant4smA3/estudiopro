@@ -1,7 +1,7 @@
 /* EstudioPro — Pantalla L: Reparar distractores.
    Detecta opciones placeholder ("Respuesta idéntica", "Distractor 1"…) o duplicadas y
    propone reemplazos con las respuestas más parecidas del mismo tema (offline, epSimilar). */
-const { useGo: useGoL, PageHead: PageHeadL, Panel: PanelL, EmptyState: EmptyStateL } = window;
+const { useGo: useGoL, Panel: PanelL, EmptyState: EmptyStateL } = window;
 
 const PLACEHOLDER_RE = /^(respuesta\s+id[eé]ntica|distractor(es)?\s*\d*|opci[oó]n\s*\d*|pendiente|por\s+definir|xxx+|\.{2,}|[-–—])$/i;
 window.epIsPlaceholder = (t) => {
@@ -85,7 +85,7 @@ window.epRepairApply = (q, bad, suggestions) => {
 
 function ReparaDistractoresBody() {
   const go = useGoL();
-  const st = window.useStore();
+  const _st = window.useStore();
   const subjColor = window.subjColor;
   const [offsets, setOffsets] = React.useState({});   // rotación de sugerencias por pregunta
   const [page, setPage] = React.useState(0);

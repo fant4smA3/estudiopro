@@ -4,7 +4,7 @@ const { useGo: useGoB, Crumbs: CrumbsB, PageHead: PageHeadB, Panel: PanelB, Diff
 /* ====================== BANCO DE PREGUNTAS ====================== */
 function Banco() {
   const go = useGoB();
-  const { EmptyState, ConfirmDialog, TYPE_LABEL, STATUS_LABEL, subjColor, SUBJECT_COLORS, useStore, EPStore } = window;
+  const { EmptyState, ConfirmDialog, STATUS_LABEL, subjColor, useStore, EPStore } = window;
   const st = useStore();
   const bank = st.questions;
   const subjects = ["Todas", ...window.subjectNames()];
@@ -176,7 +176,7 @@ function Banco() {
 /* ==================== CREAR / EDITAR PREGUNTA =================== */
 function PreguntaForm() {
   const go = useGoB();
-  const { EPStore, SUBJECT_COLORS, toast } = window;
+  const { EPStore, toast } = window;
   const editing = window.__epEditQ || null;
   const SUBJECTS = window.subjectNames();
   const tipoMap = { "Opción múltiple": "OM", "Verdadero / Falso": "VF", "Respuesta corta": "AB", "Abierta": "AB", "Relacionar": "REL", "Completar": "COMP" };
@@ -320,7 +320,7 @@ function PreguntaForm() {
 /* ===================== TARJETAS · ESTUDIO + GESTIÓN ====================== */
 function Tarjetas() {
   const go = useGoB();
-  const { EmptyState, ConfirmDialog, SUBJECT_COLORS, subjColor, useStore, EPStore } = window;
+  const { EmptyState, ConfirmDialog, subjColor, useStore, EPStore } = window;
   const st = useStore();
   const [vista, setVista] = React.useState(window.__epCardVista || "estudiar"); // estudiar | gestionar
   React.useEffect(() => { window.__epCardVista = vista; }, [vista]);
@@ -606,7 +606,7 @@ function Tarjetas() {
 /* ==================== CREAR / EDITAR TARJETA =================== */
 function TarjetaForm() {
   const go = useGoB();
-  const { EPStore, SUBJECT_COLORS, toast } = window;
+  const { EPStore, toast } = window;
   const editing = window.__epEditC || null;
   const SUBJECTS = window.subjectNames();
   const [front, setFront] = React.useState(editing ? editing.front : "");
@@ -956,7 +956,6 @@ function Resultado() {
   const color = subjColor(r.subject);
   const pct = Math.round(r.correct / r.total * 100);
   const chapters = Object.entries(r.byChapter).map(([k, v]) => [k, v.total ? Math.round(v.ok / v.total * 100) : 0]).sort((a, b) => a[1] - b[1]);
-  const weak = chapters.filter((c) => c[1] < 100).slice(0, 4);
   const scoreClass = r.score >= 8 ? "rs-ok" : r.score >= 6 ? "rs-warn" : "rs-bad";
   return (
     <main className="main main-center">
