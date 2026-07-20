@@ -746,9 +746,13 @@ function Quiz() {
   const correct = q ? q.answer : null;
   const mmss = String(Math.floor(secs / 60)).padStart(2, "0") + ":" + String(secs % 60).padStart(2, "0");
   const setAns = (i) => { if (checked || isOpen) return; setAnswers((a) => a.map((v, k) => (k === cur ? i : v))); };
-  const comprobar = () => setRevealed((r) => r.map((v, k) => (k === cur ? true : v)));
+  const comprobar = () => {
+    setRevealed((r) => r.map((v, k) => (k === cur ? true : v)));
+    if (navigator.vibrate && !isOpen) { try { navigator.vibrate(sel === correct ? 12 : [28, 36, 28]); } catch { /* sin haptics */ } }
+  };
   const toggleFlag = () => setFlags((f) => f.map((v, k) => (k === cur ? !v : v)));
-  const goto = (n) => setCur(n);
+  const [dir, setDir] = React.useState("fwd"); // dirección del cambio de pregunta: fwd | back
+  const goto = (n) => { setDir(n >= cur ? "fwd" : "back"); setCur(n); };
   const answeredCount = answers.filter((a) => a !== null).length;
   const navState = (n) => (n === cur ? "cur" : flags[n] ? "flag" : answers[n] !== null ? "done" : "");
   const finish = () => {
@@ -786,12 +790,12 @@ function Quiz() {
   };
   // al agotarse el tiempo límite, el cuestionario se entrega solo
   React.useEffect(() => { if (limitMin && secs === 0 && N > 0) finish(); }, [secs]);
-  const next = () => { if (cur >= N - 1) { finish(); return; } setCur(cur + 1); };
+  const next = () => { if (cur >= N - 1) { finish(); return; } setDir("fwd"); setCur(cur + 1); };
   const doPause = () => {
     if (!isSim) window.EPStore.setResume({ subject, label: subject + " — " + (nav.ord || "en curso"), at: cur + 1, total: N });
     go("inicio");
   };
-  const skip = () => { if (cur < N - 1) setCur(cur + 1); };
+  const skip = () => { if (cur < N - 1) { setDir("fwd"); setCur(cur + 1); } };
   // keyboard shortcuts: 1-9 select option, Enter comprobar/siguiente, F flag, ←/→ nav
   React.useEffect(() => {
     const onKey = (e) => {
@@ -799,8 +803,8 @@ function Quiz() {
       if (e.key >= "1" && e.key <= "9" && !isOpen && !checked) { const i = +e.key - 1; if (i < q.options.length) setAns(i); }
       else if (e.key === "Enter") { e.preventDefault(); if (!checked) { if (isOpen || sel !== null) comprobar(); } else next(); }
       else if (e.key.toLowerCase() === "f") toggleFlag();
-      else if (e.key === "ArrowLeft" && cur > 0) setCur(cur - 1);
-      else if (e.key === "ArrowRight" && cur < N - 1) setCur(cur + 1);
+      else if (e.key === "ArrowLeft" && cur > 0) { setDir("back"); setCur(cur - 1); }
+      else if (e.key === "ArrowRight" && cur < N - 1) { setDir("fwd"); setCur(cur + 1); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -847,6 +851,7 @@ function Quiz() {
 
       <div className="quiz-grid">
         <section className="quiz-main">
+          <div className={"q-slide qs-" + dir} key={cur}>
           <div className="q-head">
             <span className="type-tag">{TYPE_LABEL[q.type] || q.type}</span>
             <DiffB level={q.dif} />
@@ -888,7 +893,7 @@ function Quiz() {
           )}
 
           <div className="q-foot">
-            <button className="btn" disabled={cur === 0} onClick={() => setCur(Math.max(0, cur - 1))}>‹ Anterior</button>
+            <button className="btn" disabled={cur === 0} onClick={() => { setDir("back"); setCur(Math.max(0, cur - 1)); }}>‹ Anterior</button>
             <label className={"flag-chk" + (flags[cur] ? " is-on" : "")} onClick={toggleFlag}><span className="box"></span> Marcar para revisar</label>
             <span style={{ flex: 1 }}></span>
             {strict ? (
@@ -896,6 +901,7 @@ function Quiz() {
             ) : (!checked
               ? <React.Fragment><button className="btn" onClick={skip}>Saltar</button><button className="btn btn-accent" disabled={!isOpen && sel === null} onClick={comprobar}>Comprobar</button></React.Fragment>
               : <button className="btn btn-accent" onClick={next}>{cur >= N - 1 ? "Finalizar ▸" : "Siguiente ▸"}</button>)}
+          </div>
           </div>
         </section>
 
