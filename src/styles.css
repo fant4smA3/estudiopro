@@ -2305,3 +2305,33 @@ html, body { overscroll-behavior: none; }
     .res-hero ~ .grid-2 .mini-bar i { animation: barFill .7s cubic-bezier(.2,.75,.2,1) both .35s; }
   }
   @keyframes barFill { from { width: 0; } }
+
+  /* ===== Inicio · entrada escalonada y micro-interacciones (mejora/loop-estudio) ===== */
+  @media (prefers-reduced-motion: no-preference) {
+    .home-next { animation: fcEnter .3s cubic-bezier(.2,.7,.3,1) both; transition: transform .18s cubic-bezier(.2,.7,.3,1), box-shadow .18s; }
+    .home-bento > * { animation: fcEnter .3s cubic-bezier(.2,.7,.3,1) both .08s; }
+    .home-bento > *:nth-child(2) { animation-delay: .13s; }
+    .home-bento > *:nth-child(3) { animation-delay: .18s; }
+    .home-sec, .home-mats, .heatmap-wrap { animation: fcEnter .3s cubic-bezier(.2,.7,.3,1) both .22s; }
+    .home-next-prog i.on { animation: progFill .4s cubic-bezier(.2,.75,.2,1) both .35s; transform-origin: left; }
+    .home-streak-week i.on { animation: markPop .3s cubic-bezier(.3,1.6,.4,1) both; }
+    .home-streak-week i.on:nth-child(2) { animation-delay: .05s; }
+    .home-streak-week i.on:nth-child(3) { animation-delay: .1s; }
+    .home-streak-week i.on:nth-child(4) { animation-delay: .15s; }
+    .home-streak-week i.on:nth-child(5) { animation-delay: .2s; }
+    .home-streak-week i.on:nth-child(6) { animation-delay: .25s; }
+    .home-streak-week i.on:nth-child(7) { animation-delay: .3s; }
+    .home-goal .rr-fg { animation: ringFill .9s cubic-bezier(.2,.75,.2,1) both .3s; }
+    .home-mat .home-mat-track i { animation: barFill .6s cubic-bezier(.2,.75,.2,1) both .4s; }
+    .home-mat { transition: transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .16s; }
+  }
+  @keyframes progFill { from { transform: scaleX(0); } }
+  @keyframes ringFill { from { stroke-dashoffset: 119.4; } }
+  .home-next:hover { transform: translateY(-2px); box-shadow: 0 14px 34px -16px rgba(21,44,56,.5); }
+  .home-next:active { transform: translateY(0) scale(.995); }
+  .home-next-cta { position: relative; overflow: hidden; }
+  .home-next-cta::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.35) 50%, transparent 58%); transform: translateX(-120%); }
+  @media (prefers-reduced-motion: no-preference) { .home-next:hover .home-next-cta::after { animation: ctaSheen .7s ease .05s; } }
+  @keyframes ctaSheen { to { transform: translateX(120%); } }
+  .home-mat:hover { transform: translateY(-2px); }
+  .home-mat:active { transform: translateY(0) scale(.99); }
