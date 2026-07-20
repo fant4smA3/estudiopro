@@ -356,8 +356,18 @@ function Tarjetas() {
     setResultados((r) => ({ ...r, [g]: (r[g] || 0) + 1 }));
     const txt = preview ? preview[g] : "";
     window.toast && window.toast(g === "otra" ? "Vuelve hoy en 10 min" : "Próxima revisión en " + txt, g === "otra" ? "warn" : "ok");
+    if (navigator.vibrate) { try { navigator.vibrate(g === "otra" ? 24 : 12); } catch { /* sin haptics */ } }
     if (i >= total - 1) { setDone(true); return; }
     setFlip(false); setI(i + 1);
+  };
+  // califica con salida animada de la tarjeta hacia el lado del gesto
+  const [leaving, setLeaving] = React.useState(null); // "left" | "right" | null
+  const gradeAnimated = (g, dir) => {
+    if (leaving) return;
+    const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) { grade(g); return; }
+    setLeaving(dir || (g === "otra" ? "left" : "right"));
+    window.setTimeout(() => { setLeaving(null); grade(g); }, 200);
   };
   const reiniciar = () => { setDone(false); setI(0); setFlip(false); setResultados({ facil: 0, medio: 0, dificil: 0, otra: 0 }); };
 
@@ -368,23 +378,31 @@ function Tarjetas() {
       const tag = (e.target.tagName || "").toLowerCase();
       if (tag === "input" || tag === "textarea") return;
       if (e.key === " " || e.key === "Enter") { e.preventDefault(); setFlip((f) => !f); }
-      else if (flip && ["1", "2", "3", "4"].includes(e.key)) { grade({ "1": "otra", "2": "dificil", "3": "medio", "4": "facil" }[e.key]); }
+      else if (flip && ["1", "2", "3", "4"].includes(e.key)) { const g = { "1": "otra", "2": "dificil", "3": "medio", "4": "facil" }[e.key]; gradeAnimated(g, g === "otra" || g === "dificil" ? "left" : "right"); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  // gestos táctiles (iPhone): con reverso visible, desliza → «Bien» · ← «Otra vez»; sin voltear, desliza para voltear
+  // gestos táctiles (iPhone): la tarjeta sigue al dedo con feedback visual.
+  // Con reverso visible, desliza → «Bien» · ← «Otra vez»; sin voltear, desliza para voltear.
+  const [drag, setDrag] = React.useState(0);
   const touchRef = React.useRef(null);
-  const onTouchStart = (e) => { touchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; };
-  const onTouchEnd = (e) => {
-    const t0 = touchRef.current; touchRef.current = null;
-    if (!t0) return;
-    const dx = e.changedTouches[0].clientX - t0.x, dy = e.changedTouches[0].clientY - t0.y;
-    if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return; // no fue un swipe horizontal
-    if (!flip) { setFlip(true); return; }
-    grade(dx > 0 ? "medio" : "otra");
+  const onTouchStart = (e) => { touchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, lock: null }; };
+  const onTouchMove = (e) => {
+    const t0 = touchRef.current; if (!t0 || leaving) return;
+    const dx = e.touches[0].clientX - t0.x, dy = e.touches[0].clientY - t0.y;
+    if (t0.lock === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) t0.lock = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+    if (t0.lock === "x") setDrag(dx);
   };
+  const onTouchEnd = () => {
+    const t0 = touchRef.current; touchRef.current = null;
+    const dx = drag; setDrag(0);
+    if (!t0 || t0.lock !== "x" || Math.abs(dx) < 70) return; // no llegó al umbral: la tarjeta regresa
+    if (!flip) { setFlip(true); return; }
+    gradeAnimated(dx > 0 ? "medio" : "otra", dx > 0 ? "right" : "left");
+  };
+  const dragPct = Math.max(0, Math.min(1, (Math.abs(drag) - 24) / 66)); // opacidad de la etiqueta del gesto
 
   // ----- cabecera con conmutador de vista + selector de materia -----
   const Header = ({ progLabel, progPct }) => (
@@ -456,28 +474,44 @@ function Tarjetas() {
     );
   }
 
-  /* ============ VISTA ESTUDIAR · fin de sesión ============ */
+  /* ============ VISTA ESTUDIAR · fin de sesión (cierre gratificante) ============ */
   if (done) {
     const repasadas = resultados.facil + resultados.medio + resultados.dificil + (resultados.otra || 0);
     const acertadas = resultados.facil + resultados.medio + resultados.dificil;
     const reten = repasadas ? Math.round(acertadas / repasadas * 100) : 0;
+    const streak = window.realStreak ? window.realStreak() : 0;
+    const dueLeft = window.dueCards ? window.dueCards().length : 0;
+    const RING = 2 * Math.PI * 52; // circunferencia del anillo (r=52)
     return (
       <main className="main main-center">
         <Header progLabel={total + " / " + total} progPct={100} />
-        <div className="card-stage">
-          <EmptyState tone="ok" icon="✓" title="¡Repaso completado!"
-            desc={"Calificaste " + repasadas + " tarjeta(s) de " + subject + ". Su próxima revisión ya se ajustó según tu desempeño (repetición espaciada)."}
-            actions={<React.Fragment>
-              <button className="btn" onClick={reiniciar}>Repasar de nuevo</button>
-              <button className="btn" onClick={() => setVista("gestionar")}>Gestionar tarjetas</button>
-              <button className="btn btn-accent" onClick={() => go("inicio")}>Volver al inicio ▸</button>
-            </React.Fragment>} />
-        </div>
-        <div className="study-rail">
-          <div className="sr-cell"><b>{repasadas}</b><span>repasadas</span></div>
-          <div className="sr-cell"><b>{acertadas}</b><span>acertadas</span></div>
-          <div className="sr-cell"><b>{resultados.otra || 0}</b><span>para reforzar</span></div>
-          <div className="sr-cell"><b>{reten}%</b><span>retención</span></div>
+        <div className="cierre">
+          <div className="cierre-ring" role="img" aria-label={"Retención de la sesión: " + reten + " por ciento"}>
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <circle className="cr-track" cx="60" cy="60" r="52" />
+              <circle className="cr-fill" cx="60" cy="60" r="52"
+                style={{ stroke: color, strokeDasharray: RING, strokeDashoffset: RING * (1 - reten / 100) }} />
+            </svg>
+            <div className="cierre-pct"><b>{reten}%</b><span>retención</span></div>
+          </div>
+          <div className="cierre-h">¡Repaso completado!</div>
+          <div className="cierre-sub">Calificaste <b>{repasadas}</b> tarjeta{repasadas === 1 ? "" : "s"} de <b>{subject}</b>. La próxima revisión de cada una ya se ajustó a tu desempeño.</div>
+          <div className="cierre-stats">
+            <div className="cierre-stat"><b>{acertadas}</b><span>acertadas</span></div>
+            <div className="cierre-stat cs-warn"><b>{resultados.otra || 0}</b><span>para reforzar</span></div>
+            <div className="cierre-stat cs-fire"><b>🔥 {streak}</b><span>día{streak === 1 ? "" : "s"} de racha</span></div>
+          </div>
+          <div className={"cierre-next" + (dueLeft ? "" : " cn-free")}>
+            {dueLeft > 0
+              ? <span>Aún vencen hoy <b>{dueLeft}</b> tarjeta{dueLeft === 1 ? "" : "s"} en otras materias.</span>
+              : <span>Nada más vence hoy. Día completado — descansa con la conciencia tranquila.</span>}
+          </div>
+          <div className="form-actions cierre-actions">
+            <button className="btn" onClick={reiniciar}>Repasar de nuevo</button>
+            {dueLeft > 0
+              ? <button className="btn btn-accent" onClick={() => { window.__epSubject = null; window.__epCardFilter = "hoy"; go("repaso"); }}>Seguir con lo que vence ▸</button>
+              : <button className="btn btn-accent" onClick={() => go("inicio")}>Volver al inicio ▸</button>}
+          </div>
         </div>
       </main>
     );
@@ -518,16 +552,21 @@ function Tarjetas() {
       </div>
 
       <div className="card-stage">
-        <div className={"flashcard fc-study" + (flip ? " is-flip" : "")} style={{ "--fc-accent": color }}
-          onClick={() => setFlip(!flip)} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+        <div key={card._id}
+          className={"flashcard fc-study fc-enter" + (flip ? " is-flip" : "") + (drag ? " is-drag" : "") + (leaving ? " fc-leave-" + leaving : "")}
+          style={{ "--fc-accent": color, ...(drag ? { transform: "translateX(" + drag + "px) rotate(" + (drag * 0.045) + "deg)" } : null) }}
+          onClick={() => { if (!drag && !leaving) setFlip(!flip); }}
+          onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
           role="button" tabIndex={0} aria-label={flip ? "Reverso de la tarjeta, toca para volver" : "Frente de la tarjeta, toca para revelar"}
           onKeyDown={(e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); setFlip((f) => !f); } }}>
           <span className="fc-accent" aria-hidden="true"></span>
+          {flip && <span className="fc-swipe fc-swipe-l" aria-hidden="true" style={{ opacity: drag < 0 ? dragPct : 0 }}>Otra vez</span>}
+          {flip && <span className="fc-swipe fc-swipe-r" aria-hidden="true" style={{ opacity: drag > 0 ? dragPct : 0 }}>Bien</span>}
           <div className="fc-top">
             <span className="fc-side">{flip ? "Reverso" : "Frente"}</span>
             <span className={"fc-lvl lvl-" + card.nivel}>{nivelLabel[card.nivel] || card.nivel}</span>
           </div>
-          <div className="fc-body">
+          <div className="fc-body" key={flip ? "reverso" : "frente"}>
             <div className="fc-q">{flip ? card.back : card.front}</div>
           </div>
           <div className="fc-foot">
@@ -541,10 +580,10 @@ function Tarjetas() {
         <div className="study-controls">
           {(() => { const p = window.srsPreview(card._id); return (
             <React.Fragment>
-              <button className="btn study-btn study-danger" onClick={() => grade("otra")}><span>Otra vez</span><small>{p.otra}</small></button>
-              <button className="btn study-btn study-warn" onClick={() => grade("dificil")}><span>Difícil</span><small>{p.dificil}</small></button>
-              <button className="btn study-btn study-ok" onClick={() => grade("medio")}><span>Bien</span><small>{p.medio}</small></button>
-              <button className="btn study-btn study-easy" onClick={() => grade("facil")}><span>Fácil</span><small>{p.facil}</small></button>
+              <button className="btn study-btn study-danger" onClick={() => gradeAnimated("otra", "left")}><span>Otra vez</span><small>{p.otra}</small></button>
+              <button className="btn study-btn study-warn" onClick={() => gradeAnimated("dificil", "left")}><span>Difícil</span><small>{p.dificil}</small></button>
+              <button className="btn study-btn study-ok" onClick={() => gradeAnimated("medio", "right")}><span>Bien</span><small>{p.medio}</small></button>
+              <button className="btn study-btn study-easy" onClick={() => gradeAnimated("facil", "right")}><span>Fácil</span><small>{p.facil}</small></button>
             </React.Fragment>
           ); })()}
         </div>
