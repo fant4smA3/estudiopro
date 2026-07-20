@@ -12,7 +12,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       const snap = {};
       PERSIST_KEYS.forEach((k) => { snap[k] = store[k]; });
       epSaveSnapshot(snap);
-    } catch (e) { /* almacenamiento no disponible: la app sigue en memoria */ }
+    } catch { /* almacenamiento no disponible: la app sigue en memoria */ }
   };
   const emit = () => { save(); listeners.forEach((l) => l()); };
 
@@ -97,7 +97,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       if (!data) return;
       PERSIST_KEYS.forEach((k) => { if (data[k] !== undefined) store[k] = data[k]; });
       seeded = true;
-    } catch (e) { /* datos corruptos: ignora y re-siembra */ }
+    } catch { /* datos corruptos: ignora y re-siembra */ }
   })();
   const ensureSeed = () => {
     if (seeded) return;
@@ -470,7 +470,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
         seeded = true;
         emit();
         return { ok: true, n: (store.questions || []).length, dropped };
-      } catch (e) { return { ok: false, msg: "No se pudo leer el archivo" }; }
+      } catch { return { ok: false, msg: "No se pudo leer el archivo" }; }
     },
     reset: () => { store.questions = []; store.cardSrs = {}; store.sessions = []; store.lastResult = null; store.notes = {}; store.resume = null; store.userCats = []; store.userMats = []; store.userOrds = {}; store.timeLog = []; store.reports = []; store.plan = { ...store.plan, doneToday: 0 }; seeded = true; emit(); },
   };

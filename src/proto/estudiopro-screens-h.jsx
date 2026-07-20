@@ -1,5 +1,5 @@
 /* EstudioPro · Prototipo — Pantallas nuevas (H): Preparación, Evolución, Mapa del temario, Respaldo, Reportes. */
-const { useGo: useGoH, PageHead: PageHeadH, Panel: PanelH, EmptyState: EmptyStateH } = window;
+const { useGo: useGoH, Panel: PanelH, EmptyState: EmptyStateH } = window;
 
 const hSubjects = () => window.subjectNames();
 const hHash = (s) => { let h = 0; for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) >>> 0; } return h; };
@@ -7,7 +7,7 @@ const hHash = (s) => { let h = 0; for (let i = 0; i < s.length; i++) { h = (h * 
 /* ============================ ÍNDICE DE PREPARACIÓN ============================ */
 function PreparacionBody() {
   const go = useGoH();
-  const st = window.useStore();
+  const _st = window.useStore();
   const subjColor = window.subjColor;
   const r = window.readiness();
   const nivelColor = { "listo": "var(--ok)", "en-camino": "var(--accent)", "atención": "var(--warn)", "riesgo": "var(--danger)" }[r.nivel];
@@ -317,7 +317,7 @@ function RespaldoBody() {
         const d = payload.data || payload;
         setInfo({ q: (d.questions || []).length, n: Object.keys(d.notes || {}).length, s: (d.sessions || []).length });
         setPending(payload);
-      } catch (err) { window.toast && window.toast("Archivo inválido o corrupto", "danger"); }
+      } catch { window.toast && window.toast("Archivo inválido o corrupto", "danger"); }
     };
     rd.readAsText(f);
     e.target.value = "";

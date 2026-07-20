@@ -176,7 +176,7 @@ function useTweaks(defaults) {
     try {
       const saved = JSON.parse(localStorage.getItem(TWEAKS_LS_KEY) || 'null');
       return saved && typeof saved === 'object' ? { ...defaults, ...saved } : defaults;
-    } catch (e) { return defaults; }
+    } catch { return defaults; }
   });
   // Accepts either setTweak('key', value) or setTweak({ key: value, ... }).
   const setTweak = React.useCallback((keyOrEdits, val) => {
@@ -184,7 +184,7 @@ function useTweaks(defaults) {
       ? keyOrEdits : { [keyOrEdits]: val };
     setValues((prev) => {
       const next = { ...prev, ...edits };
-      try { localStorage.setItem(TWEAKS_LS_KEY, JSON.stringify(next)); } catch (e) { /* sin almacenamiento */ }
+      try { localStorage.setItem(TWEAKS_LS_KEY, JSON.stringify(next)); } catch { /* sin almacenamiento */ }
       return next;
     });
     // Señal en la misma ventana para listeners in-page.

@@ -2222,3 +2222,116 @@ html, body { overscroll-behavior: none; }
     .colorsw { width: 40px; height: 40px; }
     .catcard-go { min-height: 44px; }
   }
+
+  /* ===== Loop de estudio · gestos, movimiento y cierre (mejora/loop-estudio) ===== */
+  .fc-study { touch-action: pan-y; }
+  .fc-study.is-drag { transition: none !important; cursor: grabbing; }
+  .fc-swipe {
+    position: absolute; top: 50%; z-index: 2; pointer-events: none; opacity: 0;
+    font-weight: 800; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    padding: 7px 14px; border-radius: 10px; border: 2px solid;
+  }
+  .fc-swipe-l { left: 14px; transform: translateY(-50%) rotate(-5deg); color: var(--danger); border-color: var(--danger); background: var(--danger-tint); }
+  .fc-swipe-r { right: 14px; transform: translateY(-50%) rotate(5deg); color: var(--ok); border-color: var(--ok); background: var(--ok-tint); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fc-study:not(.is-drag) { transition: transform .22s cubic-bezier(.2,.7,.3,1.1), box-shadow .2s; }
+    .fc-study.fc-enter { animation: fcEnter .26s cubic-bezier(.2,.7,.3,1) both; }
+    .fc-study.fc-leave-left { animation: fcLeaveL .2s ease-in forwards; }
+    .fc-study.fc-leave-right { animation: fcLeaveR .2s ease-in forwards; }
+    .fc-study .fc-body { animation: fcReveal .24s cubic-bezier(.2,.7,.3,1) both; }
+  }
+  @keyframes fcEnter { from { opacity: 0; transform: translateY(12px) scale(.975); } to { opacity: 1; transform: none; } }
+  @keyframes fcLeaveL { to { opacity: 0; transform: translateX(-115%) rotate(-9deg); } }
+  @keyframes fcLeaveR { to { opacity: 0; transform: translateX(115%) rotate(9deg); } }
+  @keyframes fcReveal { from { opacity: 0; transform: perspective(700px) rotateX(-26deg); } to { opacity: 1; transform: none; } }
+
+  .study-btn:active { transform: translateY(1px) scale(.985); }
+
+  /* --- cierre de sesión --- */
+  .cierre { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 16px 12px 8px; max-width: 560px; margin: 0 auto; width: 100%; }
+  .cierre-ring { position: relative; width: 136px; height: 136px; }
+  .cierre-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .cr-track { fill: none; stroke: var(--surface-2); stroke-width: 10; }
+  .cr-fill { fill: none; stroke-width: 10; stroke-linecap: round; }
+  .cierre-pct { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+  .cierre-pct b { font-size: 27px; letter-spacing: -.02em; }
+  .cierre-pct span { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
+  .cierre-h { font-size: 21px; font-weight: 800; letter-spacing: -.02em; }
+  .cierre-sub { font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; max-width: 44ch; }
+  .cierre-stats { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 2px; }
+  .cierre-stat { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 92px; padding: 10px 14px; border-radius: 12px; background: var(--surface-2); }
+  .cierre-stat b { font-size: 17px; }
+  .cierre-stat span { font-size: 10.5px; color: var(--mute); letter-spacing: .03em; }
+  .cierre-stat.cs-warn { background: var(--warn-tint); }
+  .cierre-stat.cs-warn b { color: var(--warn); }
+  .cierre-stat.cs-fire { background: var(--accent-tint); }
+  .cierre-next { font-size: 13px; padding: 9px 14px; border-radius: 10px; background: var(--surface-2); color: var(--ink-soft); }
+  .cierre-next.cn-free { background: var(--ok-tint); color: var(--ok); font-weight: 600; }
+  .cierre-actions { justify-content: center; }
+  @media (prefers-reduced-motion: no-preference) {
+    .cr-fill { animation: crFill 1s cubic-bezier(.2,.75,.2,1) both .15s; }
+    .cierre > * { animation: fcEnter .3s cubic-bezier(.2,.7,.3,1) both; }
+    .cierre > *:nth-child(2) { animation-delay: .06s; }
+    .cierre > *:nth-child(3) { animation-delay: .1s; }
+    .cierre > *:nth-child(4) { animation-delay: .14s; }
+    .cierre > *:nth-child(5) { animation-delay: .18s; }
+    .cierre > *:nth-child(6) { animation-delay: .22s; }
+  }
+  @keyframes crFill { from { stroke-dashoffset: 326.7; } }
+
+  /* ===== Quiz · transiciones, feedback y cronómetro (mejora/loop-estudio) ===== */
+  .q-slide { display: flex; flex-direction: column; min-width: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .q-slide.qs-fwd { animation: qsFwd .22s cubic-bezier(.2,.7,.3,1) both; }
+    .q-slide.qs-back { animation: qsBack .22s cubic-bezier(.2,.7,.3,1) both; }
+    .opt .opt-mark { animation: markPop .28s cubic-bezier(.3,1.6,.4,1) both; }
+    .explain { animation: explainUp .26s cubic-bezier(.2,.7,.3,1) both; }
+    .quiz-timer.is-low { animation: timerPulse 1s ease-in-out infinite; }
+  }
+  @keyframes qsFwd { from { opacity: 0; transform: translateX(26px); } to { opacity: 1; transform: none; } }
+  @keyframes qsBack { from { opacity: 0; transform: translateX(-26px); } to { opacity: 1; transform: none; } }
+  @keyframes markPop { from { opacity: 0; transform: scale(.4); } 70% { transform: scale(1.18); } to { opacity: 1; transform: scale(1); } }
+  @keyframes explainUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes timerPulse { 50% { opacity: .55; } }
+
+  /* ===== Resultado · entrada escalonada y barras que se llenan ===== */
+  @media (prefers-reduced-motion: no-preference) {
+    .res-hero { animation: fcEnter .3s cubic-bezier(.2,.7,.3,1) both; }
+    .res-hero .res-score-n { animation: markPop .45s cubic-bezier(.3,1.6,.4,1) both .18s; }
+    .res-hero ~ .grid-2 > * { animation: fcEnter .3s cubic-bezier(.2,.7,.3,1) both .12s; }
+    .res-hero ~ .grid-2 > *:nth-child(2) { animation-delay: .18s; }
+    .res-hero ~ .res-foot { animation: fcEnter .3s cubic-bezier(.2,.7,.3,1) both .26s; }
+    .res-hero ~ .grid-2 .mini-bar i { animation: barFill .7s cubic-bezier(.2,.75,.2,1) both .35s; }
+  }
+  @keyframes barFill { from { width: 0; } }
+
+  /* ===== Inicio · entrada escalonada y micro-interacciones (mejora/loop-estudio) ===== */
+  @media (prefers-reduced-motion: no-preference) {
+    .home-next { animation: fcEnter .3s cubic-bezier(.2,.7,.3,1) both; transition: transform .18s cubic-bezier(.2,.7,.3,1), box-shadow .18s; }
+    .home-bento > * { animation: fcEnter .3s cubic-bezier(.2,.7,.3,1) both .08s; }
+    .home-bento > *:nth-child(2) { animation-delay: .13s; }
+    .home-bento > *:nth-child(3) { animation-delay: .18s; }
+    .home-sec, .home-mats, .heatmap-wrap { animation: fcEnter .3s cubic-bezier(.2,.7,.3,1) both .22s; }
+    .home-next-prog i.on { animation: progFill .4s cubic-bezier(.2,.75,.2,1) both .35s; transform-origin: left; }
+    .home-streak-week i.on { animation: markPop .3s cubic-bezier(.3,1.6,.4,1) both; }
+    .home-streak-week i.on:nth-child(2) { animation-delay: .05s; }
+    .home-streak-week i.on:nth-child(3) { animation-delay: .1s; }
+    .home-streak-week i.on:nth-child(4) { animation-delay: .15s; }
+    .home-streak-week i.on:nth-child(5) { animation-delay: .2s; }
+    .home-streak-week i.on:nth-child(6) { animation-delay: .25s; }
+    .home-streak-week i.on:nth-child(7) { animation-delay: .3s; }
+    .home-goal .rr-fg { animation: ringFill .9s cubic-bezier(.2,.75,.2,1) both .3s; }
+    .home-mat .home-mat-track i { animation: barFill .6s cubic-bezier(.2,.75,.2,1) both .4s; }
+    .home-mat { transition: transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .16s; }
+  }
+  @keyframes progFill { from { transform: scaleX(0); } }
+  @keyframes ringFill { from { stroke-dashoffset: 119.4; } }
+  .home-next:hover { transform: translateY(-2px); box-shadow: 0 14px 34px -16px rgba(21,44,56,.5); }
+  .home-next:active { transform: translateY(0) scale(.995); }
+  .home-next-cta { position: relative; overflow: hidden; }
+  .home-next-cta::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.35) 50%, transparent 58%); transform: translateX(-120%); }
+  @media (prefers-reduced-motion: no-preference) { .home-next:hover .home-next-cta::after { animation: ctaSheen .7s ease .05s; } }
+  @keyframes ctaSheen { to { transform: translateX(120%); } }
+  .home-mat:hover { transform: translateY(-2px); }
+  .home-mat:active { transform: translateY(0) scale(.99); }

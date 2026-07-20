@@ -8,7 +8,6 @@ function ExamenAdaptativo() {
   const go = useGoK();
   const st = window.useStore();
   const subjColor = window.subjColor;
-  const difOrder = { "fácil": 0, "medio": 1, "difícil": 2 };
   const pool = React.useMemo(() => (st.questions || []).filter((q) => q.type !== "AB" && q.options && q.options.length >= 2), []);
   const MAX = 12;
   const [i, setI] = React.useState(0);
@@ -136,7 +135,7 @@ function ExamenAdaptativo() {
 /* ============================ CONFUSIONES (matriz + drill) ============================ */
 function ConfusionesBody() {
   const go = useGoK();
-  const st = window.useStore();
+  const _st = window.useStore();
   const subjColor = window.subjColor;
   const m = window.confusionMatrix();
   const cellColor = (v) => v >= 60 ? "var(--danger)" : v >= 40 ? "var(--warn)" : v >= 20 ? "color-mix(in srgb,var(--accent) 40%,#fff)" : "var(--surface-2)";

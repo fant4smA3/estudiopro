@@ -1,6 +1,6 @@
 /* EstudioPro · Prototipo — Pantallas/piezas nuevas (I):
    Heatmap de actividad, Informe semanal IA, Hoja de repaso imprimible, Editor de plan, Paleta de comandos, Notificaciones. */
-const { useGo: useGoI, PageHead: PageHeadI, Panel: PanelI, EmptyState: EmptyStateI } = window;
+const { PageHead: PageHeadI, Panel: PanelI, EmptyState: EmptyStateI } = window;
 
 /* ---- helper: mapa de actividad diaria (últimos ~19 semanas) ---- */
 window.activityMap = function () {
@@ -35,12 +35,12 @@ window.epNotify = async function (title, body) {
   let perm = Notification.permission;
   if (perm === "default") perm = await Notification.requestPermission();
   if (perm !== "granted") { window.toast && window.toast("Permiso de notificaciones denegado", "warn"); return false; }
-  try { new Notification(title, { body, icon: "" }); return true; } catch (e) { return false; }
+  try { new Notification(title, { body, icon: "" }); return true; } catch { return false; }
 };
 
 /* ============================ HEATMAP DE ACTIVIDAD (Inicio) ============================ */
 function ActivityHeatmap() {
-  const st = window.useStore();
+  const _st = window.useStore();
   const a = window.activityMap();
   const [tip, setTip] = React.useState(null);
   // dividir en semanas (columnas de 7, lunes arriba)
@@ -116,11 +116,11 @@ function InformeBody() {
     try {
       const out = await window.claude.complete({ system: sys, messages: [{ role: "user", content: prompt }], max_tokens: 700 });
       setReport(out);
-    } catch (e) { setReport(fallbackReport()); }
+    } catch { setReport(fallbackReport()); }
     finally { setLoading(false); }
   };
 
-  const copiar = () => { try { navigator.clipboard.writeText(report); window.toast && window.toast("Informe copiado", "ok"); } catch (e) {} };
+  const copiar = () => { try { navigator.clipboard.writeText(report); window.toast && window.toast("Informe copiado", "ok"); } catch {} };
 
   return (
     <React.Fragment>
@@ -151,7 +151,6 @@ function InformeBody() {
 /* ============================ HOJA DE REPASO IMPRIMIBLE ============================ */
 function HojaRepaso() {
   const st = window.useStore();
-  const subjColor = window.subjColor;
   const SUBJECTS = window.subjectNames();
   const [modo, setModo] = React.useState("fall");   // fall | imp | subj | all
   const [subj, setSubj] = React.useState(SUBJECTS[0]);

@@ -8,13 +8,7 @@ function Inicio() {
   const plan = st.plan;
   const goalPct = Math.min(100, Math.round(plan.doneToday / plan.dailyGoal * 100));
   const dExam = window.daysToExam();
-  const nQ = st.questions.length, nC = st.cards.length;
-  const doneSessions = st.sessions.filter((s) => s.state === "done");
-  const avg = doneSessions.length ? (doneSessions.reduce((a, s) => a + (s.score || 0), 0) / doneSessions.length).toFixed(1) : "—";
-  // --- métricas reales derivadas del store ---
-  // las tarjetas SON el banco (una por pregunta); el avance = % de tarjetas dominadas
-  const dominadas = st.cards.filter((c) => c.nivel === "dominado").length;
-  const avancePct = nQ ? Math.round(dominadas / nQ * 100) : 0;
+  const nQ = st.questions.length;
   const falladas = st.questions.filter((q) => q.status === "fall").length;
   const importantes = st.questions.filter((q) => q.status === "imp").length;
   const enRepaso = st.cards.filter((c) => c.nivel === "medio").length;
@@ -23,15 +17,7 @@ function Inicio() {
   const intelData = (window.intel && window.intel()) || { porMateria: [] };
   const domBySubj = {}; intelData.porMateria.forEach((m) => { domBySubj[m.subj] = m.dominio; });
   const recientesQ = st.questions.slice(0, 3);
-  const examFecha = (() => { try { return new Date(plan.examDate + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short" }); } catch (e) { return ""; } })();
-  const notaProy = intelData.nota != null ? intelData.nota : null;
-  const notaCls = notaProy == null ? "" : notaProy >= 8 ? "v-ok" : notaProy >= 6 ? "v-warn" : "v-bad";
-  const kpis = [
-    ["Preguntas", nQ.toLocaleString(), "en tu banco"],
-    ["Tarjetas", nC.toLocaleString(), "una por pregunta"],
-    ["Cuestionarios", String(st.sessions.length), "media " + avg + " / 10"],
-    ["Avance", avancePct + "%", dominadas.toLocaleString() + " dominadas"],
-  ];
+  const examFecha = (() => { try { return new Date(plan.examDate + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short" }); } catch { return ""; } })();
   // top 3 materias por volumen real de preguntas (ordenamientos y conteos del banco)
   const cats = window.subjectNames()
     .map((s) => {
@@ -721,7 +707,7 @@ function Config() {
     window.EPStore.setNombre(nombre); window.EPStore.setExamDate(fecha); window.EPStore.setDias(dias);
     window.generarPlan(); window.toast && window.toast("Configuración guardada y plan recalculado", "ok");
   };
-  const instalar = async () => { const p = window.__epInstallPrompt; if (!p) { window.toast && window.toast("La instalación no está disponible en este navegador", "warn"); return; } p.prompt(); try { await p.userChoice; } catch (e) {} window.__epInstallPrompt = null; setCanInstall(false); };
+  const instalar = async () => { const p = window.__epInstallPrompt; if (!p) { window.toast && window.toast("La instalación no está disponible en este navegador", "warn"); return; } p.prompt(); try { await p.userChoice; } catch {} window.__epInstallPrompt = null; setCanInstall(false); };
   const t = (k) => setS((p) => ({ ...p, [k]: !p[k] }));
   return (
     <main className="main">
@@ -858,7 +844,7 @@ function ImportarBody() {
           setMap(matrix[0].map(guessField));
         }
         setStep(2);
-      } catch (err) {
+      } catch {
         setError("No se pudo leer el archivo. Verifica que sea un CSV o JSON válido con encabezados.");
       }
     };
@@ -875,7 +861,7 @@ function ImportarBody() {
       fetch("data/bancos.json").then((r) => r.ok ? r.json() : [])
         .then((list) => { if (alive && Array.isArray(list)) setBanks(list); })
         .catch(() => { /* sin manifiesto: se oculta la sección */ });
-    } catch (e) { /* entorno sin fetch relativo (tests) */ }
+    } catch { /* entorno sin fetch relativo (tests) */ }
     return () => { alive = false; };
   }, []);
   const loadBank = (b) => {

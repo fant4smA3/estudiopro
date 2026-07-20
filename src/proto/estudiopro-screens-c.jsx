@@ -1,5 +1,5 @@
 /* EstudioPro · Prototipo — Pantalla C: Cuestionarios (listado + configurar) */
-const { useGo: useGoC, PageHead: PageHeadC, Panel: PanelC, Diff: DiffC, EmptyState: EmptyStateC, Crumbs } = window;
+const { useGo: useGoC, Panel: PanelC, EmptyState: EmptyStateC, Crumbs } = window;
 
 function CuestionariosBody() {
   const go = useGoC();
@@ -212,7 +212,7 @@ function Perfil() {
   const nombre = (st.plan.nombre || "Aspirante").trim();
   const iniciales = nombre.split(/\s+/).map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "A";
   const dExam = window.daysToExam();
-  const examFecha = (() => { try { return new Date(st.plan.examDate + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" }); } catch (e) { return ""; } })();
+  const examFecha = (() => { try { return new Date(st.plan.examDate + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" }); } catch { return ""; } })();
   const nQ = st.questions.length;
   const dominadas = st.cards.filter((c) => c.nivel === "dominado").length;
   const avancePct = nQ ? Math.round(dominadas / nQ * 100) : 0;
