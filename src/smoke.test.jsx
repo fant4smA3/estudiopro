@@ -4,17 +4,31 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
 import React from "react";
 import * as ReactDOMClient from "react-dom/client";
-import { createPortal, flushSync } from "react-dom";
+import { flushSync } from "react-dom";
 
-let App, W;
+let App, W, SCREEN;
 
 beforeAll(async () => {
-  window.React = React;
-  window.ReactDOM = { ...ReactDOMClient, createPortal };
   window.__epSnapshot = null; // arranque limpio → siembra datos de ejemplo
   await import("./proto/index.js");
   App = (await import("./app.jsx")).default;
-  W = window;
+  W = window; // EPStore, analíticas y helpers ep* siguen publicados en window (bus de runtime)
+  // los componentes ya no viven en window: se resuelven por import (registro para el recorrido)
+  const [a, b, c, d, m] = await Promise.all([
+    import("./proto/estudiopro-screens-a.jsx"),
+    import("./proto/estudiopro-screens-b.jsx"),
+    import("./proto/estudiopro-screens-c.jsx"),
+    import("./proto/estudiopro-screens-d.jsx"),
+    import("./proto/estudiopro-merged.jsx"),
+  ]);
+  SCREEN = {
+    Inicio: a.Inicio, Config: a.Config,
+    Banco: b.Banco, Tarjetas: b.Tarjetas, TarjetaForm: b.TarjetaForm, PreguntaForm: b.PreguntaForm,
+    Perfil: c.Perfil,
+    Calendario: d.Calendario, SesionHoy: d.SesionHoy, RepasoPrioritario: d.RepasoPrioritario,
+    MateriasHub: m.MateriasHub, Cuaderno: m.Cuaderno, Practica: m.Practica, PracticaSimulacro: m.PracticaSimulacro,
+    Mantenimiento: m.Mantenimiento, MiPreparacion: m.MiPreparacion, EstadisticasHub: m.EstadisticasHub, Datos: m.Datos,
+  };
 });
 
 /* commit síncrono (flushSync): el resultado no depende de cuántos árboles previos
@@ -135,8 +149,8 @@ describe("EstudioPro — humo", () => {
   const SCREENS = ["Inicio", "MateriasHub", "Cuaderno", "Banco", "Tarjetas", "Practica", "PracticaSimulacro", "Calendario", "Mantenimiento", "MiPreparacion", "EstadisticasHub", "Datos", "Config", "TarjetaForm", "PreguntaForm", "SesionHoy", "RepasoPrioritario", "Perfil"];
   for (const name of SCREENS) {
     it("pantalla " + name + " renderiza", async () => {
-      const C = W[name];
-      expect(C, name + " no existe en window").toBeTypeOf("function");
+      const C = SCREEN[name];
+      expect(C, name + " no exportado").toBeTypeOf("function");
       const { div, root } = await mount(
         React.createElement(W.NavCtx.Provider, { value: () => {} }, React.createElement(C))
       );

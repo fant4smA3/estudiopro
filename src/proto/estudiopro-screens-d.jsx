@@ -226,7 +226,6 @@ function Calendario() {
     </main>
   );
 }
-window.Calendario = Calendario;
 
 /* ====================== SIMULACRO (config + bloques) ====================== */
 function SimulacroBody() {
@@ -326,7 +325,6 @@ function SimulacroBody() {
     </React.Fragment>
   );
 }
-window.SimulacroBody = SimulacroBody;
 
 /* ====================== SIMULACRO en curso (2 bloques + descanso) ====================== */
 function SimRun() {
@@ -521,7 +519,6 @@ function SimRun() {
     </main>
   );
 }
-window.SimRun = SimRun;
 
 /* ============================ ALERTAS ============================ */
 function AlertasBody() {
@@ -591,7 +588,6 @@ function AlertasBody() {
     </React.Fragment>
   );
 }
-window.AlertasBody = AlertasBody;
 
 /* ====================== REPASO PRIORITARIO (cola SRS) ====================== */
 function RepasoPrioritario() {
@@ -665,7 +661,6 @@ function RepasoPrioritario() {
     </main>
   );
 }
-window.RepasoPrioritario = RepasoPrioritario;
 
 /* ====================== SESIÓN DE HOY (modo enfoque) ====================== */
 function SesionHoy() {
@@ -729,7 +724,6 @@ function SesionHoy() {
     </main>
   );
 }
-window.SesionHoy = SesionHoy;
 
 /* ====================== ONBOARDING GUIADO (multipaso) ====================== */
 function Onboarding() {
@@ -831,7 +825,6 @@ function Onboarding() {
     </main>
   );
 }
-window.Onboarding = Onboarding;
 
 /* ====================== INTELIGENCIA DE ESTUDIO ====================== */
 function InteligenciaBody() {
@@ -958,9 +951,8 @@ function InteligenciaBody() {
     </React.Fragment>
   );
 }
-window.InteligenciaBody = InteligenciaBody;
 
 /* helper local: Panel ya viene del window */
 
-// Exportaciones ES (Fase 4): app.jsx/merged consumen por import; se conserva window.* (doble publicación) para las pruebas.
-export { Calendario, Onboarding, RepasoPrioritario, SesionHoy, SimRun, InteligenciaBody, SimulacroBody };
+// Componentes exportados como módulo ES (ya no se publican en window.*; app/merged/pruebas los importan).
+export { Calendario, Onboarding, RepasoPrioritario, SesionHoy, SimRun, InteligenciaBody, SimulacroBody, AlertasBody };

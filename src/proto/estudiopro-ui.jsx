@@ -1,11 +1,12 @@
 /* EstudioPro · Prototipo — shell interactivo + helpers.
    La navegación se hace con NavCtx (función go(route)).
    CSS vive en el HTML (clases proapp/soft/mist/source/ff-grotesk).
-   Fase 1 del refactor a ES modules: exporta sus componentes/helpers y mantiene la doble
-   publicación en window.* (los screens y app.jsx aún los leen así). Importa React y
-   subjTextColor (banco migrado); el store sigue como window.* hasta que migre. */
+   Refactor a ES modules: exporta sus componentes/helpers y mantiene la doble publicación en
+   window.* para las pruebas. Importa React, subjTextColor (banco) y el store (EPStore, useStore
+   y analíticas); solo el bus de navegación (window.__ep*) sigue en window. */
 import React from "react";
 import { subjTextColor } from "./estudiopro-bank.jsx";
+import { EPStore, useStore, smartStudy, realStreak, subjectNames } from "./estudiopro-store.jsx";
 
 const NavCtx = React.createContext(() => {});
 const useGo = () => React.useContext(NavCtx);
@@ -85,17 +86,17 @@ function sidebarDefault() {
 }
 /* Layout efectivo: el guardado (reconciliado contra las páginas que existen) o el por defecto */
 function sidebarLayout() {
-  const st = window.EPStore ? window.EPStore.get() : null;
+  const st = EPStore ? EPStore.get() : null;
   const saved = st && Array.isArray(st.sidebar) ? st.sidebar : null;
   if (!saved) return sidebarDefault();
   // descarta ítems de páginas que ya no existen; conserva grupos/separadores/espacios
   return saved.filter((e) => e && e.t && (e.t !== "item" || NAV_LABELS[e.id])).map((e) => ({ ...e }));
 }
 /* Barra inferior móvil (≤720px): destinos al alcance del pulgar + botón central
-   «Estudiar» que lanza la acción inteligente (window.smartStudy). */
+   «Estudiar» que lanza la acción inteligente (smartStudy). */
 function TabBar({ active, onMore }) {
   const go = useGo();
-  const estudiar = () => { const s = window.smartStudy(); s.act(go); };
+  const estudiar = () => { const s = smartStudy(); s.act(go); };
   const Item = ({ id, label, icon, onClick }) => (
     <button type="button" className={"tab-item" + (active === id ? " is-on" : "")}
       aria-current={active === id ? "page" : undefined}
@@ -147,21 +148,21 @@ function Topbar({ onMenu, onFocus, onDark, dark }) {
 
 /* racha real (días consecutivos con actividad) e iniciales del aspirante */
 function TopbarStreak() {
-  const st = window.useStore ? window.useStore() : null;
-  const streak = st && window.realStreak ? window.realStreak() : 0;
+  useStore(); // suscribe para re-render al cambiar el estado
+  const streak = realStreak();
   return <span className="streak qbar-opt"><b>{streak}</b> día{streak === 1 ? "" : "s"}</span>;
 }
 function TopbarAvatar({ onClick }) {
-  const st = window.useStore ? window.useStore() : null;
-  const nombre = ((st && st.plan.nombre) || "Aspirante").trim();
+  const st = useStore();
+  const nombre = (st.plan.nombre || "Aspirante").trim();
   const ini = nombre.split(/\s+/).map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "A";
   return <button className="topbar-av" onClick={onClick} title="Perfil">{ini}</button>;
 }
 
 function GlobalSearch() {
   const go = useGo();
-  const st = window.useStore ? window.useStore() : { questions: [], cards: [] };
-  const SUBJECTS = window.subjectNames();
+  const st = useStore();
+  const SUBJECTS = subjectNames();
   const [q, setQ] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const boxRef = React.useRef(null);
@@ -176,7 +177,7 @@ function GlobalSearch() {
   let results = [];
   if (needle) {
     const subj = SUBJECTS.filter((s) => s.toLowerCase().includes(needle)).map((s) => ({ kind: "Materia", label: s, subject: s, go: () => { window.__epSubject = s; go("materia"); } }));
-    const qs = (st.questions || []).filter((x) => (x.q + " " + x.tags.join(" ") + " " + x.subject).toLowerCase().includes(needle)).slice(0, 5).map((x) => ({ kind: "Pregunta", label: x.q, subject: x.subject, go: () => { window.EPStore.setNav({ search: x.q }); go("banco"); } }));
+    const qs = (st.questions || []).filter((x) => (x.q + " " + x.tags.join(" ") + " " + x.subject).toLowerCase().includes(needle)).slice(0, 5).map((x) => ({ kind: "Pregunta", label: x.q, subject: x.subject, go: () => { EPStore.setNav({ search: x.q }); go("banco"); } }));
     const cs = (st.cards || []).filter((x) => (x.front + " " + x.back).toLowerCase().includes(needle)).slice(0, 4).map((x) => ({ kind: "Tarjeta", label: x.front, subject: x.subject, go: () => { window.__epSubject = x.subject; go("tarjetas"); } }));
     results = [...subj, ...qs, ...cs];
   }
@@ -207,7 +208,7 @@ function GlobalSearch() {
 
 function Side({ active, open }) {
   const go = useGo();
-  if (window.useStore) window.useStore(); // re-render al cambiar el layout guardado
+  useStore(); // re-render al cambiar el layout guardado
   const [editOpen, setEditOpen] = React.useState(false);
   React.useEffect(() => {
     const h = () => setEditOpen(true);
@@ -261,7 +262,7 @@ function SidebarEditor({ open, onClose }) {
   const removeAt = (i) => setDraft((a) => a.filter((_, k) => k !== i));
   const append = (entry) => setDraft((a) => [...a, entry]);
   const setLabel = (i, v) => setDraft((a) => a.map((e, k) => (k === i ? { ...e, label: v } : e)));
-  const save = () => { window.EPStore.setSidebar(draft); toast("Menú actualizado", "ok"); onClose && onClose(); };
+  const save = () => { EPStore.setSidebar(draft); toast("Menú actualizado", "ok"); onClose && onClose(); };
 
   const badge = { grp: "grupo", sep: "separador", gap: "espacio", item: "ítem" };
   return (
@@ -315,9 +316,9 @@ function SidebarEditor({ open, onClose }) {
 
 /* avance global real: % de tarjetas dominadas sobre el banco */
 function SideFoot() {
-  const st = window.useStore ? window.useStore() : null;
-  const total = st ? st.questions.length : 0;
-  const dom = st ? st.cards.filter((c) => c.nivel === "dominado").length : 0;
+  const st = useStore();
+  const total = st.questions.length;
+  const dom = st.cards.filter((c) => c.nivel === "dominado").length;
   const pct = total ? Math.round(dom / total * 100) : 0;
   return (
     <div className="side-foot">

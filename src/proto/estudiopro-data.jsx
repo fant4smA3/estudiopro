@@ -308,4 +308,3 @@ export const MATERIA_DETAIL = {
 };
 
 // Doble publicación durante el refactor a ES modules: los consumidores aún leen window.*.
-window.MATERIA_DETAIL = MATERIA_DETAIL;

@@ -4,6 +4,9 @@ import { ConfirmDialog, Crumbs, Diff, PageHead, Panel, PromptDialog, SectionHead
 import { daysToExam, EPStore, generarPlan, intel, realStreak, smartStudy, subjectNames, useStore } from "./estudiopro-store.jsx";
 import { subjColor, subjTextColor, TYPE_LABEL } from "./estudiopro-bank.jsx";
 import { MATERIA_DETAIL } from "./estudiopro-data.jsx";
+import { MetasBody } from "./estudiopro-screens-k.jsx";
+import { AlertasBody } from "./estudiopro-screens-d.jsx";
+import { ActivityHeatmap } from "./estudiopro-screens-i.jsx";
 
 /* ============================ INICIO ============================ */
 function Inicio() {
@@ -204,7 +207,7 @@ function Inicio() {
       </div>
 
       {/* metas semanales y racha (antes página propia; la ruta «metas» sigue viva) */}
-      <window.MetasBody />
+      <MetasBody />
     </main>
   );
 }
@@ -749,7 +752,7 @@ function Config() {
       </div>
 
       {/* Alertas y recordatorios (antes página propia; la ruta «alertas» abre esta página) */}
-      <window.AlertasBody />
+      <AlertasBody />
 
       <ConfirmDialog open={confirmDel} danger confirmLabel="Sí, borrar todo"
         title="¿Borrar todos los datos?"
@@ -1068,7 +1071,6 @@ function ImportarBody() {
   );
 }
 
-Object.assign(window, { Inicio, CategoriasBody, MateriasBody, MateriaDetalle, EstadisticasBody, Config, ImportarBody });
 
-// Exportaciones ES (Fase 4): app.jsx/merged consumen por import; se conserva window.* (doble publicación) para las pruebas.
+// Componentes exportados como módulo ES (ya no se publican en window.*; app/merged/pruebas los importan).
 export { Inicio, MateriaDetalle, Config, MateriasBody, CategoriasBody, EstadisticasBody, ImportarBody };
