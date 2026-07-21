@@ -1022,3 +1022,6 @@ function Resultado() {
 }
 
 Object.assign(window, { Banco, PreguntaForm, Tarjetas, TarjetaForm, Quiz, Resultado });
+
+// Exportaciones ES (Fase 4): app.jsx/merged consumen por import; se conserva window.* (doble publicación) para las pruebas.
+export { Banco, PreguntaForm, Quiz, Resultado, TarjetaForm, Tarjetas };

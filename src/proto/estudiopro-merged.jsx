@@ -3,15 +3,23 @@
    como separador. Los nombres viejos quedan como alias para rutas y pruebas. */
 import React from "react";
 import { PageHead as PageHeadM } from "./estudiopro-ui.jsx";
+import { CategoriasBody, Config, EstadisticasBody, ImportarBody, Inicio, MateriasBody } from "./estudiopro-screens-a.jsx";
+import { CuestionariosBody } from "./estudiopro-screens-c.jsx";
+import { InteligenciaBody, SimulacroBody } from "./estudiopro-screens-d.jsx";
+import { EvolucionBody, MapaTemarioBody, PreparacionBody, ReportesBody, RespaldoBody } from "./estudiopro-screens-h.jsx";
+import { InformeBody } from "./estudiopro-screens-i.jsx";
+import { BitacoraBody, DuplicadosBody, HabitosBody } from "./estudiopro-screens-j.jsx";
+import { ConfusionesBody, GlosarioBody, SimuladorBody } from "./estudiopro-screens-k.jsx";
+import { ReparaDistractoresBody } from "./estudiopro-screens-l.jsx";
 
 /* Materias = Materias · Mapa del temario · Categorías */
 function MateriasHub() {
   return (
     <main className="main">
       <PageHeadM title="Materias" sub="Tus materias, el mapa del temario y las categorías, en un solo lugar" crumbs={[["Inicio", "inicio"], "Materias"]} />
-      <window.MateriasBody />
-      <window.MapaTemarioBody />
-      <window.CategoriasBody />
+      <MateriasBody />
+      <MapaTemarioBody />
+      <CategoriasBody />
     </main>
   );
 }
@@ -21,8 +29,8 @@ function Cuaderno() {
   return (
     <main className="main">
       <PageHeadM title="Cuaderno" sub="Glosario de términos y bitácora de estudio" crumbs={[["Inicio", "inicio"], "Cuaderno"]} />
-      <window.GlosarioBody />
-      <window.BitacoraBody />
+      <GlosarioBody />
+      <BitacoraBody />
     </main>
   );
 }
@@ -37,7 +45,7 @@ function Practica({ modo: modoInicial }) {
           <span className={"segchip" + (modo === "cuestionario" ? " is-on" : "")} onClick={() => setModo("cuestionario")}>Cuestionario</span>
           <span className={"segchip" + (modo === "simulacro" ? " is-on" : "")} onClick={() => setModo("simulacro")}>Simulacro</span>
         </div>} />
-      {modo === "cuestionario" ? <window.CuestionariosBody /> : <window.SimulacroBody />}
+      {modo === "cuestionario" ? <CuestionariosBody /> : <SimulacroBody />}
     </main>
   );
 }
@@ -48,9 +56,9 @@ function Mantenimiento() {
   return (
     <main className="main">
       <PageHeadM title="Mantenimiento del banco" sub="Duplicados, distractores por reparar y reportes de reactivos" crumbs={[["Banco de preguntas", "banco"], "Mantenimiento"]} />
-      <window.DuplicadosBody />
-      <window.ReparaDistractoresBody />
-      <window.ReportesBody />
+      <DuplicadosBody />
+      <ReparaDistractoresBody />
+      <ReportesBody />
     </main>
   );
 }
@@ -60,9 +68,9 @@ function MiPreparacion() {
   return (
     <main className="main">
       <PageHeadM title="Mi preparación" sub="¿Voy a pasar? Índice, análisis y proyección de nota en una sola página" crumbs={[["Inicio", "inicio"], "Mi preparación"]} />
-      <window.PreparacionBody />
-      <window.InteligenciaBody />
-      <window.SimuladorBody />
+      <PreparacionBody />
+      <InteligenciaBody />
+      <SimuladorBody />
     </main>
   );
 }
@@ -72,11 +80,11 @@ function EstadisticasHub() {
   return (
     <main className="main" tabIndex={0} aria-label="Estadísticas de estudio, región desplazable">
       <PageHeadM title="Estadísticas" sub="Resumen, simulacros, hábitos, errores e informe semanal" crumbs={[["Inicio", "inicio"], "Estadísticas"]} />
-      <window.EstadisticasBody />
-      <window.EvolucionBody />
-      <window.HabitosBody />
-      <window.ConfusionesBody />
-      <window.InformeBody />
+      <EstadisticasBody />
+      <EvolucionBody />
+      <HabitosBody />
+      <ConfusionesBody />
+      <InformeBody />
     </main>
   );
 }
@@ -86,8 +94,8 @@ function Datos() {
   return (
     <main className="main">
       <PageHeadM title="Datos" sub="Importa bancos de preguntas y administra tus respaldos" crumbs={[["Inicio", "inicio"], "Datos"]} />
-      <window.ImportarBody />
-      <window.RespaldoBody />
+      <ImportarBody />
+      <RespaldoBody />
     </main>
   );
 }
@@ -102,6 +110,9 @@ Object.assign(window, {
   Preparacion: MiPreparacion, Inteligencia: MiPreparacion, Simulador: MiPreparacion,
   Estadisticas: EstadisticasHub, Evolucion: EstadisticasHub, Habitos: EstadisticasHub, Confusiones: EstadisticasHub, Informe: EstadisticasHub,
   Importar: Datos, Respaldo: Datos,
-  Alertas: window.Config, // Configuración absorbe Alertas (sección al final)
-  Metas: window.Inicio,   // las metas semanales viven en Inicio
+  Alertas: Config, // Configuración absorbe Alertas (sección al final)
+  Metas: Inicio,   // las metas semanales viven en Inicio
 });
+
+// Exportaciones ES (Fase 4): app.jsx/merged consumen por import; se conserva window.* (doble publicación) para las pruebas.
+export { MateriasHub, Cuaderno, Practica, PracticaSimulacro, Mantenimiento, MiPreparacion, EstadisticasHub, Datos };

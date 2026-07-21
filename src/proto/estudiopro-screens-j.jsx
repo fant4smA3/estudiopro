@@ -321,3 +321,6 @@ function BitacoraBody() {
 }
 
 Object.assign(window, { ImportarIA, DuplicadosBody, RetoDiario, HabitosBody, BitacoraBody });
+
+// Exportaciones ES (Fase 4): app.jsx/merged consumen por import; se conserva window.* (doble publicación) para las pruebas.
+export { BitacoraBody, DuplicadosBody, HabitosBody };
