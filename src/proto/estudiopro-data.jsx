@@ -1,7 +1,7 @@
 /* EstudioPro · Prototipo — Datos del temario (Cap. 1/o. I.C.I. · Promoción 2026)
    Detalle real de títulos/capítulos por ordenamiento. Counts se calculan en el componente. */
 
-window.MATERIA_DETAIL = {
+export const MATERIA_DETAIL = {
   /* ===================== LEGISLACIÓN MILITAR ===================== */
   "Código de Justicia Militar (Sin Penas)": {
     cat: "Legislación Militar",
@@ -306,3 +306,6 @@ window.MATERIA_DETAIL = {
     ],
   },
 };
+
+// Doble publicación durante el refactor a ES modules: los consumidores aún leen window.*.
+window.MATERIA_DETAIL = MATERIA_DETAIL;
