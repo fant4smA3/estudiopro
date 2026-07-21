@@ -1,9 +1,14 @@
 /* EstudioPro — Store compartido reactivo.
-   Producción: persiste en IndexedDB (Dexie) y usa SM-2 real para el repaso espaciado. */
+   Producción: persiste en IndexedDB (Dexie) y usa SM-2 real para el repaso espaciado.
+   Fase 2 del refactor a ES modules: exporta EPStore, useStore y las analíticas, y mantiene
+   la doble publicación en window.* (screens y app.jsx aún los leen así). Importa React y
+   los módulos ya migrados: banco (QUESTION_BANK, SUBJECT_COLORS) y datos (MATERIA_DETAIL). */
+import React from "react";
 import { epSaveSnapshot } from "../db";
 import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
+import { QUESTION_BANK, SUBJECT_COLORS } from "./estudiopro-bank.jsx";
+import { MATERIA_DETAIL } from "./estudiopro-data.jsx";
 
-(function () {
   const listeners = new Set();
   // --- persistencia local: IndexedDB con debounce ---
   const PERSIST_KEYS = ["questions", "cardSrs", "sessions", "lastResult", "plan", "notes", "resume", "subjects", "categories", "userCats", "userMats", "userOrds", "unlocked", "activity", "timeLog", "reports", "simHistory", "journal", "glossary", "sidebar", "lastExport"];
@@ -17,7 +22,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   const emit = () => { save(); listeners.forEach((l) => l()); };
 
   // seed desde el banco de preguntas (única fuente: cada pregunta es también una tarjeta)
-  const seedQuestions = () => (window.QUESTION_BANK || []).map((q, i) => ({ ...q, _id: q.id || ("Q" + i) }));
+  const seedQuestions = () => (QUESTION_BANK || []).map((q, i) => ({ ...q, _id: q.id || ("Q" + i) }));
   // reverso de la tarjeta = texto de la respuesta correcta de la pregunta
   const cardBack = (q) => {
     if (q.options && typeof q.answer === "number") return q.options[q.answer] || "";
@@ -101,7 +106,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   })();
   const ensureSeed = () => {
     if (seeded) return;
-    if (window.QUESTION_BANK) {
+    if (QUESTION_BANK) {
       store.questions = seedQuestions();
       // nivel de tarjeta inicial a partir de la dificultad semilla (sólo para datos de ejemplo)
       const srs = {};
@@ -114,7 +119,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   // siembra la taxonomía editable la primera vez, plegando cualquier añadido del prototipo (userMats/userCats)
   const ensureTaxonomy = () => {
     if (!store.subjects) {
-      const base = Object.entries(window.SUBJECT_COLORS || {}).map(([name, color]) => ({ name, color }));
+      const base = Object.entries(SUBJECT_COLORS || {}).map(([name, color]) => ({ name, color }));
       const extra = (store.userMats || []).filter((m) => m && m.name && !base.some((b) => b.name === m.name)).map((m) => ({ name: m.name, color: m.color || "#2A8A5E" }));
       store.subjects = [...base, ...extra];
     }
@@ -149,7 +154,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     else if (store.plan.doneDate !== d) store.plan = { ...store.plan, doneDate: d };
   };
 
-  window.EPStore = {
+  const EPStore = {
     get: () => { ensureSeed(); ensureDay(); ensureTaxonomy(); return store; },
     subscribe: (fn) => { listeners.add(fn); return () => listeners.delete(fn); },
     addQuestion: (q) => {
@@ -476,40 +481,40 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   // toast con «Deshacer» para borrados de preguntas/tarjetas
-  window.undoableToast = (msg) => {
+  const undoableToast = (msg) => {
     if (!window.toast) return;
     window.toast(msg, "ok", {
       label: "Deshacer",
       run: () => {
-        const n = window.EPStore.undoDelete();
+        const n = EPStore.undoDelete();
         window.toast(n ? (n === 1 ? "1 elemento restaurado" : n + " elementos restaurados") : "Nada que restaurar", n ? "ok" : "warn");
       },
     });
   };
 
   // lista de nombres de materia (fuente de verdad editable)
-  window.subjectNames = function () { const s = window.EPStore.get(); return (s.subjects || []).map((x) => x.name); };
+  const subjectNames = function () { const s = EPStore.get(); return (s.subjects || []).map((x) => x.name); };
   // categorías editables
-  window.categoryList = function () { const s = window.EPStore.get(); return s.categories || []; };
+  const categoryList = function () { const s = EPStore.get(); return s.categories || []; };
 
   // hook
-  window.useStore = function useStore() {
+  const useStore = function useStore() {
     const [, force] = React.useReducer((x) => x + 1, 0);
-    React.useEffect(() => window.EPStore.subscribe(force), []);
-    return window.EPStore.get();
+    React.useEffect(() => EPStore.subscribe(force), []);
+    return EPStore.get();
   };
 
   // util: días hasta el examen
-  window.daysToExam = function () {
-    const s = window.EPStore.get();
+  const daysToExam = function () {
+    const s = EPStore.get();
     const exam = new Date(s.plan.examDate + "T00:00:00");
     const now = new Date();
     return Math.max(0, Math.ceil((exam - now) / 86400000));
   };
 
   // ordenamientos disponibles para una materia: temario fijo + creados por el usuario + presentes en el banco
-  window.ordsFor = function (subject) {
-    const D = window.MATERIA_DETAIL || {};
+  const ordsFor = function (subject) {
+    const D = MATERIA_DETAIL || {};
     const base = Object.keys(D).filter((k) => D[k].cat === subject);
     const user = ((store.userOrds || {})[subject] || []).map((o) => o.name);
     const fromBank = (store.questions || []).filter((q) => q.subject === subject).map((q) => q.ord).filter(Boolean);
@@ -518,8 +523,8 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
 
   // racha real: días consecutivos con actividad registrada (hoy cuenta si ya estudiaste;
   // si hoy aún no, la racha se conserva contando desde ayer). Los días congelados cuentan.
-  window.realStreak = function () {
-    const s = window.EPStore.get();
+  const realStreak = function () {
+    const s = EPStore.get();
     const active = new Set(Object.keys(s.activity || {}).filter((d) => (s.activity[d] || 0) > 0));
     (s.timeLog || []).forEach((t) => { if (t.date) active.add(t.date); });
     (s.sessions || []).forEach((x) => { if (x.date && x.state === "done") active.add(x.date); });
@@ -533,13 +538,13 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   // logros calculados del progreso real (+ desbloqueos manuales)
-  window.computeAchievements = function () {
-    const s = window.EPStore.get();
+  const computeAchievements = function () {
+    const s = EPStore.get();
     const done = s.sessions.filter((x) => x.state === "done");
     const best = done.reduce((m, x) => Math.max(m, x.score || 0), 0);
     const subjectsStudied = new Set(done.map((x) => x.subject)).size;
     return [
-      ["🔥", "Racha de 7 días", window.realStreak() >= 7],
+      ["🔥", "Racha de 7 días", realStreak() >= 7],
       ["🎯", "Primer 10 en un simulacro", best >= 10 || !!s.unlocked.ten],
       ["📚", "100 preguntas en el banco", s.questions.length >= 100],
       ["⚖️", "5+ cuestionarios completados", done.length >= 5],
@@ -549,9 +554,9 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   // genera un plan de estudio (días) desde hoy hasta el examen
-  window.generarPlan = function () {
-    const subjects = window.subjectNames();
-    const detail = window.MATERIA_DETAIL || {};
+  const generarPlan = function () {
+    const subjects = subjectNames();
+    const detail = MATERIA_DETAIL || {};
     const capsBySubject = {};
     subjects.forEach((s) => { capsBySubject[s] = []; });
     Object.keys(detail).forEach((ord) => {
@@ -589,8 +594,8 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   // día del plan correspondiente a hoy
-  window.todayPlan = function () {
-    const s = window.EPStore.get();
+  const todayPlan = function () {
+    const s = EPStore.get();
     if (!s.plan.dias) return null;
     const today = new Date().toISOString().slice(0, 10);
     return s.plan.dias.find((d) => d.fecha === today) || s.plan.dias.find((d) => d.estado !== "hecho") || null;
@@ -599,8 +604,8 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   // ===== «Estudiar ahora» inteligente: decide UNA acción según tu estado real =====
   // Prioridad: cuestionario en pausa → tarjetas vencidas (SM-2) → plan de hoy →
   // falladas en cola → cuestionario de tu materia más débil. act(go) navega y prepara todo.
-  window.smartStudy = function () {
-    const s = window.EPStore.get();
+  const smartStudy = function () {
+    const s = EPStore.get();
     if (!s.questions.length) {
       return { badge: "Primer paso", title: "Carga tu banco de preguntas", desc: "Importa el banco incluido o tu archivo CSV/JSON", done: 0, of: 3, cta: "Ir a Datos ▸", act: (go) => go("datos") };
     }
@@ -610,10 +615,10 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
         badge: "Continúa donde quedaste", title: s.resume.label,
         desc: "Cuestionario en pausa · pregunta " + at + " de " + total,
         done: Math.min(3, Math.max(1, Math.round(at / total * 3))), of: 3, cta: "Reanudar ▸",
-        act: (go) => { window.__epSimulacro = false; window.__epSubject = s.resume.subject; window.EPStore.setNav({ subject: s.resume.subject, mode: "practica", at: s.resume.at }); go("quiz"); },
+        act: (go) => { window.__epSimulacro = false; window.__epSubject = s.resume.subject; EPStore.setNav({ subject: s.resume.subject, mode: "practica", at: s.resume.at }); go("quiz"); },
       };
     }
-    const due = window.dueCards().length;
+    const due = dueCards().length;
     if (due > 0) {
       return {
         badge: "Repaso espaciado", title: "Repasa " + due.toLocaleString("es-MX") + " tarjeta" + (due === 1 ? "" : "s") + " de hoy",
@@ -621,7 +626,7 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
         act: (go) => { window.__epCardVista = "estudiar"; window.__epCardFilter = "hoy"; go("tarjetas"); },
       };
     }
-    const tp = window.todayPlan();
+    const tp = todayPlan();
     if (tp && tp.estado !== "hecho" && tp.tipo === "simulacro") {
       return { badge: "Hoy: simulacro", title: "Simulacro general · 200 preguntas", desc: "Examen completo cronometrado · ≈ " + (tp.min || 180) + " min", done: 0, of: 3, cta: "Ir al simulacro ▸", act: (go) => go("simulacro") };
     }
@@ -637,23 +642,23 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
     if (falladas > 0) {
       return { badge: "Cierra huecos", title: "Repasa tus " + falladas + " falladas", desc: "Repaso prioritario: falladas e importantes primero", done: 0, of: 3, cta: "Iniciar repaso ▸", act: (go) => go("repaso") };
     }
-    const debil = window.intel().debil;
-    const subj = debil ? debil.subj : window.subjectNames()[0];
+    const debil = intel().debil;
+    const subj = debil ? debil.subj : subjectNames()[0];
     return {
       badge: "Refuerza tu punto débil", title: "20 preguntas de " + subj,
       desc: debil ? "Tu materia con menor dominio (" + debil.dominio + "%)" : "Práctica dirigida",
       done: 0, of: 3, cta: "Empezar ▸",
-      act: (go) => { window.__epSimulacro = false; window.__epSubject = subj; window.EPStore.setNav({ subject: subj, mode: "practica", n: 20 }); go("quiz"); },
+      act: (go) => { window.__epSimulacro = false; window.__epSubject = subj; EPStore.setNav({ subject: subj, mode: "practica", n: 20 }); go("quiz"); },
     };
   };
 
   // vista previa SM-2 por tarjeta: texto del próximo intervalo por calificación
-  window.srsPreview = function (cardId) {
+  const srsPreview = function (cardId) {
     const srs = store.cardSrs[cardId] || {};
     return sm2Preview(srs.sm2);
   };
   // compat: texto legible de próxima revisión (SM-2 sobre estado sintético)
-  window.srsNext = function (grado, nivelActual) {
+  const srsNext = function (grado, nivelActual) {
     const synth = { nuevo: undefined, medio: { reps: 2, ef: 2.5, interval: 6, due: "", lapses: 0 }, dominado: { reps: 4, ef: 2.5, interval: 25, due: "", lapses: 0 } }[nivelActual || "nuevo"];
     const g = grado === "dificil" ? "otra" : grado;
     const n = sm2Grade(synth, g);
@@ -662,21 +667,21 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   // tarjetas que vencen hoy (repaso espaciado real)
-  window.dueCards = function (subject) {
-    const s = window.EPStore.get();
+  const dueCards = function (subject) {
+    const s = EPStore.get();
     return s.cards.filter((c) => (!subject || c.subject === subject) && sm2Due((s.cardSrs[c._id] || {}).sm2));
   };
   // pronóstico de carga: repasos que vencen en los próximos 7 días
-  window.dueForecast7 = function () {
-    const s = window.EPStore.get();
+  const dueForecast7 = function () {
+    const s = EPStore.get();
     return dueForecast(s.cards.map((c) => (s.cardSrs[c._id] || {}).sm2), 7);
   };
 
   // ===== Inteligencia de estudio =====
   // dominio por materia (0-100) a partir de avance representativo + estado de preguntas
-  window.intel = function () {
-    const s = window.EPStore.get();
-    const subjects = window.subjectNames();
+  const intel = function () {
+    const s = EPStore.get();
+    const subjects = subjectNames();
     const hoy = new Date().setHours(0, 0, 0, 0);
     const porMateria = subjects.map((subj) => {
       const qs = s.questions.filter((q) => q.subject === subj);
@@ -710,10 +715,10 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   // ===== Índice de preparación (¿estoy listo para el examen?) =====
-  window.readiness = function () {
-    const s = window.EPStore.get();
-    const x = window.intel();
-    const dias = window.daysToExam();
+  const readiness = function () {
+    const s = EPStore.get();
+    const x = intel();
+    const dias = daysToExam();
     const dominioProm = Math.round(x.porMateria.reduce((a, m) => a + m.dominio, 0) / x.porMateria.length);
     // tiempo estudiado últimos 7 días (min) y consistencia
     const hoy = new Date();
@@ -737,13 +742,13 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   // ===== XP y niveles (gamificación sobre el progreso real) =====
-  window.studyXP = function () {
-    const s = window.EPStore.get();
+  const studyXP = function () {
+    const s = EPStore.get();
     const studied = Object.values(s.cardSrs || {}).reduce((a, c) => a + (c.studied || 0), 0);
     const dominadas = (s.cards || []).filter((c) => c.nivel === "dominado").length;
     const sesiones = (s.sessions || []).filter((x) => x.state === "done").length;
     const minutos = Math.round((s.timeLog || []).reduce((a, t) => a + (t.seconds || 0), 0) / 60);
-    const xp = studied * 5 + dominadas * 10 + sesiones * 40 + minutos * 2 + window.realStreak() * 15;
+    const xp = studied * 5 + dominadas * 10 + sesiones * 40 + minutos * 2 + realStreak() * 15;
     // nivel: cada nivel n requiere 150*n xp acumulado incremental
     let level = 1, need = 150, acc = 0;
     while (xp >= acc + need) { acc += need; level++; need = 150 * level; }
@@ -754,8 +759,8 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   // ===== Detección de duplicados en el banco =====
-  window.dedupeGroups = function () {
-    const s = window.EPStore.get();
+  const dedupeGroups = function () {
+    const s = EPStore.get();
     const norm = (t) => (t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
     const map = {};
     (s.questions || []).forEach((q) => { const k = norm(q.q); if (!k) return; (map[k] = map[k] || []).push(q); });
@@ -765,8 +770,8 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   // ===== Curva de olvido: tarjetas por olvidar pronto (solo tarjetas ya repasadas) =====
   // Retención estimada R = 2^(-días desde el último repaso / intervalo SM-2): el intervalo
   // que programó SM-2 se usa como vida media. Sin historial de repaso no hay curva.
-  window.forgetting = function () {
-    const s = window.EPStore.get();
+  const forgetting = function () {
+    const s = EPStore.get();
     const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
     const list = [];
     (s.cards || []).forEach((c) => {
@@ -783,8 +788,8 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   // ===== Mejor hora para estudiar (según registros de tiempo reales) =====
-  window.bestHours = function () {
-    const s = window.EPStore.get();
+  const bestHours = function () {
+    const s = EPStore.get();
     const buckets = Array.from({ length: 24 }, () => 0);
     (s.timeLog || []).forEach((t) => { if (typeof t.hour === "number") buckets[t.hour] += Math.round((t.seconds || 0) / 60); });
     const total = buckets.reduce((a, b) => a + b, 0);
@@ -794,8 +799,8 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   // ===== Progreso semanal (días activos esta semana vs meta) =====
-  window.weeklyProgress = function () {
-    const s = window.EPStore.get();
+  const weeklyProgress = function () {
+    const s = EPStore.get();
     const now = new Date();
     const dow = (now.getDay() + 6) % 7; // lunes=0
     const monday = new Date(now); monday.setDate(now.getDate() - dow);
@@ -815,9 +820,9 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
 
   // ===== Matriz de confusión real: % de falladas por materia × dificultad =====
   // Celda = falladas / respondidas (ok + fall) de esa materia y dificultad; null sin datos.
-  window.confusionMatrix = function () {
-    const s = window.EPStore.get();
-    const subjects = window.subjectNames();
+  const confusionMatrix = function () {
+    const s = EPStore.get();
+    const subjects = subjectNames();
     const cols = ["Fácil", "Medio", "Difícil"];
     const keys = ["fácil", "medio", "difícil"];
     let answeredTotal = 0;
@@ -847,9 +852,9 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
   };
 
   // ===== Simulador de nota final: escenarios al 27-jul =====
-  window.scoreScenarios = function () {
-    const r = window.readiness();
-    const sim = window.EPStore.get().simHistory || [];
+  const scoreScenarios = function () {
+    const r = readiness();
+    const sim = EPStore.get().simHistory || [];
     const base = sim.length ? sim[sim.length - 1].global : r.notaProy;
     const dias = r.dias;
     // ritmo por escenario (puntos de nota ganados por semana restante)
@@ -866,4 +871,19 @@ import { sm2Grade, sm2Nivel, sm2Due, sm2Preview, dueForecast } from "../sm2";
       ],
     };
   };
-})();
+
+const EXPORTS = {
+  EPStore, useStore, undoableToast, subjectNames, categoryList, daysToExam, ordsFor,
+  realStreak, computeAchievements, generarPlan, todayPlan, smartStudy, srsPreview, srsNext,
+  dueCards, dueForecast7, intel, readiness, studyXP, dedupeGroups, forgetting, bestHours,
+  weeklyProgress, confusionMatrix, scoreScenarios,
+};
+// Doble publicación durante el refactor a ES modules: consumidores no migrados leen window.*.
+Object.assign(window, EXPORTS);
+
+export {
+  EPStore, useStore, undoableToast, subjectNames, categoryList, daysToExam, ordsFor,
+  realStreak, computeAchievements, generarPlan, todayPlan, smartStudy, srsPreview, srsNext,
+  dueCards, dueForecast7, intel, readiness, studyXP, dedupeGroups, forgetting, bestHours,
+  weeklyProgress, confusionMatrix, scoreScenarios,
+};
