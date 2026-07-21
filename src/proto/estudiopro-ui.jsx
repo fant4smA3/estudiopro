@@ -1,6 +1,11 @@
 /* EstudioPro · Prototipo — shell interactivo + helpers.
    La navegación se hace con NavCtx (función go(route)).
-   CSS vive en el HTML (clases proapp/soft/mist/source/ff-grotesk). */
+   CSS vive en el HTML (clases proapp/soft/mist/source/ff-grotesk).
+   Fase 1 del refactor a ES modules: exporta sus componentes/helpers y mantiene la doble
+   publicación en window.* (los screens y app.jsx aún los leen así). Importa React y
+   subjTextColor (banco migrado); el store sigue como window.* hasta que migre. */
+import React from "react";
+import { subjTextColor } from "./estudiopro-bank.jsx";
 
 const NavCtx = React.createContext(() => {});
 const useGo = () => React.useContext(NavCtx);
@@ -45,9 +50,8 @@ function SectionHead({ icon, title, desc, actions }) {
     </div>
   );
 }
-window.SectionHead = SectionHead;
 /* Secciones y páginas fuera del menú pero vivas (accesibles por botones, alias y ⌘K) */
-window.NAV_EXTRA = [
+const NAV_EXTRA = [
   ["crear-rapido", "Crear preguntas"],
   ["imprimir", "Hoja de repaso"],
   ["metas", "Metas semanales"],
@@ -87,10 +91,6 @@ function sidebarLayout() {
   // descarta ítems de páginas que ya no existen; conserva grupos/separadores/espacios
   return saved.filter((e) => e && e.t && (e.t !== "item" || NAV_LABELS[e.id])).map((e) => ({ ...e }));
 }
-window.NAV_LABELS = NAV_LABELS;
-window.sidebarDefault = sidebarDefault;
-window.sidebarLayout = sidebarLayout;
-
 /* Barra inferior móvil (≤720px): destinos al alcance del pulgar + botón central
    «Estudiar» que lanza la acción inteligente (window.smartStudy). */
 function TabBar({ active, onMore }) {
@@ -117,7 +117,6 @@ function TabBar({ active, onMore }) {
     </nav>
   );
 }
-window.TabBar = TabBar;
 
 function Topbar({ onMenu, onFocus, onDark, dark }) {
   const go = useGo();
@@ -195,7 +194,7 @@ function GlobalSearch() {
             ? <div className="gsearch-empty">Sin resultados para “{q}”</div>
             : results.map((r, i) => (
               <div className="gsearch-res" key={i} onClick={() => pick(r)}>
-                <span className="gsearch-kind" style={{ color: window.subjTextColor(r.subject) }}>{r.kind}</span>
+                <span className="gsearch-kind" style={{ color: subjTextColor(r.subject) }}>{r.kind}</span>
                 <span className="gsearch-label">{r.label}</span>
                 <span className="gsearch-subj">{r.subject}</span>
               </div>
@@ -215,7 +214,7 @@ function Side({ active, open }) {
     window.addEventListener("ep:editnav", h);
     return () => window.removeEventListener("ep:editnav", h);
   }, []);
-  const layout = window.sidebarLayout ? window.sidebarLayout() : [];
+  const layout = sidebarLayout();
   return (
     <nav className={"side" + (open ? " is-open" : "")}>
       <div className="side-list">
@@ -250,7 +249,7 @@ function Side({ active, open }) {
 /* Editor del menú lateral: reordenar, ocultar páginas y agregar/quitar separadores y espacios */
 function SidebarEditor({ open, onClose }) {
   const [draft, setDraft] = React.useState([]);
-  React.useEffect(() => { if (open) setDraft(window.sidebarLayout()); }, [open]);
+  React.useEffect(() => { if (open) setDraft(sidebarLayout()); }, [open]);
   const known = NAV_LABELS;
   const usedIds = new Set(draft.filter((e) => e.t === "item").map((e) => e.id));
   const hidden = Object.keys(known).filter((id) => !usedIds.has(id));
@@ -262,7 +261,7 @@ function SidebarEditor({ open, onClose }) {
   const removeAt = (i) => setDraft((a) => a.filter((_, k) => k !== i));
   const append = (entry) => setDraft((a) => [...a, entry]);
   const setLabel = (i, v) => setDraft((a) => a.map((e, k) => (k === i ? { ...e, label: v } : e)));
-  const save = () => { window.EPStore.setSidebar(draft); window.toast && window.toast("Menú actualizado", "ok"); onClose && onClose(); };
+  const save = () => { window.EPStore.setSidebar(draft); toast("Menú actualizado", "ok"); onClose && onClose(); };
 
   const badge = { grp: "grupo", sep: "separador", gap: "espacio", item: "ítem" };
   return (
@@ -305,7 +304,7 @@ function SidebarEditor({ open, onClose }) {
         )}
       </div>
       <div className="modal-f navedit-f">
-        <button type="button" className="btn" onClick={() => setDraft(window.sidebarDefault())}>Restablecer</button>
+        <button type="button" className="btn" onClick={() => setDraft(sidebarDefault())}>Restablecer</button>
         <span className="navedit-spacer"></span>
         <button type="button" className="btn" onClick={onClose}>Cancelar</button>
         <button type="button" className="btn btn-accent" onClick={save}>Guardar</button>
@@ -525,39 +524,46 @@ function Toast({ msg }) {
   return <div className="toast">{msg}</div>;
 }
 
-/* Toast host + global window.toast(msg, tone, action?)
+/* Toast host + toast(msg, tone, action?) — bus de notificaciones.
    action = { label, run }: muestra un botón (p. ej. «Deshacer») y alarga la duración. */
-(function () {
-  let pushFn = null;
-  window.toast = (msg, tone, action) => { if (pushFn) pushFn(msg, tone || "ok", action); };
-  window.ToastHost = function ToastHost() {
-    const [items, setItems] = React.useState([]);
-    React.useEffect(() => {
-      pushFn = (msg, tone, action) => {
-        const id = Date.now() + Math.random();
-        setItems((xs) => [...xs, { id, msg, tone, action }]);
-        setTimeout(() => setItems((xs) => xs.filter((x) => x.id !== id)), action ? 6000 : 2600);
-      };
-      return () => { pushFn = null; };
-    }, []);
-    const runAction = (t) => {
-      try { t.action.run(); } finally { setItems((xs) => xs.filter((x) => x.id !== t.id)); }
+let _toastPush = null;
+const toast = (msg, tone, action) => { if (_toastPush) _toastPush(msg, tone || "ok", action); };
+function ToastHost() {
+  const [items, setItems] = React.useState([]);
+  React.useEffect(() => {
+    _toastPush = (msg, tone, action) => {
+      const id = Date.now() + Math.random();
+      setItems((xs) => [...xs, { id, msg, tone, action }]);
+      setTimeout(() => setItems((xs) => xs.filter((x) => x.id !== id)), action ? 6000 : 2600);
     };
-    return (
-      <div className="toast-host">
-        {items.map((t) => (
-          <div key={t.id} className={"toast toast-" + t.tone}>
-            <span className="toast-ic">{t.tone === "danger" ? "⚠" : t.tone === "warn" ? "!" : "✓"}</span>
-            <span className="toast-msg">{t.msg}</span>
-            {t.action && <button type="button" className="toast-act" onClick={() => runAction(t)}>{t.action.label}</button>}
-          </div>
-        ))}
-      </div>
-    );
+    return () => { _toastPush = null; };
+  }, []);
+  const runAction = (t) => {
+    try { t.action.run(); } finally { setItems((xs) => xs.filter((x) => x.id !== t.id)); }
   };
-})();
+  return (
+    <div className="toast-host">
+      {items.map((t) => (
+        <div key={t.id} className={"toast toast-" + t.tone}>
+          <span className="toast-ic">{t.tone === "danger" ? "⚠" : t.tone === "warn" ? "!" : "✓"}</span>
+          <span className="toast-msg">{t.msg}</span>
+          {t.action && <button type="button" className="toast-act" onClick={() => runAction(t)}>{t.action.label}</button>}
+        </div>
+      ))}
+    </div>
+  );
+}
 
-Object.assign(window, {
-  NavCtx, useGo, NAV, Topbar, Side, Crumbs, PageHead, Panel, Diff, Switch,
-  EmptyState, Modal, ConfirmDialog, PromptDialog, ColorField, TaxEditDialog, Toast, ToastHost: window.ToastHost,
-});
+const EXPORTS = {
+  NavCtx, useGo, NAV, SectionHead, NAV_EXTRA, NAV_LABELS, sidebarDefault, sidebarLayout,
+  TabBar, Topbar, Side, Crumbs, PageHead, Panel, Diff, Switch,
+  EmptyState, Modal, ConfirmDialog, PromptDialog, ColorField, TaxEditDialog, Toast, ToastHost, toast,
+};
+// Doble publicación durante el refactor a ES modules: consumidores no migrados leen window.*.
+Object.assign(window, EXPORTS);
+
+export {
+  NavCtx, useGo, NAV, SectionHead, NAV_EXTRA, NAV_LABELS, sidebarDefault, sidebarLayout,
+  TabBar, Topbar, Side, Crumbs, PageHead, Panel, Diff, Switch,
+  EmptyState, Modal, ConfirmDialog, PromptDialog, ColorField, TaxEditDialog, Toast, ToastHost, toast,
+};
