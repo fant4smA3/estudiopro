@@ -1,7 +1,11 @@
 /* EstudioPro · Prototipo — Pantalla E: Creación rápida de preguntas.
    Solo escribes pregunta + respuesta correcta; el sistema genera 3 distractores
    eligiendo, del mismo tema, las respuestas más parecidas a la correcta. */
-const { useGo: useGoE, PageHead: PageHeadE, EmptyState: EmptyStateE, ConfirmDialog: ConfirmDialogE } = window;
+import React from "react";
+import { ConfirmDialog as ConfirmDialogE, EmptyState as EmptyStateE, PageHead as PageHeadE, toast, useGo as useGoE } from "./estudiopro-ui.jsx";
+import { EPStore, subjectNames, useStore } from "./estudiopro-store.jsx";
+import { subjColor, subjTextColor } from "./estudiopro-bank.jsx";
+import { MATERIA_DETAIL } from "./estudiopro-data.jsx";
 
 /* --- normalización + similitud de cadenas (para elegir distractores plausibles) --- */
 window.epNorm = (s) => (s || "").toString().toLowerCase()
@@ -23,7 +27,7 @@ window.epSimilar = (a, b) => {
 
 /* reúne respuestas candidatas del banco para una materia (correctas + distractores existentes) */
 window.epAnswerPool = (subject) => {
-  const st = window.EPStore.get();
+  const st = EPStore.get();
   const out = [];
   st.questions.forEach((q) => {
     if (q.subject !== subject) return;
@@ -50,7 +54,7 @@ window.epDistractors = (correct, subject, extraPool) => {
   consider([...(extraPool || []), ...window.epAnswerPool(subject)], true);
   // si hay muy pocos en el tema, completa con respuestas de otras materias
   if (cand.length < 3) {
-    const st = window.EPStore.get();
+    const st = EPStore.get();
     const others = [];
     st.questions.forEach((q) => {
       if (q.subject === subject) return;
@@ -74,11 +78,10 @@ const epShuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i
 
 function CreaRapido() {
   const go = useGoE();
-  const st = window.useStore();
-  const SUBJECTS = window.subjectNames();
-  const subjColor = window.subjColor;
-  const DETAIL = window.MATERIA_DETAIL || {};
-  const defSubj = (window.__epSubject && window.subjectNames().includes(window.__epSubject)) ? window.__epSubject : SUBJECTS[0];
+  const st = useStore();
+  const SUBJECTS = subjectNames();
+  const DETAIL = MATERIA_DETAIL || {};
+  const defSubj = (window.__epSubject && subjectNames().includes(window.__epSubject)) ? window.__epSubject : SUBJECTS[0];
 
   // ordenamientos y capítulos disponibles según el destino elegido
   const ordsForSubject = (subj) => {
@@ -124,7 +127,7 @@ function CreaRapido() {
       const others = rows.filter((r) => r.key !== row.key && r.a.trim()).map((r) => r.a.trim());
       const distractors = (row.opts && row.opts.length === 3) ? row.opts : window.epDistractors(correct, dest.subject, others);
       const options = epShuffle([correct, ...distractors]);
-      window.EPStore.addQuestion({
+      EPStore.addQuestion({
         subject: dest.subject, q: row.q.trim(), type: "OM", dif: "medio", status: "nuevo",
         options, answer: options.indexOf(correct), tags: [], explain: "",
         ord: dest.ord || "", loc: dest.cap || (dest.ord ? "" : "Creación rápida"),
@@ -132,7 +135,7 @@ function CreaRapido() {
       n++;
     });
     setSavedN(n); setSaved(true);
-    window.toast && window.toast(n + " pregunta(s) guardada(s) en " + dest.subject, "ok");
+    toast && toast(n + " pregunta(s) guardada(s) en " + dest.subject, "ok");
   };
 
   if (saved) {
@@ -161,7 +164,7 @@ function CreaRapido() {
       <div className="qr-dest" style={{ borderTop: "3px solid " + color }}>
         <div className="qr-dest-h">
           <span className="qr-dest-tag">Destino de las preguntas</span>
-          <span className="qr-dest-sum">Se guardarán todas en <b style={{ color: window.subjTextColor(dest.subject) }}>{dest.subject}</b>{dest.ord ? <span> · {dest.ord}</span> : null}{dest.cap ? <span> · {dest.cap}</span> : null}</span>
+          <span className="qr-dest-sum">Se guardarán todas en <b style={{ color: subjTextColor(dest.subject) }}>{dest.subject}</b>{dest.ord ? <span> · {dest.ord}</span> : null}{dest.cap ? <span> · {dest.cap}</span> : null}</span>
         </div>
         <div className="qr-dest-grid">
           <div className="field">

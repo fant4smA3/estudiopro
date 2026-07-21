@@ -1,5 +1,8 @@
 /* EstudioPro · Prototipo — Pantallas D: Calendario, Simulacro (config + bloques), Alertas */
-const { useGo: useGoD, PageHead: PageHeadD, Panel: PanelD, Diff: DiffD, Crumbs: CrumbsD } = window;
+import React from "react";
+import { ConfirmDialog, Crumbs as CrumbsD, Diff as DiffD, EmptyState, PageHead as PageHeadD, Panel, Panel as PanelD, SectionHead, Switch, toast, useGo as useGoD } from "./estudiopro-ui.jsx";
+import { EPStore, generarPlan, intel, subjectNames, useStore } from "./estudiopro-store.jsx";
+import { subjColor, subjShort, subjTextColor, TYPE_LABEL } from "./estudiopro-bank.jsx";
 
 /* ============================ CALENDARIO + EDITOR DEL PLAN ============================
    Una sola página: el mes es editable (arrastra un día sobre otro para intercambiarlos,
@@ -7,9 +10,7 @@ const { useGo: useGoD, PageHead: PageHeadD, Panel: PanelD, Diff: DiffD, Crumbs: 
    mover a otra fecha o quitarlo. La pestaña Lista conserva el reordenado lineal. */
 function Calendario() {
   const go = useGoD();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const { ConfirmDialog } = window;
+  const st = useStore();
   const [cursor, setCursor] = React.useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const [sel, setSel] = React.useState(null);
   const [vista, setVista] = React.useState("mes");     // mes | lista
@@ -19,7 +20,7 @@ function Calendario() {
   const [overIdx, setOverIdx] = React.useState(null);
   const [confirmRegen, setConfirmRegen] = React.useState(false);
   const [moveTo, setMoveTo] = React.useState("");
-  React.useEffect(() => { if (!st.plan.generado) window.generarPlan(); }, []);
+  React.useEffect(() => { if (!st.plan.generado) generarPlan(); }, []);
   const dias = (st.plan.dias || []).slice().sort((a, b) => a.fecha.localeCompare(b.fecha));
   const byDate = {}; dias.forEach((d) => { byDate[d.fecha] = d; });
 
@@ -53,28 +54,28 @@ function Calendario() {
     if (to) {
       // intercambio: el contenido (y su estado) viaja; las fechas quedan fijas
       nuevo = dias.map((d) => d.fecha === fromFecha ? { ...to, fecha: fromFecha } : d.fecha === toFecha ? { ...from, fecha: toFecha } : d);
-      window.toast && window.toast("Días intercambiados", "ok");
+      toast && toast("Días intercambiados", "ok");
     } else {
       nuevo = dias.map((d) => d.fecha === fromFecha ? { ...d, fecha: toFecha } : d);
-      window.toast && window.toast("Día movido al " + new Date(toFecha + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short" }), "ok");
+      toast && toast("Día movido al " + new Date(toFecha + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short" }), "ok");
     }
-    window.EPStore.updatePlan(nuevo.sort((a, b) => a.fecha.localeCompare(b.fecha)));
+    EPStore.updatePlan(nuevo.sort((a, b) => a.fecha.localeCompare(b.fecha)));
     return true;
   };
   const removeDay = (d) => {
-    window.EPStore.updatePlan(dias.filter((x) => x.fecha !== d.fecha));
+    EPStore.updatePlan(dias.filter((x) => x.fecha !== d.fecha));
     setSel(null);
-    window.toast && window.toast("Día quitado del plan", "ok");
+    toast && toast("Día quitado del plan", "ok");
   };
   const setEstado = (d, estado) => {
-    window.EPStore.setPlanDayState(d.fecha, estado);
+    EPStore.setPlanDayState(d.fecha, estado);
     setSel({ ...d, estado });
-    window.toast && window.toast(estado === "hecho" ? "Día marcado como estudiado" : "Día marcado como pendiente", "ok");
+    toast && toast(estado === "hecho" ? "Día marcado como estudiado" : "Día marcado como pendiente", "ok");
   };
   // vista lista: arrastrar reordena los contenidos sobre las fechas fijas (editor clásico)
   const commitLista = (arr) => {
     const fechas = dias.map((d) => d.fecha);
-    window.EPStore.updatePlan(arr.map((d, i) => ({ ...d, fecha: fechas[i] })));
+    EPStore.updatePlan(arr.map((d, i) => ({ ...d, fecha: fechas[i] })));
   };
   const onDropLista = (idx) => {
     if (dragIdx === null || dragIdx === idx) { setDragIdx(null); setOverIdx(null); return; }
@@ -82,14 +83,14 @@ function Calendario() {
     const [it] = arr.splice(dragIdx, 1);
     arr.splice(idx, 0, it);
     commitLista(arr); setDragIdx(null); setOverIdx(null);
-    window.toast && window.toast("Plan reprogramado", "ok");
+    toast && toast("Plan reprogramado", "ok");
   };
 
   const openDay = (dd) => { const d = byDate[fmt(dd)]; if (d) { setSel(d); setMoveTo(""); } };
   const startDay = (d) => {
     if (d.tipo === "simulacro") { go("simulacro"); return; }
     window.__epSimulacro = false; window.__epSubject = d.subject;
-    window.EPStore.setNav({ subject: d.subject, ord: d.ord, mode: "practica" });
+    EPStore.setNav({ subject: d.subject, ord: d.ord, mode: "practica" });
     go("quiz");
   };
 
@@ -142,7 +143,7 @@ function Calendario() {
                 onDragEnd={() => { setDragDate(null); setOverDate(null); }}>
                 <span className="cal-num">{dd}{isExam && <span className="cal-examflag">EXAMEN</span>}</span>
                 {d && d.tipo === "simulacro" && <span className="cal-chip cal-chip-sim">Simulacro 200</span>}
-                {d && d.tipo === "estudio" && <span className="cal-chip" style={{ background: c + "22", color: window.subjTextColor(d.subject) }}><i className="cal-dot" style={{ background: c }}></i>{window.subjShort(d.subject)}</span>}
+                {d && d.tipo === "estudio" && <span className="cal-chip" style={{ background: c + "22", color: subjTextColor(d.subject) }}><i className="cal-dot" style={{ background: c }}></i>{subjShort(d.subject)}</span>}
                 {d && d.tipo === "repaso" && <span className="cal-chip cal-chip-rep">Repaso</span>}
                 {d && d.titulo && d.tipo !== "simulacro" && <span className="cal-cap">{d.titulo.replace(/^(Cap\.|Libro|Título)\s*/, "")}</span>}
                 {d && <span className={"cal-state " + (estadoCls[d.estado] || "")}></span>}
@@ -176,7 +177,7 @@ function Calendario() {
               </div>
               <span className={"plan-ed-chip plan-ed-" + d.tipo}>{d.tipo}</span>
               <span className="plan-ed-min">{d.min}′</span>
-              <button className={"plan-ed-done" + (d.estado === "hecho" ? " is-on" : "")} onClick={(e) => { e.stopPropagation(); window.EPStore.setPlanDayState(d.fecha, d.estado === "hecho" ? "pendiente" : "hecho"); }} title="Marcar hecho" aria-label={"Marcar " + (d.estado === "hecho" ? "pendiente" : "hecho")}>✓</button>
+              <button className={"plan-ed-done" + (d.estado === "hecho" ? " is-on" : "")} onClick={(e) => { e.stopPropagation(); EPStore.setPlanDayState(d.fecha, d.estado === "hecho" ? "pendiente" : "hecho"); }} title="Marcar hecho" aria-label={"Marcar " + (d.estado === "hecho" ? "pendiente" : "hecho")}>✓</button>
             </div>
           );
         })}
@@ -221,7 +222,7 @@ function Calendario() {
         body="Se creará un plan nuevo desde hoy hasta el examen y se perderán los cambios manuales (días movidos, intercambiados o quitados)."
         confirmLabel="Regenerar plan" danger
         onClose={() => setConfirmRegen(false)}
-        onConfirm={() => { window.generarPlan(); setConfirmRegen(false); window.toast && window.toast("Plan regenerado", "ok"); }} />
+        onConfirm={() => { generarPlan(); setConfirmRegen(false); toast && toast("Plan regenerado", "ok"); }} />
     </main>
   );
 }
@@ -230,9 +231,8 @@ window.Calendario = Calendario;
 /* ====================== SIMULACRO (config + bloques) ====================== */
 function SimulacroBody() {
   const go = useGoD();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const SUBJECTS = window.subjectNames();
+  const st = useStore();
+  const SUBJECTS = subjectNames();
   const DEF = { "Legislación Militar": 40, "Operaciones Militares": 35, "Normatividad Gubernamental": 35, "Aspecto Administrativo": 25, "Adiestramiento y Mando Militar": 30, "Aspecto Técnico": 35 };
   const [dist, setDist] = React.useState(DEF);
   const [modo, setModo] = React.useState("aleatorio");
@@ -249,7 +249,7 @@ function SimulacroBody() {
 
   return (
     <React.Fragment>
-      <window.SectionHead icon="📝" title="Simulacro de examen" desc="200 preguntas · 120 + 15 descanso + 120 min" />
+      <SectionHead icon="📝" title="Simulacro de examen" desc="200 preguntas · 120 + 15 descanso + 120 min" />
 
       <div className="quiz-config">
         <div className="qc-main">
@@ -319,7 +319,7 @@ function SimulacroBody() {
             {effTotal < total && <div className="qc-sum-row"><span>Disponibles</span><b>{effTotal} en tu banco</b></div>}
             <div className="qc-sum-est">{effTotal === 0 ? "Tu banco no tiene preguntas para esta selección" : (ok && effTotal === 200 ? "Listo para iniciar" : effTotal < total ? "Se usarán las " + effTotal + " disponibles" : "Ajusta a 200 preguntas")}</div>
             <button className="btn btn-accent btn-lg" style={{ width: "100%" }} disabled={effTotal === 0}
-              onClick={() => { window.EPStore.setNav({ simDist: dist, simFiltro: modo === "filtros" ? filtro : "ninguno" }); go("simrun"); }}>Iniciar simulacro ▸</button>
+              onClick={() => { EPStore.setNav({ simDist: dist, simFiltro: modo === "filtros" ? filtro : "ninguno" }); go("simrun"); }}>Iniciar simulacro ▸</button>
           </div>
         </aside>
       </div>
@@ -331,14 +331,13 @@ window.SimulacroBody = SimulacroBody;
 /* ====================== SIMULACRO en curso (2 bloques + descanso) ====================== */
 function SimRun() {
   const go = useGoD();
-  const { TYPE_LABEL, ConfirmDialog } = window;
   // pool real: preguntas del banco según la distribución configurada, sin repetición
   const pool = React.useMemo(() => {
-    const nav = (window.EPStore.getNav && window.EPStore.getNav()) || {};
+    const nav = (EPStore.getNav && EPStore.getNav()) || {};
     const dist = nav.simDist || { "Legislación Militar": 40, "Operaciones Militares": 35, "Normatividad Gubernamental": 35, "Aspecto Administrativo": 25, "Adiestramiento y Mando Militar": 30, "Aspecto Técnico": 35 };
     const filtro = nav.simFiltro || "ninguno";
     const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-    let bank = (window.EPStore.get().questions || []).filter((q) => q.type !== "AB");
+    let bank = (EPStore.get().questions || []).filter((q) => q.type !== "AB");
     if (filtro === "solo falladas") bank = bank.filter((q) => q.status === "fall");
     else if (filtro === "importantes") bank = bank.filter((q) => q.status === "imp");
     else if (filtro === "difíciles") bank = bank.filter((q) => q.dif === "difícil");
@@ -392,17 +391,17 @@ function SimRun() {
     const score = total ? +(correct / total * 10).toFixed(1) : 0;
     // registra el simulacro en el histórico de Evolución (global + por materia)
     const byS = {}; Object.entries(byMat).forEach(([k, v]) => { byS[k] = v.total ? +(v.ok / v.total * 10).toFixed(1) : 0; });
-    window.EPStore.addSimResult({ global: score, byS });
+    EPStore.addSimResult({ global: score, byS });
     // marca el banco real con el desempeño del simulacro
     const seen = {}; pool.forEach((qq, k) => { if (qq._id) seen[qq._id] = { id: qq._id, correct: answers[k] === qq.answer }; });
-    window.EPStore.applyQuizResults(Object.values(seen));
+    EPStore.applyQuizResults(Object.values(seen));
     const el = elapsedRef.current;
     const time = String(Math.floor(el / 60)).padStart(2, "0") + ":" + String(el % 60).padStart(2, "0");
     const missed = pool.map((qq, k) => ({ q: qq.q, loc: qq.loc, ord: qq.ord, ok: answers[k] === qq.answer })).filter((m) => !m.ok);
-    window.EPStore.setLastResult({ subject: "Simulacro general", total, correct, wrong: total - correct, time, score, isSim: true,
+    EPStore.setLastResult({ subject: "Simulacro general", total, correct, wrong: total - correct, time, score, isSim: true,
       byChapter: Object.fromEntries(Object.entries(byMat).map(([k, v]) => [k, v])), missed });
-    window.EPStore.addSession({ subject: "Simulacro general", label: "Simulacro general · " + total + " preg", n: total, time, score, date: new Date().toISOString().slice(0, 10), state: "done" });
-    window.EPStore.bumpToday(answers.filter((a) => a !== null).length);
+    EPStore.addSession({ subject: "Simulacro general", label: "Simulacro general · " + total + " preg", n: total, time, score, date: new Date().toISOString().slice(0, 10), state: "done" });
+    EPStore.bumpToday(answers.filter((a) => a !== null).length);
     setPhase("done");
   };
   // banco sin preguntas para la selección: estado vacío en lugar de sesión
@@ -410,7 +409,7 @@ function SimRun() {
     return (
       <main className="main main-center">
         <div className="card-stage">
-          <window.EmptyState icon="⌕" title="No hay preguntas para el simulacro"
+          <EmptyState icon="⌕" title="No hay preguntas para el simulacro"
             desc="Tu banco no tiene preguntas calificables para la distribución elegida. Importa o crea preguntas primero."
             actions={<React.Fragment>
               <button className="btn" onClick={() => go("simulacro")}>‹ Ajustar simulacro</button>
@@ -435,7 +434,7 @@ function SimRun() {
     );
   }
   if (phase === "done") {
-    const r = window.EPStore.get().lastResult;
+    const r = EPStore.get().lastResult;
     return (
       <main className="main main-center">
         <div className="rest-screen">
@@ -474,7 +473,7 @@ function SimRun() {
           <div className="q-head">
             <span className="type-tag">{TYPE_LABEL[q.type] || q.type}</span>
             <DiffD level={q.dif} />
-            <span className="q-tag" style={{ color: window.subjTextColor(q.subject), fontWeight: 700 }}>{q.subject}</span>
+            <span className="q-tag" style={{ color: subjTextColor(q.subject), fontWeight: 700 }}>{q.subject}</span>
             {flags[cur] && <span className="q-flagged">★ marcada</span>}
           </div>
           <div className="q-text">{q.q}</div>
@@ -529,12 +528,11 @@ function AlertasBody() {
   const [cfg, setCfg] = React.useState({ diaria: true, vencidas: true, simulacro: true, racha: true, meta: false });
   const [perm, setPerm] = React.useState(typeof Notification !== "undefined" ? Notification.permission : "unsupported");
   const pedirPermiso = async () => {
-    if (typeof Notification === "undefined") { setPerm("unsupported"); window.toast && window.toast("Navegador sin soporte de notificaciones", "warn"); return; }
+    if (typeof Notification === "undefined") { setPerm("unsupported"); toast && toast("Navegador sin soporte de notificaciones", "warn"); return; }
     const p = await Notification.requestPermission(); setPerm(p);
     if (p === "granted") window.epNotify("Notificaciones activadas", "Te avisaremos de tus repasos y simulacros.");
   };
   const t = (k) => setCfg((p) => ({ ...p, [k]: !p[k] }));
-  const Switch = window.Switch;
   const alerts = [
     ["diaria", "🗓️", "Recordatorio de sesión diaria", "Hoy toca Legislación · CJM Libro Primero", "8:00 a.m.", "var(--accent)"],
     ["vencidas", "🔁", "Tarjetas vencidas", "Tienes 58 tarjetas para repasar hoy", "9:00 a.m.", "#A0742A"],
@@ -544,7 +542,7 @@ function AlertasBody() {
   ];
   return (
     <React.Fragment>
-      <window.SectionHead icon="🔔" title="Alertas y recordatorios" desc="Notificaciones del plan de estudio" />
+      <SectionHead icon="🔔" title="Alertas y recordatorios" desc="Notificaciones del plan de estudio" />
 
       <Panel idx="01" title="Próximas notificaciones">
         <div className="alert-list">
@@ -598,8 +596,7 @@ window.AlertasBody = AlertasBody;
 /* ====================== REPASO PRIORITARIO (cola SRS) ====================== */
 function RepasoPrioritario() {
   const go = useGoD();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+  const st = useStore();
   // construye la cola con el orden del plan §5: falladas → importantes → vencidas → nuevas
   const falladas = st.questions.filter((q) => q.status === "fall");
   const importantes = st.questions.filter((q) => q.status === "imp");
@@ -615,7 +612,7 @@ function RepasoPrioritario() {
   const startTier = (t) => {
     if (t.kind === "tarj") { window.__epSubject = null; go("tarjetas"); return; }
     window.__epSimulacro = false; window.__epSubject = (t.items[0] && t.items[0].subject) || "Legislación Militar";
-    window.EPStore.setNav({ subject: window.__epSubject, mode: "practica", filter: t.label === "Falladas" ? "fall" : t.label === "Importantes" ? "imp" : null });
+    EPStore.setNav({ subject: window.__epSubject, mode: "practica", filter: t.label === "Falladas" ? "fall" : t.label === "Importantes" ? "imp" : null });
     go("quiz");
   };
   return (
@@ -673,7 +670,6 @@ window.RepasoPrioritario = RepasoPrioritario;
 /* ====================== SESIÓN DE HOY (modo enfoque) ====================== */
 function SesionHoy() {
   const go = useGoD();
-  const subjColor = window.subjColor;
   const ses = window.__epSesion || { subject: "Legislación Militar", ord: "Código de Justicia Militar", titulo: "Libro Primero", step: 0 };
   const color = subjColor(ses.subject);
   const [step, setStep] = React.useState(ses.step || 0);
@@ -684,8 +680,8 @@ function SesionHoy() {
   ];
   const advance = () => setStep((s) => Math.min(3, s + 1));
   const goAction = (i) => {
-    if (i === 1) { window.__epSubject = ses.subject; window.EPStore.setNav({ subject: ses.subject, ord: ses.ord, mode: "practica" }); go("tarjetas"); }
-    if (i === 2) { window.__epSimulacro = false; window.__epSubject = ses.subject; window.EPStore.setNav({ subject: ses.subject, ord: ses.ord, mode: "practica" }); go("quiz"); }
+    if (i === 1) { window.__epSubject = ses.subject; EPStore.setNav({ subject: ses.subject, ord: ses.ord, mode: "practica" }); go("tarjetas"); }
+    if (i === 2) { window.__epSimulacro = false; window.__epSubject = ses.subject; EPStore.setNav({ subject: ses.subject, ord: ses.ord, mode: "practica" }); go("quiz"); }
   };
   return (
     <main className="main main-center">
@@ -693,7 +689,7 @@ function SesionHoy() {
         <CrumbsD path={[["Inicio", "inicio"], "Sesión de hoy"]} />
         <div className="study-top">
           <div className="study-meta">
-            <span className="study-meta-tag" style={{ color: window.subjTextColor(ses.subject) }}>Sesión de estudio · modo enfoque</span>
+            <span className="study-meta-tag" style={{ color: subjTextColor(ses.subject) }}>Sesión de estudio · modo enfoque</span>
             <span className="study-meta-name">{ses.subject} · {ses.titulo}</span>
           </div>
           <div className="sesion-prog"><span className="sp-n">{Math.min(step, 3)} / 3</span><div className="mini-bar mini-bar-wide" style={{ width: "180px" }}><i style={{ width: (Math.min(step, 3) / 3 * 100) + "%", background: color }}></i></div></div>
@@ -738,8 +734,7 @@ window.SesionHoy = SesionHoy;
 /* ====================== ONBOARDING GUIADO (multipaso) ====================== */
 function Onboarding() {
   const go = useGoD();
-  const subjColor = window.subjColor;
-  const SUBJECTS = window.subjectNames();
+  const SUBJECTS = subjectNames();
   const [step, setStep] = React.useState(0);
   const [examDate, setExamDate] = React.useState("2026-07-27");
   const [activeSubj, setActiveSubj] = React.useState(() => { const o = {}; SUBJECTS.forEach((s) => o[s] = true); return o; });
@@ -751,11 +746,11 @@ function Onboarding() {
   const finish = () => {
     const map = { L: 1, M: 2, X: 3, J: 4, V: 5, S: 6, D: 0 };
     const diasNum = Object.keys(dias).filter((k) => dias[k]).map((k) => map[k]);
-    window.EPStore.setExamDate(examDate);
-    window.EPStore.setGoal(goal);
-    window.EPStore.setDias(diasNum);
-    window.generarPlan();
-    window.toast && window.toast("Plan de estudio generado", "ok");
+    EPStore.setExamDate(examDate);
+    EPStore.setGoal(goal);
+    EPStore.setDias(diasNum);
+    generarPlan();
+    toast && toast("Plan de estudio generado", "ok");
     go("calendario");
   };
   return (
@@ -841,19 +836,18 @@ window.Onboarding = Onboarding;
 /* ====================== INTELIGENCIA DE ESTUDIO ====================== */
 function InteligenciaBody() {
   const go = useGoD();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const x = window.intel();
+  const st = useStore();
+  const x = intel();
   const notaCls = x.nota >= 8 ? "rs-ok" : x.nota >= 6 ? "rs-warn" : "rs-bad";
   const recoIc = { debil: "🎯", fall: "🔁", olvido: "🕓", nota: "📈" };
   const startSubj = (subj, filter) => {
     window.__epSimulacro = false; window.__epSubject = subj;
-    window.EPStore.setNav({ subject: subj, mode: "practica", filter: filter || null });
+    EPStore.setNav({ subject: subj, mode: "practica", filter: filter || null });
     go("quiz");
   };
   return (
     <React.Fragment>
-      <window.SectionHead icon="🧠" title="Inteligencia de estudio" desc="Análisis de tu desempeño y qué estudiar a continuación" />
+      <SectionHead icon="🧠" title="Inteligencia de estudio" desc="Análisis de tu desempeño y qué estudiar a continuación" />
 
       {/* Predicción de nota */}
       <div className="intel-hero">
@@ -967,4 +961,3 @@ function InteligenciaBody() {
 window.InteligenciaBody = InteligenciaBody;
 
 /* helper local: Panel ya viene del window */
-const Panel = window.Panel;

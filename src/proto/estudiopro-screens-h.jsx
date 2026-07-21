@@ -1,15 +1,18 @@
 /* EstudioPro · Prototipo — Pantallas nuevas (H): Preparación, Evolución, Mapa del temario, Respaldo, Reportes. */
-const { useGo: useGoH, Panel: PanelH, EmptyState: EmptyStateH } = window;
+import React from "react";
+import { ConfirmDialog, EmptyState as EmptyStateH, Modal, Panel as PanelH, SectionHead, toast, useGo as useGoH } from "./estudiopro-ui.jsx";
+import { EPStore, readiness, subjectNames, useStore } from "./estudiopro-store.jsx";
+import { subjColor } from "./estudiopro-bank.jsx";
+import { MATERIA_DETAIL } from "./estudiopro-data.jsx";
 
-const hSubjects = () => window.subjectNames();
+const hSubjects = () => subjectNames();
 const hHash = (s) => { let h = 0; for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) >>> 0; } return h; };
 
 /* ============================ ÍNDICE DE PREPARACIÓN ============================ */
 function PreparacionBody() {
   const go = useGoH();
-  const _st = window.useStore();
-  const subjColor = window.subjColor;
-  const r = window.readiness();
+  const _st = useStore();
+  const r = readiness();
   const nivelColor = { "listo": "var(--ok)", "en-camino": "var(--accent)", "atención": "var(--warn)", "riesgo": "var(--danger)" }[r.nivel];
   const R = 92, C = 2 * Math.PI * R, frac = r.prob / 100;
 
@@ -24,7 +27,7 @@ function PreparacionBody() {
 
   return (
     <React.Fragment>
-      <window.SectionHead icon="🎯" title="Índice de preparación" desc="¿Qué tan listo estás para el examen?" />
+      <SectionHead icon="🎯" title="Índice de preparación" desc="¿Qué tan listo estás para el examen?" />
       <section className="panel prep-hero">
         <div className="prep-gauge-wrap">
           <svg viewBox="0 0 220 220" className="prep-gauge">
@@ -84,14 +87,13 @@ function PreparacionBody() {
 
 /* ============================ EVOLUCIÓN DE SIMULACROS ============================ */
 function EvolucionBody() {
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+  const st = useStore();
   const SUBJECTS = hSubjects();
   const hist = (st.simHistory || []).slice().sort((a, b) => a.date.localeCompare(b.date));
   const [foco, setFoco] = React.useState("global");
 
   if (hist.length < 2) {
-    return (<React.Fragment><window.SectionHead icon="📈" title="Evolución de simulacros" desc="Tendencia de tu nota hacia el examen" />
+    return (<React.Fragment><SectionHead icon="📈" title="Evolución de simulacros" desc="Tendencia de tu nota hacia el examen" />
       <EmptyStateH icon="📈" title="Aún no hay suficientes simulacros" desc="Completa al menos dos simulacros para ver tu tendencia." /></React.Fragment>);
   }
 
@@ -115,7 +117,7 @@ function EvolucionBody() {
 
   return (
     <React.Fragment>
-      <window.SectionHead icon="📈" title="Evolución de simulacros" desc="Tendencia de tu nota global y por materia hacia el examen" />
+      <SectionHead icon="📈" title="Evolución de simulacros" desc="Tendencia de tu nota global y por materia hacia el examen" />
       <div className="prep-kpis">
         <div className="kpi prep-kpi"><div className="kpi-v">{last.global}</div><div className="kpi-l">Último simulacro</div></div>
         <div className="kpi prep-kpi"><div className="kpi-v" style={{ color: mejora >= 0 ? "var(--ok)" : "var(--danger)" }}>{(mejora >= 0 ? "+" : "") + mejora}</div><div className="kpi-l">Mejora total</div></div>
@@ -186,10 +188,9 @@ function EvolucionBody() {
 /* ============================ MAPA DE CALOR DEL TEMARIO ============================ */
 function MapaTemarioBody() {
   const go = useGoH();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+  const st = useStore();
   const SUBJECTS = hSubjects();
-  const DETAIL = window.MATERIA_DETAIL || {};
+  const DETAIL = MATERIA_DETAIL || {};
   const [foco, setFoco] = React.useState("todas");
 
   // dominio estimado por capítulo: mezcla estado real de preguntas del ordenamiento + señal estable por hash
@@ -214,7 +215,7 @@ function MapaTemarioBody() {
 
   return (
     <React.Fragment>
-      <window.SectionHead icon="🗺" title="Mapa del temario" desc="Dominio estimado capítulo por capítulo — detecta tus huecos"
+      <SectionHead icon="🗺" title="Mapa del temario" desc="Dominio estimado capítulo por capítulo — detecta tus huecos"
         actions={<select className="input" aria-label="Materia en foco" value={foco} onChange={(e) => setFoco(e.target.value)} style={{ maxWidth: "220px" }}>
           <option value="todas">Todas las materias</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}
         </select>} />
@@ -259,8 +260,7 @@ function MapaTemarioBody() {
 
 /* ============================ RESPALDO (exportar / importar JSON) ============================ */
 function RespaldoBody() {
-  const st = window.useStore();
-  const { ConfirmDialog } = window;
+  const st = useStore();
   const fileRef = React.useRef(null);
   const [pending, setPending] = React.useState(null); // payload leído a confirmar
   const [info, setInfo] = React.useState(null);
@@ -273,10 +273,10 @@ function RespaldoBody() {
   const doRestoreBackup = () => {
     const date = restoreDate; setRestoreDate(null);
     window.epBackups.get(date).then((snap) => {
-      if (!snap) { window.toast && window.toast("No se encontró la copia", "danger"); return; }
-      const res = window.EPStore.importJSON({ data: snap });
-      if (res.ok) window.toast && window.toast("Copia del " + date + " restaurada (" + res.n + " preguntas)", "ok");
-      else window.toast && window.toast(res.msg || "No se pudo restaurar", "danger");
+      if (!snap) { toast && toast("No se encontró la copia", "danger"); return; }
+      const res = EPStore.importJSON({ data: snap });
+      if (res.ok) toast && toast("Copia del " + date + " restaurada (" + res.n + " preguntas)", "ok");
+      else toast && toast(res.msg || "No se pudo restaurar", "danger");
     });
   };
   // recordatorio: días desde la última exportación (null = nunca)
@@ -291,11 +291,11 @@ function RespaldoBody() {
       .then(() => fetch("data/progreso-prueba.json"))
       .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
       .then((payload) => {
-        const res = window.EPStore.importJSON(payload);
-        if (res.ok) window.toast && window.toast("Datos de prueba cargados: " + res.n.toLocaleString("es-MX") + " preguntas con progreso al 80%", "ok");
-        else window.toast && window.toast(res.msg || "No se pudo cargar", "danger");
+        const res = EPStore.importJSON(payload);
+        if (res.ok) toast && toast("Datos de prueba cargados: " + res.n.toLocaleString("es-MX") + " preguntas con progreso al 80%", "ok");
+        else toast && toast(res.msg || "No se pudo cargar", "danger");
       })
-      .catch(() => window.toast && window.toast("No se pudieron descargar los datos de prueba. Revisa tu conexión.", "danger"))
+      .catch(() => toast && toast("No se pudieron descargar los datos de prueba. Revisa tu conexión.", "danger"))
       .finally(() => setDemoBusy(false));
   };
 
@@ -317,21 +317,21 @@ function RespaldoBody() {
         const d = payload.data || payload;
         setInfo({ q: (d.questions || []).length, n: Object.keys(d.notes || {}).length, s: (d.sessions || []).length });
         setPending(payload);
-      } catch { window.toast && window.toast("Archivo inválido o corrupto", "danger"); }
+      } catch { toast && toast("Archivo inválido o corrupto", "danger"); }
     };
     rd.readAsText(f);
     e.target.value = "";
   };
   const doImport = () => {
-    const res = window.EPStore.importJSON(pending);
+    const res = EPStore.importJSON(pending);
     setPending(null); setInfo(null);
-    if (res.ok) window.toast && window.toast("Respaldo restaurado (" + res.n + " preguntas)" + (res.dropped ? " · " + res.dropped + " entradas inválidas omitidas" : ""), res.dropped ? "warn" : "ok");
-    else window.toast && window.toast(res.msg || "No se pudo importar", "danger");
+    if (res.ok) toast && toast("Respaldo restaurado (" + res.n + " preguntas)" + (res.dropped ? " · " + res.dropped + " entradas inválidas omitidas" : ""), res.dropped ? "warn" : "ok");
+    else toast && toast(res.msg || "No se pudo importar", "danger");
   };
 
   return (
     <React.Fragment>
-      <window.SectionHead icon="🛟" title="Respaldo y copias" desc="Exporta tu progreso, restáuralo o usa las copias automáticas" />
+      <SectionHead icon="🛟" title="Respaldo y copias" desc="Exporta tu progreso, restáuralo o usa las copias automáticas" />
       <div className="prep-kpis">
         {stats.map(([l, v]) => <div className="kpi prep-kpi" key={l}><div className="kpi-v">{v}</div><div className="kpi-l">{l}</div></div>)}
       </div>
@@ -346,7 +346,7 @@ function RespaldoBody() {
               (recordar ? "⚠ " : "✓ ") + "Última exportación hace " + diasSinExportar + " día" + (diasSinExportar === 1 ? "" : "s") + "."}
             {recordar && " iOS puede purgar datos locales: exporta ahora."}
           </p>
-          <button className="btn btn-accent btn-lg" onClick={() => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); }}>Descargar respaldo</button>
+          <button className="btn btn-accent btn-lg" onClick={() => { EPStore.exportJSON(); toast && toast("Respaldo descargado", "ok"); }}>Descargar respaldo</button>
         </section>
         <section className="panel resp-card">
           <div className="resp-ic">⬆</div>
@@ -407,9 +407,7 @@ function RespaldoBody() {
 /* ============================ REPORTES DE ERRORES DEL BANCO ============================ */
 function ReportesBody() {
   const go = useGoH();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const { Modal } = window;
+  const st = useStore();
   const [open, setOpen] = React.useState(false);
   const [q, setQ] = React.useState("");
   const [pickId, setPickId] = React.useState(null);
@@ -426,14 +424,14 @@ function ReportesBody() {
 
   const submit = () => {
     if (!pickId) return;
-    window.EPStore.reportQuestion(pickId, { reason, note });
+    EPStore.reportQuestion(pickId, { reason, note });
     setOpen(false); setPickId(null); setNote(""); setQ(""); setReason("desactualizado");
-    window.toast && window.toast("Reporte registrado", "ok");
+    toast && toast("Reporte registrado", "ok");
   };
 
   return (
     <React.Fragment>
-      <window.SectionHead icon="🚩" title="Reportes del banco" desc="Reactivos con datos desactualizados o errores"
+      <SectionHead icon="🚩" title="Reportes del banco" desc="Reactivos con datos desactualizados o errores"
         actions={<button className="btn btn-accent" onClick={() => setOpen(true)}>+ Reportar reactivo</button>} />
       <div className="rep-bar">
         <div className="rep-tabs">
@@ -462,9 +460,9 @@ function ReportesBody() {
                     {r.note && <div className="rep-note">“{r.note}”</div>}
                   </div>
                   <div className="rep-item-a">
-                    <button className="link-btn" onClick={() => window.EPStore.resolveReport(r.id)}>{r.status === "resuelto" ? "Reabrir" : "Resolver"}</button>
+                    <button className="link-btn" onClick={() => EPStore.resolveReport(r.id)}>{r.status === "resuelto" ? "Reabrir" : "Resolver"}</button>
                     {src && <button className="link-btn" onClick={() => { window.__epEditQ = src; go("pregunta"); }}>Editar</button>}
-                    <button className="link-btn link-danger" onClick={() => window.EPStore.deleteReport(r.id)}>Eliminar</button>
+                    <button className="link-btn link-danger" onClick={() => EPStore.deleteReport(r.id)}>Eliminar</button>
                   </div>
                 </section>
               );
