@@ -231,7 +231,6 @@ function MetasBody() {
       </div>
   );
 }
-window.MetasBody = MetasBody;
 
 /* ============================ PODCAST DE REPASO (audio continuo) ============================ */
 function Podcast() {
@@ -400,7 +399,6 @@ function SimuladorBody() {
   );
 }
 
-Object.assign(window, { ExamenAdaptativo, ConfusionesBody, Podcast, GlosarioBody, SimuladorBody });
 
-// Exportaciones ES (Fase 4): app.jsx/merged consumen por import; se conserva window.* (doble publicación) para las pruebas.
-export { ConfusionesBody, GlosarioBody, SimuladorBody };
+// Componentes exportados como módulo ES (ya no se publican en window.*; app/merged/pruebas los importan).
+export { ConfusionesBody, GlosarioBody, SimuladorBody, MetasBody, ExamenAdaptativo, Podcast };

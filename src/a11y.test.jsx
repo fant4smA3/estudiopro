@@ -6,17 +6,31 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import React from "react";
 import * as ReactDOMClient from "react-dom/client";
-import { createPortal, flushSync } from "react-dom";
+import { flushSync } from "react-dom";
 import axe from "axe-core";
 
-let W;
+let W, SCREEN;
 
 beforeAll(async () => {
-  window.React = React;
-  window.ReactDOM = { ...ReactDOMClient, createPortal };
   window.__epSnapshot = null; // arranque limpio → siembra datos de ejemplo
   await import("./proto/index.js");
-  W = window;
+  W = window; // NavCtx sigue publicado en window (bus de runtime)
+  // los componentes se resuelven por import (ya no por window.*)
+  const [a, b, c, d, m] = await Promise.all([
+    import("./proto/estudiopro-screens-a.jsx"),
+    import("./proto/estudiopro-screens-b.jsx"),
+    import("./proto/estudiopro-screens-c.jsx"),
+    import("./proto/estudiopro-screens-d.jsx"),
+    import("./proto/estudiopro-merged.jsx"),
+  ]);
+  SCREEN = {
+    Inicio: a.Inicio, Config: a.Config,
+    Banco: b.Banco, Tarjetas: b.Tarjetas, TarjetaForm: b.TarjetaForm, PreguntaForm: b.PreguntaForm,
+    Perfil: c.Perfil,
+    Calendario: d.Calendario, SesionHoy: d.SesionHoy, RepasoPrioritario: d.RepasoPrioritario,
+    MateriasHub: m.MateriasHub, Cuaderno: m.Cuaderno, Practica: m.Practica, PracticaSimulacro: m.PracticaSimulacro,
+    Mantenimiento: m.Mantenimiento, MiPreparacion: m.MiPreparacion, EstadisticasHub: m.EstadisticasHub, Datos: m.Datos,
+  };
 });
 
 /* commit síncrono + desmontaje por prueba (ver smoke.test.jsx) */
@@ -41,8 +55,8 @@ const SCREENS = ["Inicio", "MateriasHub", "Cuaderno", "Banco", "Tarjetas", "Prac
 describe("EstudioPro — a11y estructural (axe)", () => {
   for (const name of SCREENS) {
     it("pantalla " + name + " sin violaciones axe", async () => {
-      const C = W[name];
-      expect(C, name + " no existe en window").toBeTypeOf("function");
+      const C = SCREEN[name];
+      expect(C, name + " no exportado").toBeTypeOf("function");
       const { div, root } = await mount(
         React.createElement(W.NavCtx.Provider, { value: () => {} }, React.createElement(C))
       );

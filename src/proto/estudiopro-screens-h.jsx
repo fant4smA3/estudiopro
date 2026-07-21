@@ -504,7 +504,6 @@ function ReportesBody() {
   );
 }
 
-Object.assign(window, { PreparacionBody, EvolucionBody, MapaTemarioBody, RespaldoBody, ReportesBody });
 
-// Exportaciones ES (Fase 4): app.jsx/merged consumen por import; se conserva window.* (doble publicación) para las pruebas.
+// Componentes exportados como módulo ES (ya no se publican en window.*; app/merged/pruebas los importan).
 export { MapaTemarioBody, PreparacionBody, ReportesBody, RespaldoBody, EvolucionBody };
