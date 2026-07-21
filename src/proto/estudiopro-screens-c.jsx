@@ -1,9 +1,12 @@
 /* EstudioPro · Prototipo — Pantalla C: Cuestionarios (listado + configurar) */
-const { useGo: useGoC, Panel: PanelC, EmptyState: EmptyStateC, Crumbs } = window;
+import React from "react";
+import { Crumbs, EmptyState as EmptyStateC, Panel as PanelC, SectionHead, useGo as useGoC } from "./estudiopro-ui.jsx";
+import { computeAchievements, daysToExam, EPStore, intel, realStreak, studyXP, subjectNames, useStore } from "./estudiopro-store.jsx";
+import { subjColor, subjTextColor } from "./estudiopro-bank.jsx";
 
 function CuestionariosBody() {
   const go = useGoC();
-  const st = window.useStore();
+  const st = useStore();
   const [tab, setTab] = React.useState(() => { const t = window.__epQTab; window.__epQTab = null; return t === "historial" ? "historial" : "config"; });
   const [modo, setModo] = React.useState("practica");
   const [origen, setOrigen] = React.useState("Legislación Militar");
@@ -43,11 +46,11 @@ function CuestionariosBody() {
     const d = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(s.date + "T00:00:00")) / 86400000);
     return d <= 0 ? "hoy" : d === 1 ? "ayer" : d < 7 ? d + " d" : Math.floor(d / 7) + " sem";
   };
-  const SUBJECTS6 = window.subjectNames();
+  const SUBJECTS6 = subjectNames();
 
   return (
     <React.Fragment>
-      <window.SectionHead icon="⚖️" title="Cuestionario por materia" desc="Configura una sesión o repasa tu historial"
+      <SectionHead icon="⚖️" title="Cuestionario por materia" desc="Configura una sesión o repasa tu historial"
         actions={
           <div className="seg seg-tabs">
             <span className={"segchip" + (tab === "config" ? " is-on" : "")} onClick={() => setTab("config")}>Por materia</span>
@@ -56,11 +59,11 @@ function CuestionariosBody() {
         } />
 
       {tab === "config" && (() => {
-        const debil = window.intel && st.questions.length ? window.intel().debil : null;
+        const debil = intel && st.questions.length ? intel().debil : null;
         if (!debil) return null;
         const rapida = () => {
           window.__epSimulacro = false; window.__epSubject = debil.subj;
-          window.EPStore.setNav({ subject: debil.subj, mode: "practica", n: 20 });
+          EPStore.setNav({ subject: debil.subj, mode: "practica", n: 20 });
           go("quiz");
         };
         return (
@@ -152,7 +155,7 @@ function CuestionariosBody() {
               {soloImportantes && <div className="qc-sum-row"><span>Filtro</span><b>solo importantes</b></div>}
               <div className="qc-sum-est">{disponibles === 0 ? "Sin preguntas con estos filtros" : "≈ " + Math.max(1, Math.round(nReal * 0.8)) + " min estimados"}</div>
               <button className="btn btn-accent btn-lg" style={{ width: "100%" }} disabled={disponibles === 0}
-                onClick={() => { window.__epSimulacro = false; window.__epSubject = origen; window.EPStore.setNav({ subject: origen, mode: modo, n, dif, temas, tiempo, filter: soloFalladas ? "fall" : soloImportantes ? "imp" : null }); go("quiz"); }}>Empezar ▸</button>
+                onClick={() => { window.__epSimulacro = false; window.__epSubject = origen; EPStore.setNav({ subject: origen, mode: modo, n, dif, temas, tiempo, filter: soloFalladas ? "fall" : soloImportantes ? "imp" : null }); go("quiz"); }}>Empezar ▸</button>
               <button className="btn btn-sm" style={{ width: "100%", marginTop: "8px" }} onClick={() => go("simulacro")}>¿Buscas el examen completo? Ir a Simulacro ▸</button>
             </div>
           </aside>
@@ -171,7 +174,7 @@ function CuestionariosBody() {
             </thead>
             <tbody>
               {historial.map((h, i) => {
-                const c = window.subjColor(h.subject);
+                const c = subjColor(h.subject);
                 const paused = h.state === "pause";
                 return (
                 <tr key={i} className="clickable" onClick={() => { window.__epSubject = h.subject; go(paused ? "quiz" : "resultado"); }}>
@@ -179,7 +182,7 @@ function CuestionariosBody() {
                     <span className="t-q-bar" style={{ background: c }}></span>
                     <span className="t-q-body">
                       <span className="t-q-text">{h.label}</span>
-                      <span className="t-q-loc"><span className="t-q-subj" style={{ color: window.subjTextColor(h.subject) }}>{h.subject}</span><span className="t-q-path">· {h.n} preg · {h.time}</span></span>
+                      <span className="t-q-loc"><span className="t-q-subj" style={{ color: subjTextColor(h.subject) }}>{h.subject}</span><span className="t-q-path">· {h.n} preg · {h.time}</span></span>
                     </span>
                   </td>
                   <td className="ta-c">{h.score == null ? <span className="st st-nuevo"><i className="st-dot"></i>en pausa</span> : <span className={"hist-score " + (h.score >= 8 ? "hs-ok" : h.score >= 6 ? "hs-warn" : "hs-bad")}>{h.score}</span>}</td>
@@ -189,7 +192,7 @@ function CuestionariosBody() {
                       {paused
                         ? <button className="btn btn-sm btn-accent" onClick={() => { window.__epSubject = h.subject; go("quiz"); }}>Reanudar</button>
                         : <button className="btn btn-sm" onClick={() => go("resultado")}>Ver</button>}
-                      <button className="btn btn-sm" onClick={() => { window.__epSimulacro = false; window.__epSubject = h.subject; window.EPStore.setNav({ subject: h.subject, mode: "practica" }); go("quiz"); }}>Repetir</button>
+                      <button className="btn btn-sm" onClick={() => { window.__epSimulacro = false; window.__epSubject = h.subject; EPStore.setNav({ subject: h.subject, mode: "practica" }); go("quiz"); }}>Repetir</button>
                     </div>
                   </td>
                 </tr>
@@ -208,15 +211,15 @@ window.CuestionariosBody = CuestionariosBody;
 /* ========================= PERFIL ========================= */
 function Perfil() {
   const go = useGoC();
-  const st = window.useStore();
+  const st = useStore();
   const nombre = (st.plan.nombre || "Aspirante").trim();
   const iniciales = nombre.split(/\s+/).map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "A";
-  const dExam = window.daysToExam();
+  const dExam = daysToExam();
   const examFecha = (() => { try { return new Date(st.plan.examDate + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" }); } catch { return ""; } })();
   const nQ = st.questions.length;
   const dominadas = st.cards.filter((c) => c.nivel === "dominado").length;
   const avancePct = nQ ? Math.round(dominadas / nQ * 100) : 0;
-  const streak = window.realStreak ? window.realStreak() : 0;
+  const streak = realStreak ? realStreak() : 0;
   const sims = st.simHistory || [];
   const simMedia = sims.length ? (sims.reduce((a, s) => a + (s.global || 0), 0) / sims.length).toFixed(1) : "—";
   const kpis = [
@@ -225,13 +228,13 @@ function Perfil() {
     ["Racha actual", streak + " día" + (streak === 1 ? "" : "s"), "días consecutivos de estudio"],
     ["Simulacros", String(sims.length), sims.length ? "media " + simMedia + " / 10" : "aún sin simulacros"],
   ];
-  const SUBJECTS = window.subjectNames();
+  const SUBJECTS = subjectNames();
   const porMateria = SUBJECTS.map((s) => {
     const qs = st.cards.filter((c) => c.subject === s);
     const dom = qs.filter((c) => c.nivel === "dominado").length;
-    return [s, qs.length ? Math.round(dom / qs.length * 100) : 0, window.subjColor(s)];
+    return [s, qs.length ? Math.round(dom / qs.length * 100) : 0, subjColor(s)];
   });
-  const logros = (window.computeAchievements && window.computeAchievements()) || [];
+  const logros = (computeAchievements && computeAchievements()) || [];
   const earnedCount = logros.filter((l) => l[2]).length;
   return (
     <main className="main">
@@ -277,7 +280,7 @@ function Perfil() {
       </div>
 
       {(() => {
-        const xp = window.studyXP ? window.studyXP() : null;
+        const xp = studyXP ? studyXP() : null;
         if (!xp) return null;
         return (
           <div className="xp-card">

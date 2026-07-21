@@ -1,13 +1,15 @@
 /* EstudioPro · Prototipo — Pantallas nuevas (K): Examen adaptativo, Confusiones, Metas semanales, Podcast, Glosario, Simulador de nota. */
-const { useGo: useGoK, PageHead: PageHeadK, Panel: PanelK, EmptyState: EmptyStateK } = window;
-const kSubjects = () => window.subjectNames();
+import React from "react";
+import { EmptyState as EmptyStateK, PageHead as PageHeadK, Panel as PanelK, PromptDialog, SectionHead, toast, useGo as useGoK } from "./estudiopro-ui.jsx";
+import { confusionMatrix, EPStore, realStreak, scoreScenarios, subjectNames, useStore, weeklyProgress } from "./estudiopro-store.jsx";
+import { subjColor } from "./estudiopro-bank.jsx";
+const kSubjects = () => subjectNames();
 const kShuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 /* ============================ EXAMEN ADAPTATIVO ============================ */
 function ExamenAdaptativo() {
   const go = useGoK();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+  const st = useStore();
   const pool = React.useMemo(() => (st.questions || []).filter((q) => q.type !== "AB" && q.options && q.options.length >= 2), []);
   const MAX = 12;
   const [i, setI] = React.useState(0);
@@ -37,7 +39,7 @@ function ExamenAdaptativo() {
     setChecked(true);
     const correct = sel === cur.answer;
     setHist((h) => [...h, { correct, level, id: cur._id, subject: cur.subject }]);
-    if (!correct) window.EPStore.updateQuestion(cur._id, { status: "fall" });
+    if (!correct) EPStore.updateQuestion(cur._id, { status: "fall" });
   };
   const next = () => {
     const correct = hist[hist.length - 1].correct;
@@ -47,7 +49,7 @@ function ExamenAdaptativo() {
     if (!q) { finish(nl); return; }
     setLevel(nl); setCur(q); setAsked((a) => [...a, q._id]); setI(i + 1); setSel(null); setChecked(false);
   };
-  const finish = (nl) => { setDone(true); window.EPStore.bumpToday(Math.round(hist.length / 2)); };
+  const finish = (nl) => { setDone(true); EPStore.bumpToday(Math.round(hist.length / 2)); };
 
   React.useEffect(() => {
     const onKey = (e) => {
@@ -135,15 +137,14 @@ function ExamenAdaptativo() {
 /* ============================ CONFUSIONES (matriz + drill) ============================ */
 function ConfusionesBody() {
   const go = useGoK();
-  const _st = window.useStore();
-  const subjColor = window.subjColor;
-  const m = window.confusionMatrix();
+  const _st = useStore();
+  const m = confusionMatrix();
   const cellColor = (v) => v >= 60 ? "var(--danger)" : v >= 40 ? "var(--warn)" : v >= 20 ? "color-mix(in srgb,var(--accent) 40%,#fff)" : "var(--surface-2)";
   const cellInk = (v) => v >= 40 ? "#fff" : "var(--mute)";
   if (!m.hasData) {
     return (
       <React.Fragment>
-        <window.SectionHead icon="🎯" title="Matriz de confusión" desc="Dónde pierdes puntos: materia × dificultad" />
+        <SectionHead icon="🎯" title="Matriz de confusión" desc="Dónde pierdes puntos: materia × dificultad" />
         <EmptyStateK icon="🎯" title="Aún no hay respuestas registradas"
           desc="Responde cuestionarios o simulacros; aquí verás en qué materias y dificultades pierdes puntos, con tus datos reales."
           actions={<button className="btn btn-accent" onClick={() => go("cuestionarios")}>Ir a cuestionarios ▸</button>} />
@@ -152,7 +153,7 @@ function ConfusionesBody() {
   }
   return (
     <React.Fragment>
-      <window.SectionHead icon="🎯" title="Matriz de confusión" desc="Dónde pierdes puntos: materia × dificultad (% de falladas sobre respondidas)" />
+      <SectionHead icon="🎯" title="Matriz de confusión" desc="Dónde pierdes puntos: materia × dificultad (% de falladas sobre respondidas)" />
       {m.peak && (
         <section className="panel cf-peak" style={{ borderLeft: "3px solid var(--danger)" }}>
           <div className="cf-peak-ic">🎯</div>
@@ -186,13 +187,14 @@ function ConfusionesBody() {
 /* ============================ METAS SEMANALES + CONGELAR RACHA ============================
    El cuerpo (MetasBody) también se incrusta en Inicio; la ruta «metas» sigue viva. */
 function MetasBody() {
-  const st = window.useStore();
-  const w = window.weeklyProgress();
+  const st = useStore();
+  const w = weeklyProgress();
   const DOW = ["L", "M", "X", "J", "V", "S", "D"];
   const R = 66, C = 2 * Math.PI * R, frac = Math.min(1, w.active / w.goal);
   const hoyISO = new Date().toISOString().slice(0, 10);
   const yaCongeladoHoy = (st.plan.frozenDates || []).includes(hoyISO);
-  const freeze = () => { const ok = window.EPStore.useFreeze(); window.toast && window.toast(ok ? "Día congelado — tu racha está a salvo" : "No quedan comodines o ya congelaste hoy", ok ? "ok" : "warn"); };
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- EPStore.useFreeze es un método del store (gasta un comodín), no un hook de React
+  const freeze = () => { const ok = EPStore.useFreeze(); toast && toast(ok ? "Día congelado — tu racha está a salvo" : "No quedan comodines o ya congelaste hoy", ok ? "ok" : "warn"); };
   return (
       <div className="mt-grid">
         <section className="panel mt-ring-panel">
@@ -201,7 +203,7 @@ function MetasBody() {
             <div className="mt-ring-c"><div className="mt-ring-n">{w.active}<span>/{w.goal}</span></div><div className="mt-ring-l">días activos</div></div>
           </div>
           <div className="mt-goal-row"><span>Meta semanal</span>
-            <select className="input input-sm" aria-label="Meta semanal de días" value={w.goal} onChange={(e) => window.EPStore.setWeeklyGoal(+e.target.value)}>{[3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n} días</option>)}</select>
+            <select className="input input-sm" aria-label="Meta semanal de días" value={w.goal} onChange={(e) => EPStore.setWeeklyGoal(+e.target.value)}>{[3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n} días</option>)}</select>
           </div>
           <div className="mt-week">
             {w.days.map((d, i) => (
@@ -213,8 +215,8 @@ function MetasBody() {
           </div>
         </section>
         <div className="mt-side">
-          <PanelK idx="🔥" title="Racha" meta={(window.realStreak ? window.realStreak() : 0) + " días"}>
-            <div className="mt-streak"><div className="mt-streak-n">{window.realStreak ? window.realStreak() : 0}</div><div className="mt-streak-l">días seguidos</div></div>
+          <PanelK idx="🔥" title="Racha" meta={(realStreak ? realStreak() : 0) + " días"}>
+            <div className="mt-streak"><div className="mt-streak-n">{realStreak ? realStreak() : 0}</div><div className="mt-streak-l">días seguidos</div></div>
             <div className="mt-freeze">
               <div className="mt-freeze-h"><span>❄ Comodines de racha</span><b>{w.freezes} disponibles</b></div>
               <p className="mt-freeze-d">Úsalos en un día justificado (guardia, comisión) para no perder la racha.</p>
@@ -233,8 +235,7 @@ window.MetasBody = MetasBody;
 
 /* ============================ PODCAST DE REPASO (audio continuo) ============================ */
 function Podcast() {
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+  const st = useStore();
   const SUBJECTS = kSubjects();
   const [fuente, setFuente] = React.useState("falladas");
   const [subject, setSubject] = React.useState("todas");
@@ -273,7 +274,7 @@ function Podcast() {
       if (!playRef.current) return; await speak("Respuesta. " + (resp || "consulta el material")); if (!playRef.current) return;
       if (q.explain) { await wait(500); if (!playRef.current) return; await speak(q.explain); } await wait(700); k++;
     }
-    if (k >= cola.length) { stop(); window.toast && window.toast("Fin del podcast de repaso", "ok"); }
+    if (k >= cola.length) { stop(); toast && toast("Fin del podcast de repaso", "ok"); }
   };
   const play = () => { if (!cola.length) return; playRef.current = true; setPlaying(true); run(idxRef.current); };
   const stop = () => { playRef.current = false; setPlaying(false); if (supported) window.speechSynthesis.cancel(); };
@@ -314,10 +315,8 @@ function Podcast() {
 
 /* ============================ GLOSARIO ============================ */
 function GlosarioBody() {
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+  const st = useStore();
   const SUBJECTS = kSubjects();
-  const { PromptDialog } = window;
   const [q, setQ] = React.useState("");
   const [subject, setSubject] = React.useState("todas");
   const [adding, setAdding] = React.useState(false);
@@ -328,7 +327,7 @@ function GlosarioBody() {
   }).sort((a, b) => a.term.localeCompare(b.term));
   return (
     <React.Fragment>
-      <window.SectionHead icon="📖" title="Glosario" desc="Términos clave del temario, con su fundamento"
+      <SectionHead icon="📖" title="Glosario" desc="Términos clave del temario, con su fundamento"
         actions={<button className="btn btn-accent" onClick={() => setAdding(true)}>+ Nuevo término</button>} />
       <div className="notas-hub-bar">
         <input className="input search-input" placeholder="Buscar término…" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -340,7 +339,7 @@ function GlosarioBody() {
         : <div className="gl-grid">
             {terms.map((t) => (
               <section className="gl-card" key={t.id} style={{ borderTop: "3px solid " + subjColor(t.subject) }}>
-                <div className="gl-card-h"><span className="gl-term">{t.term}</span><button className="cron-x" onClick={() => window.EPStore.deleteGlossary(t.id)} aria-label="Eliminar">×</button></div>
+                <div className="gl-card-h"><span className="gl-term">{t.term}</span><button className="cron-x" onClick={() => EPStore.deleteGlossary(t.id)} aria-label="Eliminar">×</button></div>
                 <p className="gl-def">{t.def}</p>
                 <div className="gl-foot"><span className="gl-subj" style={{ color: subjTextColor(t.subject) }}>{t.subject}</span>{t.ref && <span className="gl-ref">{t.ref}</span>}</div>
               </section>
@@ -348,7 +347,7 @@ function GlosarioBody() {
           </div>}
       <PromptDialog open={adding} title="Nuevo término"
         fields={[{ key: "term", label: "Término", placeholder: "p. ej. Insubordinación", required: true }, { key: "subject", label: "Materia", placeholder: SUBJECTS[0], required: true }, { key: "def", label: "Definición", type: "textarea", placeholder: "Definición breve…", required: true }, { key: "ref", label: "Fundamento (opcional)", placeholder: "CJM · Art. …" }]}
-        confirmLabel="Guardar término" onConfirm={(v) => { window.EPStore.addGlossary(v); setAdding(false); window.toast && window.toast("Término añadido", "ok"); }} onClose={() => setAdding(false)} />
+        confirmLabel="Guardar término" onConfirm={(v) => { EPStore.addGlossary(v); setAdding(false); toast && toast("Término añadido", "ok"); }} onClose={() => setAdding(false)} />
     </React.Fragment>
   );
 }
@@ -356,11 +355,11 @@ function GlosarioBody() {
 /* ============================ SIMULADOR DE NOTA FINAL ============================ */
 function SimuladorBody() {
   const go = useGoK();
-  const s = window.scoreScenarios();
+  const s = scoreScenarios();
   const yOf = (n, h) => h - (n / 10) * h;
   return (
     <React.Fragment>
-      <window.SectionHead icon="📐" title="Simulador de nota final" desc="Tu nota estimada según cómo sigas estudiando" />
+      <SectionHead icon="📐" title="Simulador de nota final" desc="Tu nota estimada según cómo sigas estudiando" />
       <div className="prep-kpis">
         <div className="kpi prep-kpi"><div className="kpi-v">{s.base}</div><div className="kpi-l">Nota base (hoy)</div></div>
         <div className="kpi prep-kpi"><div className="kpi-v">{s.dias}</div><div className="kpi-l">Días al examen</div></div>

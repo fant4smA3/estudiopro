@@ -1,6 +1,9 @@
 /* EstudioPro · Prototipo — Pantallas nuevas (J): Importar IA, Duplicados, Reto diario, Hábitos, Bitácora. */
-const { useGo: useGoJ, PageHead: PageHeadJ, Panel: PanelJ, EmptyState: EmptyStateJ } = window;
-const jSubjects = () => window.subjectNames();
+import React from "react";
+import { EmptyState as EmptyStateJ, PageHead as PageHeadJ, Panel as PanelJ, SectionHead, toast, useGo as useGoJ } from "./estudiopro-ui.jsx";
+import { bestHours, dedupeGroups, EPStore, forgetting, subjectNames, undoableToast, useStore } from "./estudiopro-store.jsx";
+import { subjColor, subjTextColor } from "./estudiopro-bank.jsx";
+const jSubjects = () => subjectNames();
 const jStrip = (s) => (s || "").replace(/```json/gi, "").replace(/```/g, "").trim();
 const jNorm = (t) => (t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
 
@@ -54,7 +57,7 @@ function ImportarIA() {
       arr = arr.filter((x) => x && x.q);
       if (!arr.length) throw new Error("vacío");
       // marca posibles duplicados contra el banco actual
-      const bank = new Set((window.EPStore.get().questions || []).map((q) => jNorm(q.q)));
+      const bank = new Set((EPStore.get().questions || []).map((q) => jNorm(q.q)));
       arr = arr.map((it) => ({ ...it, dup: bank.has(jNorm(it.q)) }));
       setItems(arr);
       const s0 = {}; arr.forEach((it, k) => { s0[k] = !it.dup; });
@@ -66,10 +69,10 @@ function ImportarIA() {
 
   const nSel = Object.values(sel).filter(Boolean).length;
   const añadir = () => {
-    items.filter((_, k) => sel[k]).forEach((it) => window.EPStore.addQuestion({
+    items.filter((_, k) => sel[k]).forEach((it) => EPStore.addQuestion({
       subject, q: it.q, type: it.type || "OM", options: it.options, answer: it.answer, explain: it.explain || "", dif: it.dif || "medio", tags: ["IA", "importado"], status: "nuevo",
     }));
-    window.toast && window.toast(nSel + " reactivo(s) importado(s)", "ok");
+    toast && toast(nSel + " reactivo(s) importado(s)", "ok");
     setItems(null); setSel({}); setText(""); setImgData(null); setFileName("");
   };
 
@@ -125,14 +128,13 @@ function ImportarIA() {
 
 /* ============================ DETECCIÓN DE DUPLICADOS ============================ */
 function DuplicadosBody() {
-  const _st = window.useStore();
-  const subjColor = window.subjColor;
-  const groups = window.dedupeGroups();
+  const _st = useStore();
+  const groups = dedupeGroups();
   const total = groups.reduce((a, g) => a + g.length - 1, 0);
-  const del = (id) => { window.EPStore.deleteQuestion(id); window.undoableToast && window.undoableToast("Duplicado eliminado"); };
+  const del = (id) => { EPStore.deleteQuestion(id); undoableToast && undoableToast("Duplicado eliminado"); };
   return (
     <React.Fragment>
-      <window.SectionHead icon="⧉" title="Duplicados" desc="Reactivos con enunciado casi idéntico en tu banco" />
+      <SectionHead icon="⧉" title="Duplicados" desc="Reactivos con enunciado casi idéntico en tu banco" />
       {groups.length === 0
         ? <EmptyStateJ icon="✓" title="Sin duplicados" desc="Tu banco no tiene reactivos repetidos. ¡Bien!" tone="ok" />
         : <React.Fragment>
@@ -159,8 +161,7 @@ function DuplicadosBody() {
 /* ============================ RETO DIARIO (examen sorpresa) ============================ */
 function RetoDiario() {
   const go = useGoJ();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+  const st = useStore();
   const pool = React.useMemo(() => {
     const qs = (st.questions || []).filter((q) => q.type !== "AB" && q.options);
     const a = qs.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
@@ -175,7 +176,7 @@ function RetoDiario() {
 
   const comprobar = () => { if (sel === null) return; setChecked(true); setRes((r) => [...r, { id: q._id, correct: sel === q.answer }]); };
   const next = () => {
-    if (i >= pool.length - 1) { window.EPStore.applyQuizResults(res); window.EPStore.bumpToday(pool.length); setDone(true); return; }
+    if (i >= pool.length - 1) { EPStore.applyQuizResults(res); EPStore.bumpToday(pool.length); setDone(true); return; }
     setI(i + 1); setSel(null); setChecked(false);
   };
   React.useEffect(() => {
@@ -215,7 +216,7 @@ function RetoDiario() {
         crumbs={[["Inicio", "inicio"], "Reto diario"]} />
       <div className="reto-prog"><div className="reto-prog-bar" style={{ width: ((i) / pool.length * 100) + "%", background: color }}></div></div>
       <section className="panel reto-card" style={{ borderTop: "3px solid " + color }}>
-        <div className="q-head"><span className="reto-n">Pregunta {i + 1} de {pool.length}</span><span className="q-tag" style={{ color: window.subjTextColor(q.subject), fontWeight: 700 }}>{q.subject}</span></div>
+        <div className="q-head"><span className="reto-n">Pregunta {i + 1} de {pool.length}</span><span className="q-tag" style={{ color: subjTextColor(q.subject), fontWeight: 700 }}>{q.subject}</span></div>
         <div className="q-text">{q.q}</div>
         <div className="opts">
           {q.options.map((t, k) => {
@@ -243,15 +244,14 @@ function RetoDiario() {
 /* ============================ HÁBITOS (mejor hora + curva de olvido) ============================ */
 function HabitosBody() {
   const go = useGoJ();
-  const _st = window.useStore();
-  const subjColor = window.subjColor;
-  const bh = window.bestHours();
-  const fg = window.forgetting().slice(0, 12);
+  const _st = useStore();
+  const bh = bestHours();
+  const fg = forgetting().slice(0, 12);
   const fmtH = (h) => (h % 12 === 0 ? 12 : h % 12) + (h < 12 ? " a.m." : " p.m.");
   const franja = bh.best < 6 ? "madrugada" : bh.best < 12 ? "mañana" : bh.best < 19 ? "tarde" : "noche";
   return (
     <React.Fragment>
-      <window.SectionHead icon="◷" title="Hábitos de estudio" desc="Cuándo rindes mejor y qué estás por olvidar" />
+      <SectionHead icon="◷" title="Hábitos de estudio" desc="Cuándo rindes mejor y qué estás por olvidar" />
       <PanelJ idx="◷" title="Mejor hora para estudiar" meta={bh.total ? ("pico: " + fmtH(bh.best) + " · " + franja) : "sin registros aún"}>
         {bh.total === 0
           ? <EmptyStateJ icon="◷" title="Aún no hay registros de tiempo" desc="Usa el cronómetro o el temporizador de enfoque; aquí verás en qué horas rindes más." />
@@ -289,15 +289,15 @@ function HabitosBody() {
 
 /* ============================ BITÁCORA DE ESTUDIO ============================ */
 function BitacoraBody() {
-  const st = window.useStore();
+  const st = useStore();
   const [text, setText] = React.useState("");
   const [mood, setMood] = React.useState("🙂");
   const MOODS = ["😞", "😐", "🙂", "😃", "🔥"];
   const entries = st.journal || [];
-  const add = () => { if (!text.trim()) return; window.EPStore.addJournal({ mood, text: text.trim() }); setText(""); setMood("🙂"); window.toast && window.toast("Entrada guardada", "ok"); };
+  const add = () => { if (!text.trim()) return; EPStore.addJournal({ mood, text: text.trim() }); setText(""); setMood("🙂"); toast && toast("Entrada guardada", "ok"); };
   return (
     <React.Fragment>
-      <window.SectionHead icon="📓" title="Bitácora de estudio" desc="Anota cómo te fue hoy; la constancia también se reflexiona" />
+      <SectionHead icon="📓" title="Bitácora de estudio" desc="Anota cómo te fue hoy; la constancia también se reflexiona" />
       <section className="panel">
         <div className="panel-b bit-new">
           <div className="bit-moods">{MOODS.map((m) => <button key={m} className={"bit-mood" + (mood === m ? " is-on" : "")} onClick={() => setMood(m)}>{m}</button>)}</div>
@@ -312,7 +312,7 @@ function BitacoraBody() {
               <div className="bit-item" key={e.id}>
                 <span className="bit-item-m">{e.mood}</span>
                 <div className="bit-item-b"><div className="bit-item-d">{new Date(e.date + "T00:00:00").toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" })}</div><p className="bit-item-t">{e.text}</p></div>
-                <button className="cron-x" onClick={() => window.EPStore.deleteJournal(e.id)} aria-label="Eliminar">×</button>
+                <button className="cron-x" onClick={() => EPStore.deleteJournal(e.id)} aria-label="Eliminar">×</button>
               </div>
             ))}
           </div>}

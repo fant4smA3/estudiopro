@@ -1,7 +1,8 @@
 /* EstudioPro — Páginas fusionadas.
    Cada página compone varios cuerpos (XxxBody) en un solo lugar, con SectionHead
    como separador. Los nombres viejos quedan como alias para rutas y pruebas. */
-const { PageHead: PageHeadM } = window;
+import React from "react";
+import { PageHead as PageHeadM } from "./estudiopro-ui.jsx";
 
 /* Materias = Materias · Mapa del temario · Categorías */
 function MateriasHub() {
