@@ -248,3 +248,6 @@ function CreaRapido() {
   );
 }
 window.CreaRapido = CreaRapido;
+
+// Exportaciones ES (Fase 4): app.jsx/merged consumen por import; se conserva window.* (doble publicación) para las pruebas.
+export { CreaRapido };

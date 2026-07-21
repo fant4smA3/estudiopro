@@ -961,3 +961,6 @@ function InteligenciaBody() {
 window.InteligenciaBody = InteligenciaBody;
 
 /* helper local: Panel ya viene del window */
+
+// Exportaciones ES (Fase 4): app.jsx/merged consumen por import; se conserva window.* (doble publicación) para las pruebas.
+export { Calendario, Onboarding, RepasoPrioritario, SesionHoy, SimRun, InteligenciaBody, SimulacroBody };

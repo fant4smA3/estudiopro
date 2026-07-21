@@ -1069,3 +1069,6 @@ function ImportarBody() {
 }
 
 Object.assign(window, { Inicio, CategoriasBody, MateriasBody, MateriaDetalle, EstadisticasBody, Config, ImportarBody });
+
+// Exportaciones ES (Fase 4): app.jsx/merged consumen por import; se conserva window.* (doble publicación) para las pruebas.
+export { Inicio, MateriaDetalle, Config, MateriasBody, CategoriasBody, EstadisticasBody, ImportarBody };

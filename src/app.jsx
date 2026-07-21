@@ -1,15 +1,15 @@
-/* Shell de la aplicación (portado del prototipo). Requiere que ./proto/index.js
-   ya se haya evaluado (todos los componentes viven en window.*). */
-const {
-  NavCtx, Topbar, Side, TabBar, Inicio, MateriaDetalle, Config,
-  Banco, PreguntaForm, Tarjetas, TarjetaForm, Quiz, Resultado, Perfil,
-  ToastHost, Calendario, SimRun, RepasoPrioritario, SesionHoy, Onboarding,
-  CreaRapido, HojaRepaso, CommandPalette,
-  MateriasHub, Cuaderno, Practica, PracticaSimulacro, Mantenimiento, MiPreparacion, EstadisticasHub, Datos,
-  useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor,
-} = window;
-
-const React = window.React;
+/* Shell de la aplicación (portado del prototipo). Refactor a ES modules (Fase 4):
+   importa los componentes de sus módulos en vez de leerlos de window.*. */
+import React from "react";
+import { NavCtx, Topbar, Side, TabBar, ToastHost } from "./proto/estudiopro-ui.jsx";
+import { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor } from "./proto/tweaks-panel.jsx";
+import { MateriasHub, Cuaderno, Practica, PracticaSimulacro, Mantenimiento, MiPreparacion, EstadisticasHub, Datos } from "./proto/estudiopro-merged.jsx";
+import { Inicio, MateriaDetalle, Config } from "./proto/estudiopro-screens-a.jsx";
+import { Banco, PreguntaForm, Tarjetas, TarjetaForm, Quiz, Resultado } from "./proto/estudiopro-screens-b.jsx";
+import { Perfil } from "./proto/estudiopro-screens-c.jsx";
+import { Calendario, SimRun, RepasoPrioritario, SesionHoy, Onboarding } from "./proto/estudiopro-screens-d.jsx";
+import { CreaRapido } from "./proto/estudiopro-screens-e.jsx";
+import { HojaRepaso, CommandPalette } from "./proto/estudiopro-screens-i.jsx";
 
 /* ruta → entrada del menú que se resalta. Las rutas viejas son alias de las
    12 páginas fusionadas (el contenido vive como secciones dentro de ellas). */

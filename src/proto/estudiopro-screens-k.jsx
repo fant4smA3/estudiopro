@@ -401,3 +401,6 @@ function SimuladorBody() {
 }
 
 Object.assign(window, { ExamenAdaptativo, ConfusionesBody, Podcast, GlosarioBody, SimuladorBody });
+
+// Exportaciones ES (Fase 4): app.jsx/merged consumen por import; se conserva window.* (doble publicación) para las pruebas.
+export { ConfusionesBody, GlosarioBody, SimuladorBody };
