@@ -1821,6 +1821,22 @@
   .quick-cta .btn { flex: 0 0 auto; }
   @media (max-width: 720px) { .quick-cta { flex-wrap: wrap; } .quick-cta .btn { width: 100%; } }
 
+  /* ===== Práctica: presets de sesión (empezar en 1 clic) ===== */
+  .qc-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .qc-preset { display: flex; align-items: center; gap: 12px; padding: 14px 15px; border: 1px solid var(--soft-line); border-radius: var(--r); background: var(--surface); box-shadow: var(--shadow); cursor: pointer; transition: border-color .12s, transform .1s; }
+  .qc-preset:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .qc-preset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .qc-preset-ic { width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 12px; font-size: 18px; background: var(--accent-tint); color: var(--accent-text); }
+  .qc-preset.qp-repaso .qc-preset-ic { background: color-mix(in srgb, var(--warn) 15%, var(--surface)); color: var(--warn); }
+  .qc-preset.qp-sim .qc-preset-ic { background: color-mix(in srgb, var(--accent-2, var(--accent)) 14%, var(--surface)); color: var(--accent-text); }
+  .qc-preset-b { flex: 1; min-width: 0; }
+  .qc-preset-t { font-size: 14px; font-weight: 800; letter-spacing: -.01em; }
+  .qc-preset-d { font-size: 11.5px; color: var(--ink-soft); margin-top: 1px; }
+  .qc-preset-go { color: var(--mute); font-size: 16px; flex: 0 0 auto; }
+  .qc-personalizar { align-self: start; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 650; color: var(--accent-text); cursor: pointer; padding: 4px 2px; }
+  .qc-personalizar:hover { text-decoration: underline; }
+  @media (max-width: 720px) { .qc-presets { grid-template-columns: 1fr; } }
+
   /* ===== barra de navegación inferior (móvil): destinos al pulgar + Estudiar central ===== */
   .tabbar { display: none; }
   @media (max-width: 720px) {
