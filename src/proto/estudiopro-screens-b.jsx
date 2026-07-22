@@ -404,37 +404,73 @@ function Tarjetas() {
   };
   const dragPct = Math.max(0, Math.min(1, (Math.abs(drag) - 24) / 66)); // opacidad de la etiqueta del gesto
 
-  // ----- cabecera con conmutador de vista + selector de materia -----
-  const Header = ({ progLabel, progPct }) => (
-    <header className="page-head-card" style={{ borderTop: "3px solid " + color }}>
-      <CrumbsB path={[["Inicio", "inicio"], "Tarjetas"]} />
-      <div className="study-top">
-        <div className="study-meta">
-          <span className="study-meta-tag" style={{ color: subjTextColor(subject) }}>{vista === "estudiar" ? "Repaso de tarjetas" : "Gestión de tarjetas"}</span>
-          <span className="study-meta-name">{subject}</span>
-        </div>
-        <div className="seg seg-tabs">
-          <span className={"segchip" + (vista === "estudiar" ? " is-on" : "")} onClick={() => setVista("estudiar")}>Estudiar</span>
-          <span className={"segchip" + (vista === "gestionar" ? " is-on" : "")} onClick={() => setVista("gestionar")}>Gestionar</span>
-          <span className="segchip" onClick={() => go("repaso")}>⚡ Repaso prioritario</span>
-        </div>
-        {vista === "estudiar" && total > 0 && (
-          <div className="study-prog">
-            <span className="sp-n">{progLabel}</span>
-            <div className="mini-bar mini-bar-wide"><i style={{ width: progPct + "%", background: color }}></i></div>
-          </div>
-        )}
-      </div>
-      <div className="chiprow" style={{ marginTop: "2px" }}>
-        {SUBJECTS.map((s) => (
-          <span key={s} className={"subjchip" + (s === subject ? " is-on" : "")} onClick={() => setSubject(s)}
-            style={s === subject ? { background: subjColor(s), borderColor: subjColor(s), color: "#fff" } : { borderColor: subjColor(s) }}>
-            <i className="subjchip-dot" style={{ background: subjColor(s) }}></i>{subjShort(s)}
-          </span>
-        ))}
-      </div>
-    </header>
+  // ----- cabecera enfocada (Opción C): el panel titula con la acción del día -----
+  // fila de materias (compartida por ambas vistas)
+  const subjectChips = (
+    <div className="chiprow chiprow-center">
+      {SUBJECTS.map((s) => (
+        <span key={s} className={"subjchip" + (s === subject ? " is-on" : "")} onClick={() => setSubject(s)}
+          style={s === subject ? { background: subjColor(s), borderColor: subjColor(s), color: "#fff" } : { borderColor: subjColor(s) }}>
+          <i className="subjchip-dot" style={{ background: subjColor(s) }}></i>{subjShort(s)}
+        </span>
+      ))}
+    </div>
   );
+  // titular según el filtro activo: «4 tarjetas vencen hoy», «3 tarjetas por repasar»…
+  const HEAD_PHRASE = { hoy: "vencen hoy", todas: "en total", repaso: "por repasar", nuevas: "nuevas" };
+  const activeN = (FILTROS.find(([k]) => k === filtro) || FILTROS[0])[2];
+  const headline = activeN + " tarjeta" + (activeN === 1 ? "" : "s") + " " + (HEAD_PHRASE[filtro] || "");
+
+  const Header = ({ progPct }) => {
+    // Vista Gestionar: cabecera de administración (conmutador de modo visible)
+    if (vista === "gestionar") {
+      return (
+        <header className="page-head-card" style={{ borderTop: "3px solid " + color }}>
+          <CrumbsB path={[["Inicio", "inicio"], "Tarjetas"]} />
+          <div className="study-top">
+            <div className="study-meta">
+              <span className="study-meta-tag" style={{ color: subjTextColor(subject) }}>Gestión de tarjetas</span>
+              <span className="study-meta-name">{subject}</span>
+            </div>
+            <div className="seg seg-tabs">
+              <span className="segchip" onClick={() => setVista("estudiar")}>Estudiar</span>
+              <span className="segchip is-on">Gestionar</span>
+              <span className="segchip" onClick={() => go("repaso")}>⚡ Repaso prioritario</span>
+            </div>
+          </div>
+          {subjectChips}
+        </header>
+      );
+    }
+    // Vista Estudiar: cabecera enfocada — titular, progreso y estados juntos; materias abajo
+    return (
+      <header className="page-head-card th-focus" style={{ borderTop: "3px solid " + color }}>
+        <CrumbsB path={[["Inicio", "inicio"], "Tarjetas"]} />
+        <div className="th-center">
+          <span className="study-meta-tag" style={{ color: subjTextColor(subject) }}>{subject} · repaso</span>
+          <h2 className="th-headline">{headline}</h2>
+          {total > 0 && (
+            <div className="th-prog">
+              <span className="sp-n">{i + 1} de {total} repasadas</span>
+              <div className="mini-bar th-bar"><i style={{ width: progPct + "%", background: color }}></i></div>
+            </div>
+          )}
+          <div className="th-filters">
+            {FILTROS.map(([k, label, n]) => (
+              <span key={k} className={"fchip" + (filtro === k ? " is-on" : "")} onClick={() => { setFiltro(k); setI(0); setFlip(false); }}>{label} · {n}</span>
+            ))}
+          </div>
+        </div>
+        <div className="th-div"></div>
+        {subjectChips}
+        <div className="th-links">
+          <button type="button" className="th-link" onClick={() => go("repaso")}><span className="th-bolt">⚡</span> Repaso prioritario</button>
+          <span className="th-sep" aria-hidden="true">·</span>
+          <button type="button" className="th-link" onClick={() => setVista("gestionar")}>Gestionar tarjetas</button>
+        </div>
+      </header>
+    );
+  };
 
   /* ============ VISTA GESTIONAR ============ */
   if (vista === "gestionar") {
@@ -522,11 +558,6 @@ function Tarjetas() {
     return (
       <main className="main main-center">
         <Header />
-        <div className="chiprow" style={{ justifyContent: "center" }}>
-          {FILTROS.map(([k, label, n]) => (
-            <span key={k} className={"fchip" + (filtro === k ? " is-on" : "")} onClick={() => { setFiltro(k); setI(0); }}>{label} · {n}</span>
-          ))}
-        </div>
         <div className="card-stage">
           <EmptyState icon="🃏" title={filtro === "todas" ? "Sin tarjetas en esta materia" : "Nada que repasar con este filtro"}
             desc={filtro === "todas" ? "Crea tarjetas o cambia de materia para empezar a repasar." : "Prueba con el filtro «Todas» o cambia de materia."}
@@ -543,13 +574,7 @@ function Tarjetas() {
   const nivelLabel = { nuevo: "Nueva", medio: "En repaso", dominado: "Dominada" };
   return (
     <main className="main main-study">
-      <Header progLabel={(i + 1) + " / " + total} progPct={(i + 1) / total * 100} />
-
-      <div className="chiprow chiprow-center">
-        {FILTROS.map(([k, label, n]) => (
-          <span key={k} className={"fchip" + (filtro === k ? " is-on" : "")} onClick={() => { setFiltro(k); setI(0); setFlip(false); }}>{label} · {n}</span>
-        ))}
-      </div>
+      <Header progPct={(i + 1) / total * 100} />
 
       <div className="card-stage">
         <div key={card._id}
