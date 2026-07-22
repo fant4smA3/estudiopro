@@ -388,6 +388,20 @@
   .study-meta-name { font-size: 15px; font-weight: 700; }
   .study-prog { display: flex; align-items: center; gap: 12px; width: 320px; }
   .sp-n { font-size: 11px; color: var(--mute); white-space: nowrap; }
+
+  /* Cabecera enfocada de Tarjetas (Opción C): titula con la acción del día */
+  .th-center { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+  .th-headline { font-size: 22px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; margin: 0; text-wrap: balance; }
+  .th-prog { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 260px; }
+  .th-prog .sp-n { flex: 0 0 auto; }
+  .th-bar { flex: 1; height: 7px; margin-top: 0; }
+  .th-filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 2px; }
+  .th-div { height: 1px; background: var(--soft-line); align-self: stretch; }
+  .th-links { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .th-link { background: none; border: 0; font: inherit; font-size: 12px; color: var(--mute); cursor: pointer; padding: 4px 2px; display: inline-flex; align-items: center; gap: 5px; }
+  .th-link:hover { color: var(--accent-text); }
+  .th-bolt { color: var(--warn); }
+  .th-sep { color: var(--mute); opacity: .45; }
   .card-stage { flex: 1; display: grid; place-items: center; padding: 8px 0; min-height: 0; }
   .flashcard {
     position: relative; width: 600px; max-width: 100%; min-height: 290px;
