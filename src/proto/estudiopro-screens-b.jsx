@@ -605,10 +605,10 @@ function Tarjetas() {
         <div className="study-controls">
           {(() => { const p = srsPreview(card._id); return (
             <React.Fragment>
-              <button className="btn study-btn study-danger" onClick={() => gradeAnimated("otra", "left")}><span>Otra vez</span><small>{p.otra}</small></button>
-              <button className="btn study-btn study-warn" onClick={() => gradeAnimated("dificil", "left")}><span>Difícil</span><small>{p.dificil}</small></button>
-              <button className="btn study-btn study-ok" onClick={() => gradeAnimated("medio", "right")}><span>Bien</span><small>{p.medio}</small></button>
-              <button className="btn study-btn study-easy" onClick={() => gradeAnimated("facil", "right")}><span>Fácil</span><small>{p.facil}</small></button>
+              <button className="btn study-btn study-danger" onClick={() => gradeAnimated("otra", "left")}><span className="study-key" aria-hidden="true">1</span><span>Otra vez</span><small>{p.otra}</small></button>
+              <button className="btn study-btn study-warn" onClick={() => gradeAnimated("dificil", "left")}><span className="study-key" aria-hidden="true">2</span><span>Difícil</span><small>{p.dificil}</small></button>
+              <button className="btn study-btn study-ok study-primary" onClick={() => gradeAnimated("medio", "right")}><span className="study-key" aria-hidden="true">3</span><span>Bien</span><small>{p.medio}</small></button>
+              <button className="btn study-btn study-easy" onClick={() => gradeAnimated("facil", "right")}><span className="study-key" aria-hidden="true">4</span><span>Fácil</span><small>{p.facil}</small></button>
             </React.Fragment>
           ); })()}
         </div>
@@ -618,12 +618,25 @@ function Tarjetas() {
         </div>
       )}
 
-      <div className="study-rail">
-        <div className="sr-cell"><b>{counters.repaso}</b><span>en repaso</span></div>
-        <div className="sr-cell"><b>{counters.nuevas}</b><span>nuevas</span></div>
-        <div className="sr-cell"><b>{counters.dominadas}</b><span>dominadas</span></div>
-        <div className="sr-cell sr-cell-act"><button className="btn btn-sm" onClick={() => { window.__epEditC = null; go("tarjeta"); }}>+ Nueva tarjeta</button></div>
-      </div>
+      {(() => {
+        const tot = Math.max(1, counters.dominadas + counters.repaso + counters.nuevas);
+        const pct = (n) => (n / tot * 100) + "%";
+        return (
+          <div className="study-mastery">
+            <div className="mbar" role="img" aria-label={counters.dominadas + " dominadas, " + counters.repaso + " en repaso, " + counters.nuevas + " nuevas"}>
+              {counters.dominadas > 0 && <i className="mb-dom" style={{ width: pct(counters.dominadas) }}></i>}
+              {counters.repaso > 0 && <i className="mb-rev" style={{ width: pct(counters.repaso) }}></i>}
+              {counters.nuevas > 0 && <i className="mb-new" style={{ width: pct(counters.nuevas) }}></i>}
+            </div>
+            <div className="mleg">
+              <span className="mleg-i"><i className="mb-dom"></i>Dominadas <b>{counters.dominadas}</b></span>
+              <span className="mleg-i"><i className="mb-rev"></i>En repaso <b>{counters.repaso}</b></span>
+              <span className="mleg-i"><i className="mb-new"></i>Nuevas <b>{counters.nuevas}</b></span>
+              <button className="btn btn-sm mleg-act" onClick={() => { window.__epEditC = null; go("tarjeta"); }}>+ Nueva tarjeta</button>
+            </div>
+          </div>
+        );
+      })()}
     </main>
   );
 }
