@@ -447,15 +447,32 @@
   .fc-study .fc-hint { margin: 0; margin-left: auto; font-size: 11px; font-weight: 600; color: color-mix(in srgb, var(--fc-accent, var(--accent)) 70%, var(--ink)); letter-spacing: .02em; white-space: nowrap; }
 
   .study-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 640px; margin: 0 auto; width: 100%; }
-  .study-btn { height: 54px; flex-direction: column; gap: 2px; font-weight: 700; font-size: 13px; border-width: 1.5px; transition: background .14s, color .14s, transform .1s; }
+  .study-btn { position: relative; height: 54px; flex-direction: column; gap: 2px; font-weight: 700; font-size: 13px; border-width: 1.5px; transition: background .14s, color .14s, transform .1s; }
   .study-btn:hover { transform: translateY(-1px); }
   .study-btn:active { transform: translateY(0); }
   .study-btn small { font-weight: 500; font-size: 10px; color: var(--mute); letter-spacing: .02em; }
-  .study-btn:hover small { color: inherit; opacity: .8; }
-  .study-danger { border-color: var(--danger); color: var(--danger); } .study-danger:hover { background: var(--danger); color: #fff; }
-  .study-warn { border-color: var(--warn); color: var(--warn); } .study-warn:hover { background: var(--warn); color: #fff; }
-  .study-ok { border-color: var(--ok); color: var(--ok); } .study-ok:hover { background: var(--ok); color: #fff; }
-  .study-easy { border-color: var(--accent); color: var(--accent-text); } .study-easy:hover { background: var(--accent); color: var(--on-accent); }
+  .study-btn:hover small { color: inherit; opacity: .85; }
+  /* tecla (1–4): coincide con los atajos de teclado de la sesión */
+  .study-key { position: absolute; top: 6px; left: 7px; width: 15px; height: 15px; border-radius: 4px; display: grid; place-items: center; font-size: 9px; font-weight: 800; background: var(--surface-2); color: var(--mute); border: 1px solid var(--line); }
+  .study-btn:hover .study-key { background: rgba(255,255,255,.22); color: #fff; border-color: transparent; }
+  /* fondo tenue permanente (feedback en móvil sin hover) + relleno pleno al hover */
+  .study-danger { border-color: var(--danger); color: var(--danger); background: color-mix(in srgb, var(--danger) 9%, var(--surface)); } .study-danger:hover { background: var(--danger); color: #fff; }
+  .study-warn { border-color: var(--warn); color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, var(--surface)); } .study-warn:hover { background: var(--warn); color: #fff; }
+  .study-ok { border-color: var(--ok); color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, var(--surface)); } .study-ok:hover { background: var(--ok); color: #fff; }
+  .study-easy { border-color: var(--accent); color: var(--accent-text); background: color-mix(in srgb, var(--accent) 9%, var(--surface)); } .study-easy:hover { background: var(--accent); color: var(--on-accent); }
+  /* «Bien» resaltado como respuesta esperada */
+  .study-primary { box-shadow: 0 0 0 2px color-mix(in srgb, var(--ok) 32%, transparent); }
+  /* barra de dominio (reemplaza la tira de tres conteos) */
+  .study-mastery { max-width: 640px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 9px; padding: 12px 14px; border: 1px solid var(--soft-line); background: var(--surface); border-radius: 14px; }
+  .study-mastery .mbar { height: 14px; border-radius: 7px; overflow: hidden; display: flex; background: var(--surface-2); border: 1px solid var(--line); }
+  .study-mastery .mbar i { display: block; height: 100%; }
+  .mb-dom { background: var(--ok); } .mb-rev { background: var(--warn); }
+  .mb-new { background: color-mix(in srgb, var(--accent) 38%, var(--surface-2)); }
+  .mleg { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--mute); }
+  .mleg-i { display: inline-flex; align-items: center; gap: 6px; }
+  .mleg-i i { width: 9px; height: 9px; border-radius: 3px; flex: 0 0 auto; }
+  .mleg-i b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .mleg-act { margin-left: auto; }
   .study-reveal { max-width: 640px; margin: 0 auto; width: 100%; height: 54px; }
 
   .study-rail { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--soft-line); background: var(--surface); border-radius: 14px; overflow: hidden; max-width: 640px; margin: 0 auto; width: 100%; }
