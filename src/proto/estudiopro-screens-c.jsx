@@ -9,6 +9,7 @@ function CuestionariosBody() {
   const st = useStore();
   const [tab, setTab] = React.useState(() => { const t = window.__epQTab; window.__epQTab = null; return t === "historial" ? "historial" : "config"; });
   const [modo, setModo] = React.useState("practica");
+  const [showForm, setShowForm] = React.useState(false); // presets primero; el formulario completo se despliega bajo demanda
   const [origen, setOrigen] = React.useState("Legislación Militar");
   const [n, setN] = React.useState(20);
   const [soloFalladas, setSoloFalladas] = React.useState(false);
@@ -60,25 +61,31 @@ function CuestionariosBody() {
 
       {tab === "config" && (() => {
         const debil = intel && st.questions.length ? intel().debil : null;
-        if (!debil) return null;
-        const rapida = () => {
-          window.__epSimulacro = false; window.__epSubject = debil.subj;
-          EPStore.setNav({ subject: debil.subj, mode: "practica", n: 20 });
-          go("quiz");
-        };
+        const nFallImp = (st.questions || []).filter((q) => q.status === "fall" || q.status === "imp").length;
+        const rapida = () => { window.__epSimulacro = false; window.__epSubject = debil.subj; EPStore.setNav({ subject: debil.subj, mode: "practica", n: 20 }); go("quiz"); };
+        const presets = [];
+        if (debil) presets.push({ ic: "⚡", cls: "qp-rapida", t: "Sesión rápida", d: <span>20 de <b>{debil.subj}</b> · tu punto más débil ({debil.dominio}%)</span>, run: rapida });
+        presets.push({ ic: "🎯", cls: "qp-repaso", t: "Repaso prioritario", d: nFallImp > 0 ? <span><b>{nFallImp}</b> falladas e importantes</span> : "Tus falladas e importantes", run: () => go("repaso") });
+        presets.push({ ic: "📋", cls: "qp-sim", t: "Simulacro completo", d: "200 preguntas · examen cronometrado", run: () => go("simulacro") });
         return (
-          <div className="quick-cta" onClick={rapida} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") rapida(); }}>
-            <span className="quick-cta-ic" aria-hidden="true">⚡</span>
-            <div className="quick-cta-b">
-              <div className="quick-cta-t">Sesión rápida</div>
-              <div className="quick-cta-d">20 preguntas de <b>{debil.subj}</b>, tu materia con menor dominio ({debil.dominio}%) — sin configurar nada</div>
+          <React.Fragment>
+            <div className="qc-presets">
+              {presets.map((p, i) => (
+                <div key={i} className={"qc-preset " + p.cls} onClick={p.run} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") p.run(); }}>
+                  <span className="qc-preset-ic" aria-hidden="true">{p.ic}</span>
+                  <div className="qc-preset-b"><div className="qc-preset-t">{p.t}</div><div className="qc-preset-d">{p.d}</div></div>
+                  <span className="qc-preset-go" aria-hidden="true">▸</span>
+                </div>
+              ))}
             </div>
-            <button className="btn btn-accent" onClick={(e) => { e.stopPropagation(); rapida(); }}>Empezar ya ▸</button>
-          </div>
+            <button type="button" className="qc-personalizar" aria-expanded={showForm} onClick={() => setShowForm((s) => !s)}>
+              {showForm ? "▴ Ocultar personalización" : "▾ Personalizar mi sesión"}
+            </button>
+          </React.Fragment>
         );
       })()}
 
-      {tab === "config" && (
+      {tab === "config" && showForm && (
         <div className="quiz-config">
           <div className="qc-main">
             <PanelC idx="01" title="Origen de las preguntas">
