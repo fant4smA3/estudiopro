@@ -315,6 +315,38 @@
   /* ---- Filter bar ---- */
   .filterbar { border: 1px solid var(--soft-line); border-radius: var(--r); background: var(--surface); display: flex; flex-direction: column; gap: 0; box-shadow: var(--shadow); overflow: hidden; }
   .fb-search { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--soft-line); }
+
+  /* ---- Banco: KPIs que filtran por estado ---- */
+  .bank-kpis { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--soft-line); border-radius: var(--r); overflow: hidden; background: var(--surface); box-shadow: var(--shadow); margin-bottom: 12px; }
+  .bkpi { text-align: left; padding: 11px 15px; border: 0; border-right: 1px solid var(--line); background: none; cursor: pointer; display: flex; flex-direction: column; gap: 1px; font: inherit; transition: background .13s; }
+  .bkpi:last-child { border-right: 0; }
+  .bkpi:hover { background: var(--surface-2); }
+  .bkpi.is-on { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); box-shadow: inset 0 -2px 0 var(--accent); }
+  .bkpi b { font-size: 19px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .bkpi span { font-size: 9.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--mute); }
+  .bkpi-ok b { color: var(--ok); } .bkpi-fall b { color: var(--danger); }
+  /* ---- Banco: toolbar compacto (búsqueda + menús) ---- */
+  .fb-top { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--soft-line); flex-wrap: wrap; }
+  .fb-top .fb-search { flex: 1; min-width: 150px; padding: 0 11px; height: 34px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; }
+  .bank-drop { display: inline-flex; align-items: center; gap: 7px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 9px; padding: 0 4px 0 10px; height: 34px; cursor: pointer; }
+  .bank-drop:hover { border-color: var(--accent); }
+  .bank-drop .bd-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+  .bank-drop select { border: 0; background: none; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); cursor: pointer; padding: 6px 4px; outline: none; }
+  .fb-count { font-size: 12.5px; color: var(--mute); white-space: nowrap; margin-left: auto; }
+  .fb-count b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  /* ---- Banco: chips de filtros activos ---- */
+  .fb-active { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; padding: 10px 14px; }
+  .fb-active .fpill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--accent-text); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent); border-radius: 999px; padding: 3px 6px 3px 10px; }
+  .fb-active .fpill i { width: 8px; height: 8px; border-radius: 50%; }
+  .fb-active .fpill button { border: 0; background: none; color: inherit; cursor: pointer; font-size: 11px; opacity: .55; padding: 0 3px; line-height: 1; }
+  .fb-active .fpill button:hover { opacity: 1; }
+  .fb-clear-all { border: 0; background: none; color: var(--accent-text); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+  @media (max-width: 560px) {
+    .bank-kpis { grid-template-columns: repeat(2, 1fr); }
+    .bank-kpis .bkpi:nth-child(2) { border-right: 0; }
+    .bank-kpis .bkpi:nth-child(1), .bank-kpis .bkpi:nth-child(2) { border-bottom: 1px solid var(--line); }
+    .fb-count { margin-left: 0; }
+  }
   .fb-selects { display: flex; gap: 8px; padding: 11px 14px; flex-wrap: wrap; border-bottom: 1px solid var(--soft-line); }
   .sel { font-size: 11.5px; padding: 6px 12px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--ink-soft); background: var(--surface); cursor: pointer; transition: border-color .12s; }
   .sel:hover { border-color: var(--accent); color: var(--accent-text); }

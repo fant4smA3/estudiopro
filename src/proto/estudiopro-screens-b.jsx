@@ -14,7 +14,8 @@ function Banco() {
   const [q, setQ] = React.useState(navInit.search || "");
   React.useEffect(() => { if (navInit.search) EPStore.setNav({}); }, []);
   const [subj, setSubj] = React.useState("Todas");
-  const [onlyFall, setOnlyFall] = React.useState(false);
+  const [statusF, setStatusF] = React.useState(null); // filtro de estado (lo manejan los KPIs)
+  const [difF, setDifF] = React.useState(null);        // filtro de dificultad
   const [delRow, setDelRow] = React.useState(null);
   const [sel, setSel] = React.useState(() => new Set());
   const [bulkDel, setBulkDel] = React.useState(false);
@@ -24,12 +25,20 @@ function Banco() {
   const clearSel = () => setSel(new Set());
   const [sort, setSort] = React.useState(null); // { col, dir }
   const needle = q.trim().toLowerCase();
-  const rows = bank.filter((r) => {
+  // "scoped" = búsqueda + materia + dificultad (sin estado): base para contar los KPIs
+  const scoped = bank.filter((r) => {
     if (subj !== "Todas" && r.subject !== subj) return false;
-    if (onlyFall && r.status !== "fall") return false;
+    if (difF && (r.dif || "medio") !== difF) return false;
     if (needle && !(r.q + " " + r.subject + " " + r.ord + " " + r.tags.join(" ")).toLowerCase().includes(needle)) return false;
     return true;
   });
+  const counts = {
+    total: scoped.length,
+    ok: scoped.filter((r) => r.status === "ok").length,
+    fall: scoped.filter((r) => r.status === "fall").length,
+    nuevo: scoped.filter((r) => r.status === "nuevo").length,
+  };
+  const rows = statusF ? scoped.filter((r) => r.status === statusF) : scoped;
   const DIF_ORD = { "fácil": 0, medio: 1, "difícil": 2 };
   const sorted = React.useMemo(() => {
     if (!sort) return rows;
@@ -41,7 +50,7 @@ function Banco() {
   const sortMark = (col) => (sort && sort.col === col ? (sort.dir === "asc" ? " ▲" : " ▼") : "");
   const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
   const curPage = Math.min(page, totalPages - 1);
-  React.useEffect(() => { setPage(0); }, [needle, subj, onlyFall]);
+  React.useEffect(() => { setPage(0); }, [needle, subj, statusF, difF]);
   const pageRows = sorted.slice(curPage * PER_PAGE, curPage * PER_PAGE + PER_PAGE);
   // "seleccionar todas" opera solo sobre la página visible (evita borrar filas fuera de vista)
   const visibleIds = pageRows.map((r) => r._id);
@@ -62,29 +71,52 @@ function Banco() {
       <PageHeadB title="Banco de preguntas" sub={bank.length + " preguntas · cada una es también una tarjeta de repaso"} crumbs={[["Inicio", "inicio"], "Banco de preguntas"]}
         actions={<div className="qr-head-acts"><button className="btn" onClick={() => go("imprimir")}>🖨 Hoja de repaso</button><button className="btn" onClick={() => go("crear-rapido")}>✨ Creación rápida</button><button className="btn btn-accent" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ Nueva pregunta</button></div>} />
 
+      <div className="bank-kpis">
+        {[["total", "Total", counts.total, null], ["ok", "Dominadas", counts.ok, "ok"], ["fall", "Falladas", counts.fall, "fall"], ["nuevo", "Sin ver", counts.nuevo, "nuevo"]].map(([key, label, n, sv]) => (
+          <button key={key} type="button" className={"bkpi bkpi-" + key + (statusF === sv ? " is-on" : "")}
+            onClick={() => setStatusF(statusF === sv ? null : sv)}>
+            <b>{n}</b><span>{label}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="filterbar">
-        <div className="fb-search">
-          <span className="gsearch-key">/</span>
-          <input className="fb-search-in" placeholder="Buscar por enunciado, etiqueta o referencia…" value={q} onChange={(e) => setQ(e.target.value)} />
-          {q && <button className="fb-clear" onClick={() => setQ("")} aria-label="limpiar">✕</button>}
+        <div className="fb-top">
+          <div className="fb-search">
+            <span className="gsearch-key">/</span>
+            <input className="fb-search-in" placeholder="Buscar por enunciado, etiqueta o referencia…" value={q} onChange={(e) => setQ(e.target.value)} />
+            {q && <button className="fb-clear" onClick={() => setQ("")} aria-label="limpiar">✕</button>}
+          </div>
+          <label className="bank-drop">
+            {subj !== "Todas" && <i className="bd-dot" style={{ background: subjColor(subj) }}></i>}
+            <select value={subj} onChange={(e) => setSubj(e.target.value)} aria-label="Filtrar por materia">
+              {subjects.map((s) => <option key={s} value={s}>{s === "Todas" ? "Todas las materias" : s}</option>)}
+            </select>
+          </label>
+          <label className="bank-drop">
+            <select value={difF || ""} onChange={(e) => setDifF(e.target.value || null)} aria-label="Filtrar por dificultad">
+              <option value="">Toda dificultad</option>
+              <option value="fácil">Fácil</option>
+              <option value="medio">Medio</option>
+              <option value="difícil">Difícil</option>
+            </select>
+          </label>
+          <span className="fb-count"><b>{rows.length}</b> resultado{rows.length === 1 ? "" : "s"}</span>
         </div>
-        <div className="fb-selects fb-subjects">
-          {subjects.map((s) => (
-            <span key={s} className={"subjchip" + (s === subj ? " is-on" : "")} onClick={() => setSubj(s)}
-              style={s === subj && s !== "Todas" ? { background: subjColor(s), borderColor: subjColor(s), color: "#fff" } : (s !== "Todas" ? { borderColor: subjColor(s) } : {})}>
-              {s !== "Todas" && <i className="subjchip-dot" style={{ background: subjColor(s) }}></i>}{s}
-            </span>
-          ))}
-        </div>
-        <div className="fb-toggles">
-          <span className={"tg" + (onlyFall ? " is-on" : "")} onClick={() => setOnlyFall(!onlyFall)}>Solo falladas</span>
-        </div>
+        {(subj !== "Todas" || statusF || difF) && (
+          <div className="fb-active">
+            {subj !== "Todas" && <span className="fpill"><i style={{ background: subjColor(subj) }}></i>{subjShort(subj)}<button onClick={() => setSubj("Todas")} aria-label="Quitar materia">✕</button></span>}
+            {statusF && <span className="fpill">{STATUS_LABEL[statusF]}<button onClick={() => setStatusF(null)} aria-label="Quitar estado">✕</button></span>}
+            {difF && <span className="fpill">{difF.charAt(0).toUpperCase() + difF.slice(1)}<button onClick={() => setDifF(null)} aria-label="Quitar dificultad">✕</button></span>}
+            <button className="fb-clear-all" onClick={() => { setSubj("Todas"); setStatusF(null); setDifF(null); setQ(""); }}>Limpiar</button>
+          </div>
+        )}
       </div>
 
       {rows.length === 0 ? (
         <EmptyState icon="⌕" title="Sin resultados"
           desc={'Ninguna pregunta coincide con los filtros actuales. Prueba con otra palabra o quita filtros.'}
-          actions={<button className="btn" onClick={() => { setQ(""); setSubj("Todas"); setOnlyFall(false); }}>Limpiar filtros</button>} />
+          actions={<button className="btn" onClick={() => { setQ(""); setSubj("Todas"); setStatusF(null); setDifF(null); }}>Limpiar filtros</button>} />
       ) : (
       <div className="tbl-wrap">
         <div className="tbl-scroll">
