@@ -202,33 +202,64 @@ function Calendario() {
             desc="Genera tu plan de estudio para ver la agenda de aquí al examen."
             actions={<button className="btn btn-accent" onClick={() => setConfirmRegen(true)}>Generar plan ▸</button>} />
         ) : (
-          <div className="plan-agenda">
-            {agenda.map((d) => {
-              const c = dayColor(d);
-              const isToday = d.fecha === todayStr;
-              const isExam = d.fecha === examStr;
-              return (
-                <div className="ag-row" key={d.fecha}>
-                  <div className={"ag-date" + (isToday ? " is-today" : "")}>
-                    <b>{fmtDia(d.fecha, { day: "numeric" })}</b>
-                    <span>{isToday ? "Hoy" : fmtDia(d.fecha, { weekday: "short" })}</span>
-                  </div>
-                  <div className={"ag-card" + (isToday ? " is-today" : "") + (isExam ? " is-exam" : "") + (d.estado === "hecho" ? " is-done" : "")}
-                    style={{ borderLeftColor: c }} onClick={() => { setSel(d); setMoveTo(""); }} role="button" tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === "Enter") { setSel(d); setMoveTo(""); } }}>
-                    <div className="ag-body">
-                      <div className="ag-t">{d.tipo === "simulacro" ? "Simulacro general" : d.tipo === "personal" ? (d.titulo || "Evento") : d.subject}{isExam && <span className="ag-exam">EXAMEN</span>}</div>
-                      <div className="ag-s">{d.ord}{d.titulo ? " · " + d.titulo : ""}</div>
-                    </div>
-                    <span className={"ag-pill ag-" + d.tipo}>{d.tipo}</span>
-                    <span className="ag-min">{d.min}′</span>
-                    <button className={"ag-done" + (d.estado === "hecho" ? " is-on" : "")} title="Marcar hecho"
-                      aria-label={"Marcar " + (d.estado === "hecho" ? "pendiente" : "hecho")}
-                      onClick={(e) => { e.stopPropagation(); EPStore.setPlanDayState(d.fecha, d.estado === "hecho" ? "pendiente" : "hecho"); }}>✓</button>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="tbl-wrap plan-tbl-wrap">
+            <div className="tbl-scroll">
+              <table className="tbl plan-tbl">
+                <thead>
+                  <tr>
+                    <th className="pt-fecha">Fecha</th>
+                    <th>Sesión</th>
+                    <th className="pt-hide">Tipo</th>
+                    <th className="ta-r pt-hide">Duración</th>
+                    <th>Estado</th>
+                    <th className="ta-r">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {agenda.map((d) => {
+                    const c = dayColor(d);
+                    const isToday = d.fecha === todayStr;
+                    const isExam = d.fecha === examStr;
+                    const hecho = d.estado === "hecho";
+                    const nombre = d.tipo === "simulacro" ? "Simulacro general" : d.tipo === "personal" ? (d.titulo || "Evento") : d.subject;
+                    const detalle = [d.ord, d.tipo !== "personal" ? d.titulo : d.nota].filter(Boolean).join(" · ");
+                    return (
+                      <tr key={d.fecha} className={"clickable" + (isToday ? " pt-today" : "") + (isExam ? " pt-exam" : "") + (hecho ? " pt-done" : "")}
+                        onClick={() => { setSel(d); setMoveTo(""); }}>
+                        <td className="pt-fecha">
+                          <b>{fmtDia(d.fecha, { day: "numeric" })}</b>
+                          <span>{isToday ? "Hoy" : fmtDia(d.fecha, { weekday: "short" })}</span>
+                        </td>
+                        <td>
+                          <div className="pt-sess">
+                            <span className="pt-bar" style={{ background: c }}></span>
+                            <span className="pt-txt">
+                              <b>{nombre}{isExam && <span className="pt-examflag">EXAMEN</span>}</b>
+                              {detalle && <small>{detalle}</small>}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="pt-hide"><span className={"pt-tipo pt-tipo-" + d.tipo}>{d.tipo}</span></td>
+                        <td className="ta-r pt-num pt-hide">{d.min} min</td>
+                        <td><span className={"pt-estado" + (hecho ? " is-done" : "")}><i></i>{hecho ? "Hecho" : "Pendiente"}</span></td>
+                        <td className="ta-r" onClick={(e) => e.stopPropagation()}>
+                          <div className="rowacts">
+                            <button className="ra-btn" title="Editar" aria-label="Editar" onClick={() => editarEvento(d)}>✎</button>
+                            <button className="ra-btn" title={hecho ? "Marcar pendiente" : "Marcar hecho"} aria-label={hecho ? "Marcar pendiente" : "Marcar hecho"}
+                              onClick={() => EPStore.setPlanDayState(d.fecha, hecho ? "pendiente" : "hecho")}>✓</button>
+                            <button className="ra-btn ra-del" title="Eliminar" aria-label="Eliminar" onClick={() => setDelAsk(d)}>✕</button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="plan-tbl-foot">
+              <span><b>{agenda.length}</b> {agenda.length === 1 ? "sesión" : "sesiones"} · <b>{agenda.filter((d) => d.estado === "hecho").length}</b> {agenda.filter((d) => d.estado === "hecho").length === 1 ? "hecha" : "hechas"}</span>
+              <span><b>{agenda.reduce((a, d) => a + (+d.min || 0), 0)}</b> min en total</span>
+            </div>
           </div>
         )
       )}
@@ -292,19 +323,19 @@ function Calendario() {
             <div key={d.fecha} draggable
               onDragStart={() => setDragIdx(i)} onDragOver={(e) => { e.preventDefault(); setOverIdx(i); }} onDrop={() => onDropLista(i)} onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
               className={"plan-ed-row" + (d.estado === "hecho" ? " is-done" : "") + (dragIdx === i ? " is-drag" : "") + (overIdx === i && dragIdx !== null && dragIdx !== i ? " is-over" : "") + (isToday ? " is-today" : "")}
-              style={{ borderLeft: "4px solid " + c }}
               onClick={() => { setSel(d); setMoveTo(""); }}>
               <span className="plan-ed-grip" aria-hidden="true">⠿</span>
-              <div className="plan-ed-date">
-                <b>{new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { weekday: "short", day: "numeric" })}</b>
-                <span>{new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { month: "short" })}</span>
-              </div>
-              <div className="plan-ed-body">
-                <div className="plan-ed-t">{d.tipo === "simulacro" ? "Simulacro general" : d.subject}</div>
-                <div className="plan-ed-s">{d.ord}{d.titulo ? " · " + d.titulo : ""}</div>
-              </div>
-              <span className={"plan-ed-chip plan-ed-" + d.tipo}>{d.tipo}</span>
-              <span className="plan-ed-min">{d.min}′</span>
+              <span className="plan-ed-date">
+                <b>{new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric" })}</b>
+                {new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { weekday: "short" })}
+              </span>
+              <span className="plan-ed-body">
+                <span className="plan-ed-bar" style={{ background: c }}></span>
+                <b className="plan-ed-t">{d.tipo === "simulacro" ? "Simulacro general" : d.tipo === "personal" ? (d.titulo || "Evento") : d.subject}</b>
+                <small className="plan-ed-s">{[d.ord, d.tipo !== "personal" ? d.titulo : d.nota].filter(Boolean).join(" · ")}</small>
+              </span>
+              <span className={"pt-tipo pt-tipo-" + d.tipo + " plan-ed-hide"}>{d.tipo}</span>
+              <span className="plan-ed-min plan-ed-hide">{d.min}′</span>
               <button className={"plan-ed-done" + (d.estado === "hecho" ? " is-on" : "")} onClick={(e) => { e.stopPropagation(); EPStore.setPlanDayState(d.fecha, d.estado === "hecho" ? "pendiente" : "hecho"); }} title="Marcar hecho" aria-label={"Marcar " + (d.estado === "hecho" ? "pendiente" : "hecho")}>✓</button>
             </div>
           );
