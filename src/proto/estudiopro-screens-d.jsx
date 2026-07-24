@@ -1,7 +1,7 @@
 /* EstudioPro · Prototipo — Pantallas D: Calendario, Simulacro (config + bloques), Alertas */
 import React from "react";
 import { ConfirmDialog, Crumbs as CrumbsD, Diff as DiffD, EmptyState, PageHead as PageHeadD, Panel, Panel as PanelD, SectionHead, Switch, toast, useGo as useGoD } from "./estudiopro-ui.jsx";
-import { EPStore, generarPlan, intel, subjectNames, useStore } from "./estudiopro-store.jsx";
+import { daysToExam, EPStore, generarPlan, intel, subjectNames, useStore } from "./estudiopro-store.jsx";
 import { subjColor, subjShort, subjTextColor, TYPE_LABEL } from "./estudiopro-bank.jsx";
 
 /* ============================ CALENDARIO + EDITOR DEL PLAN ============================
@@ -13,7 +13,7 @@ function Calendario() {
   const st = useStore();
   const [cursor, setCursor] = React.useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const [sel, setSel] = React.useState(null);
-  const [vista, setVista] = React.useState("mes");     // mes | lista
+  const [vista, setVista] = React.useState("agenda");  // agenda | mes | lista
   const [dragDate, setDragDate] = React.useState(null); // arrastre entre celdas del mes
   const [overDate, setOverDate] = React.useState(null);
   const [dragIdx, setDragIdx] = React.useState(null);   // arrastre en la vista lista
@@ -94,6 +94,18 @@ function Calendario() {
     go("quiz");
   };
 
+  // --- resumen del plan: cuenta regresiva, avance y sesión de hoy ---
+  const diasExamen = daysToExam();
+  const totalPlan = dias.length;
+  const hechasPlan = dias.filter((d) => d.estado === "hecho").length;
+  const pctPlan = totalPlan ? Math.round(hechasPlan / totalPlan * 100) : 0;
+  const nSimulacros = dias.filter((d) => d.tipo === "simulacro").length;
+  const hoyPlan = byDate[todayStr] || null;
+  // agenda: desde hoy en adelante; si ya pasó todo, muestra los últimos días del plan
+  const proximos = dias.filter((d) => d.fecha >= todayStr);
+  const agenda = proximos.length ? proximos : dias.slice(-7);
+  const fmtDia = (f, opts) => new Date(f + "T00:00:00").toLocaleDateString("es-MX", opts);
+
   return (
     <main className="main">
       <PageHeadD title="Calendario y plan de estudio" sub={"Organiza tu plan hasta el examen" + (examTxt ? " · " + examTxt : "")} crumbs={[["Inicio", "inicio"], "Calendario"]}
@@ -104,11 +116,78 @@ function Calendario() {
             <button className="btn btn-sm" onClick={() => setCursor(new Date(y, m + 1, 1))} aria-label="Mes siguiente">›</button>
           </React.Fragment>}
           <div className="rep-tabs cal-tabs">
+            <button className={"rep-tab" + (vista === "agenda" ? " is-on" : "")} onClick={() => setVista("agenda")}>Agenda</button>
             <button className={"rep-tab" + (vista === "mes" ? " is-on" : "")} onClick={() => setVista("mes")}>Mes</button>
             <button className={"rep-tab" + (vista === "lista" ? " is-on" : "")} onClick={() => setVista("lista")}>Lista</button>
           </div>
           <button className="btn btn-sm" onClick={() => setConfirmRegen(true)}>Regenerar plan</button>
         </div>} />
+
+      {/* resumen del plan: cuánto falta, cuánto llevas y qué toca hoy */}
+      <div className="plan-hdr">
+        <div className="plan-cd" aria-label={diasExamen + " días para el examen"}>
+          <b>{diasExamen}</b><span>{diasExamen === 1 ? "día" : "días"}</span>
+        </div>
+        <div className="plan-hdr-b">
+          <div className="plan-hdr-t">{diasExamen === 0 ? "El examen es hoy" : "Faltan " + diasExamen + (diasExamen === 1 ? " día" : " días") + " para el examen"}{examTxt ? " · " + examTxt : ""}</div>
+          <div className="mini-bar plan-bar"><i style={{ width: pctPlan + "%" }}></i></div>
+          <div className="plan-hdr-s">
+            <span><b>{hechasPlan}</b> de <b>{totalPlan}</b> sesiones hechas</span>
+            <span><b>{nSimulacros}</b> simulacro{nSimulacros === 1 ? "" : "s"}</span>
+            <span><b>{pctPlan}%</b> del plan</span>
+          </div>
+        </div>
+      </div>
+
+      {hoyPlan && (
+        <div className="plan-today" style={{ borderLeft: "4px solid " + (hoyPlan.subject ? subjColor(hoyPlan.subject) : "var(--accent)") }}>
+          <span className="plan-today-ic" style={{ background: hoyPlan.subject ? subjColor(hoyPlan.subject) : "var(--accent)" }} aria-hidden="true">{hoyPlan.tipo === "simulacro" ? "◎" : "▣"}</span>
+          <div className="plan-today-b">
+            <div className="plan-today-t">Hoy · {hoyPlan.tipo === "simulacro" ? "Simulacro general" : hoyPlan.subject}</div>
+            <div className="plan-today-d">{hoyPlan.ord}{hoyPlan.titulo ? " · " + hoyPlan.titulo : ""} · {hoyPlan.min} min</div>
+          </div>
+          {hoyPlan.estado === "hecho"
+            ? <span className="plan-today-done">✓ Hecho</span>
+            : <button className="btn btn-accent" onClick={() => startDay(hoyPlan)}>{hoyPlan.tipo === "simulacro" ? "Ir al simulacro ▸" : "Estudiar ahora ▸"}</button>}
+        </div>
+      )}
+
+      {vista === "agenda" && (
+        agenda.length === 0 ? (
+          <EmptyState icon="🗓" title="Sin plan generado"
+            desc="Genera tu plan de estudio para ver la agenda de aquí al examen."
+            actions={<button className="btn btn-accent" onClick={() => setConfirmRegen(true)}>Generar plan ▸</button>} />
+        ) : (
+          <div className="plan-agenda">
+            {agenda.map((d) => {
+              const c = d.subject ? subjColor(d.subject) : "var(--accent)";
+              const isToday = d.fecha === todayStr;
+              const isExam = d.fecha === examStr;
+              return (
+                <div className="ag-row" key={d.fecha}>
+                  <div className={"ag-date" + (isToday ? " is-today" : "")}>
+                    <b>{fmtDia(d.fecha, { day: "numeric" })}</b>
+                    <span>{isToday ? "Hoy" : fmtDia(d.fecha, { weekday: "short" })}</span>
+                  </div>
+                  <div className={"ag-card" + (isToday ? " is-today" : "") + (isExam ? " is-exam" : "") + (d.estado === "hecho" ? " is-done" : "")}
+                    style={{ borderLeftColor: c }} onClick={() => { setSel(d); setMoveTo(""); }} role="button" tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === "Enter") { setSel(d); setMoveTo(""); } }}>
+                    <div className="ag-body">
+                      <div className="ag-t">{d.tipo === "simulacro" ? "Simulacro general" : d.subject}{isExam && <span className="ag-exam">EXAMEN</span>}</div>
+                      <div className="ag-s">{d.ord}{d.titulo ? " · " + d.titulo : ""}</div>
+                    </div>
+                    <span className={"ag-pill ag-" + d.tipo}>{d.tipo}</span>
+                    <span className="ag-min">{d.min}′</span>
+                    <button className={"ag-done" + (d.estado === "hecho" ? " is-on" : "")} title="Marcar hecho"
+                      aria-label={"Marcar " + (d.estado === "hecho" ? "pendiente" : "hecho")}
+                      onClick={(e) => { e.stopPropagation(); EPStore.setPlanDayState(d.fecha, d.estado === "hecho" ? "pendiente" : "hecho"); }}>✓</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )
+      )}
 
       {vista === "mes" && <React.Fragment>
       <div className="cal-legend">
