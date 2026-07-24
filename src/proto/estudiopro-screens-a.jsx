@@ -1,39 +1,32 @@
 /* EstudioPro · Prototipo — Pantallas A */
-const { useGo, Crumbs, PageHead, Panel, Diff, Switch } = window;
+import React from "react";
+import { ConfirmDialog, Crumbs, Diff, PageHead, Panel, PromptDialog, SectionHead, Switch, TaxEditDialog, toast, useGo } from "./estudiopro-ui.jsx";
+import { daysToExam, EPStore, generarPlan, intel, realStreak, smartStudy, subjectNames, useStore } from "./estudiopro-store.jsx";
+import { subjColor, subjTextColor, TYPE_LABEL } from "./estudiopro-bank.jsx";
+import { MATERIA_DETAIL } from "./estudiopro-data.jsx";
+import { MetasBody } from "./estudiopro-screens-k.jsx";
+import { AlertasBody } from "./estudiopro-screens-d.jsx";
+import { ActivityHeatmap } from "./estudiopro-screens-i.jsx";
 
 /* ============================ INICIO ============================ */
 function Inicio() {
   const go = useGo();
-  const st = window.useStore();
+  const st = useStore();
   const plan = st.plan;
   const goalPct = Math.min(100, Math.round(plan.doneToday / plan.dailyGoal * 100));
-  const dExam = window.daysToExam();
-  const nQ = st.questions.length, nC = st.cards.length;
-  const doneSessions = st.sessions.filter((s) => s.state === "done");
-  const avg = doneSessions.length ? (doneSessions.reduce((a, s) => a + (s.score || 0), 0) / doneSessions.length).toFixed(1) : "—";
-  // --- métricas reales derivadas del store ---
-  // las tarjetas SON el banco (una por pregunta); el avance = % de tarjetas dominadas
-  const dominadas = st.cards.filter((c) => c.nivel === "dominado").length;
-  const avancePct = nQ ? Math.round(dominadas / nQ * 100) : 0;
+  const dExam = daysToExam();
+  const nQ = st.questions.length;
   const falladas = st.questions.filter((q) => q.status === "fall").length;
   const importantes = st.questions.filter((q) => q.status === "imp").length;
   const enRepaso = st.cards.filter((c) => c.nivel === "medio").length;
   const nuevasC = st.cards.filter((c) => c.nivel === "nuevo").length;
   const vencenHoy = falladas + enRepaso + nuevasC;
-  const intelData = (window.intel && window.intel()) || { porMateria: [] };
+  const intelData = (intel && intel()) || { porMateria: [] };
   const domBySubj = {}; intelData.porMateria.forEach((m) => { domBySubj[m.subj] = m.dominio; });
   const recientesQ = st.questions.slice(0, 3);
-  const examFecha = (() => { try { return new Date(plan.examDate + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short" }); } catch (e) { return ""; } })();
-  const notaProy = intelData.nota != null ? intelData.nota : null;
-  const notaCls = notaProy == null ? "" : notaProy >= 8 ? "v-ok" : notaProy >= 6 ? "v-warn" : "v-bad";
-  const kpis = [
-    ["Preguntas", nQ.toLocaleString(), "en tu banco"],
-    ["Tarjetas", nC.toLocaleString(), "una por pregunta"],
-    ["Cuestionarios", String(st.sessions.length), "media " + avg + " / 10"],
-    ["Avance", avancePct + "%", dominadas.toLocaleString() + " dominadas"],
-  ];
+  const examFecha = (() => { try { return new Date(plan.examDate + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short" }); } catch { return ""; } })();
   // top 3 materias por volumen real de preguntas (ordenamientos y conteos del banco)
-  const cats = window.subjectNames()
+  const cats = subjectNames()
     .map((s) => {
       const qs = st.questions.filter((q) => q.subject === s);
       return [s, new Set(qs.map((q) => q.ord).filter(Boolean)).size, qs.length];
@@ -76,38 +69,15 @@ function Inicio() {
       </main>
     );
   }
-  // --- BENTO: banner de "siguiente paso" (reanudar cuestionario o sesión de hoy) ---
-  const tp = window.todayPlan && window.todayPlan();
-  const nextStep = (() => {
-    if (st.resume) {
-      const at = st.resume.at, total = st.resume.total || 1;
-      return {
-        badge: "Continúa donde quedaste",
-        title: st.resume.label,
-        desc: "Cuestionario en pausa · pregunta " + at + " de " + total,
-        done: Math.min(3, Math.max(1, Math.round(at / total * 3))), of: 3,
-        cta: "Reanudar ▸",
-        act: () => { window.__epSimulacro = false; window.__epSubject = st.resume.subject; window.EPStore.setNav({ subject: st.resume.subject, mode: "practica", at: st.resume.at }); go("quiz"); },
-      };
-    }
-    if (tp && tp.tipo === "simulacro") {
-      return { badge: "Hoy: simulacro", title: "Simulacro general · 200 preguntas", desc: "Examen completo cronometrado · ≈ " + (tp.min || 180) + " min", done: 0, of: 3, cta: "Ir al simulacro ▸", act: () => go("simulacro") };
-    }
-    if (tp) {
-      return {
-        badge: "Sesión de hoy", title: tp.subject,
-        desc: (tp.ord ? tp.ord + (tp.titulo ? " · " + tp.titulo : "") + " · " : "") + "3 pasos · ≈ " + tp.min + " min",
-        done: 1, of: 3, cta: "Empezar sesión ▸",
-        act: () => { window.__epSesion = { subject: tp.subject, ord: tp.ord, titulo: tp.titulo, step: 0 }; go("sesion"); },
-      };
-    }
-    return { badge: "Empieza hoy", title: "Practica " + vencenHoy + " tarjetas", desc: "Repaso espaciado priorizado para hoy", done: 0, of: 3, cta: "Iniciar repaso ▸", act: () => go("repaso") };
-  })();
-  const streakDays = window.realStreak ? window.realStreak() : 0;
+  // --- héroe «Estudiar ahora» inteligente: misma lógica que el botón central de la barra
+  //     (smartStudy decide: reanudar → vencidas → plan de hoy → falladas → materia débil) ---
+  const smart = smartStudy();
+  const nextStep = { ...smart, act: () => smart.act(go) };
+  const streakDays = realStreak ? realStreak() : 0;
   const weekMark = Array.from({ length: 7 }, (_, i) => i < Math.min(7, streakDays));
   // materias del examen desde la lista editable (icono por materia conocida; genérico para las nuevas)
   const ICON = { "Legislación Militar": "⚖", "Operaciones Militares": "🎯", "Normatividad Gubernamental": "📋", "Aspecto Administrativo": "🗂", "Adiestramiento y Mando Militar": "🎖", "Aspecto Técnico": "🛡" };
-  const mats = window.subjectNames().map((n) => ({ n, ic: ICON[n] || "📘", p: domBySubj[n] != null ? domBySubj[n] : 0 }));
+  const mats = subjectNames().map((n) => ({ n, ic: ICON[n] || "📘", p: domBySubj[n] != null ? domBySubj[n] : 0 }));
   return (
     <main className="main">
       <PageHead title="Resumen" sub={(() => { const t = new Date().toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "short" }); return t.charAt(0).toUpperCase() + t.slice(1) + " · sesión local"; })()} crumbs={["Inicio"]} />
@@ -152,7 +122,7 @@ function Inicio() {
       <div className="home-sec">Tus materias <button className="link-btn" onClick={() => go("materias")}>Ver todas ▸</button></div>
       <div className="home-mats">
         {mats.map((m) => {
-          const c = window.subjColor(m.n);
+          const c = subjColor(m.n);
           return (
             <button className="home-mat" key={m.n} style={{ "--c": c }} onClick={() => { window.__epSubject = m.n; go("materia"); }}>
               <span className="home-mat-bar"></span>
@@ -176,9 +146,9 @@ function Inicio() {
               <div className="cat clickable" key={n} onClick={() => { window.__epSubject = n; go("materia"); }}>
                 <div className="cat-top">
                   <span className="cat-name">{n}</span>
-                  <span className="cat-pct" style={{ color: window.subjTextColor(n) }}>{p}%</span>
+                  <span className="cat-pct" style={{ color: subjTextColor(n) }}>{p}%</span>
                 </div>
-                <div className="mini-bar"><i style={{ width: p + "%", background: window.subjColor(n), color: window.subjTextColor(n) }}></i></div>
+                <div className="mini-bar"><i style={{ width: p + "%", background: subjColor(n), color: subjTextColor(n) }}></i></div>
                 <div className="cat-meta">{m} ordenamiento{m === 1 ? "" : "s"} · {q} preguntas</div>
               </div>
               );
@@ -191,7 +161,7 @@ function Inicio() {
             {recientes.length === 0 && <p className="reco-p">Sin actividad aún. Completa un cuestionario o registra tiempo de estudio.</p>}
             {recientes.map(([n, c, t, d]) => (
               <div className="row3 clickable" key={n} onClick={() => { window.__epSubject = n; go("materia"); }}>
-                <span className="r-dot" style={{ background: window.subjColor(n) }}></span>
+                <span className="r-dot" style={{ background: subjColor(n) }}></span>
                 <div className="r-main">
                   <div className="r-title">{n}</div>
                   <div className="r-sub">{c}{t ? " · " + t : ""}</div>
@@ -210,7 +180,7 @@ function Inicio() {
               {recientesQ.map((q) => (
                 <tr key={q._id} className="clickable" onClick={() => { window.__epEditQ = q; go("pregunta"); }}>
                   <td className="t-q">{q.q}</td>
-                  <td><span className="chip">{(window.TYPE_LABEL && window.TYPE_LABEL[q.type]) || q.type}</span></td>
+                  <td><span className="chip">{(TYPE_LABEL && TYPE_LABEL[q.type]) || q.type}</span></td>
                   <td><Diff level={q.dif || "medio"} /></td>
                 </tr>
               ))}
@@ -235,27 +205,28 @@ function Inicio() {
           </div>
         </Panel>
       </div>
+
+      {/* metas semanales y racha (antes página propia; la ruta «metas» sigue viva) */}
+      <MetasBody />
     </main>
   );
 }
 
 /* ========================== CATEGORÍAS ========================== */
-function Categorias() {
+function CategoriasBody() {
   const go = useGo();
-  const { TaxEditDialog, ConfirmDialog } = window;
-  const st = window.useStore();
+  const st = useStore();
   const [dlg, setDlg] = React.useState(null); // { mode:"add"|"edit", cat }
   const [del, setDel] = React.useState(null);
   const nQ = st.questions.length;
   const nDom = st.cards.filter((c) => c.nivel === "dominado").length;
-  const nMats = window.subjectNames().length;
-  const nOrds = Object.keys(window.MATERIA_DETAIL || {}).length;
+  const nMats = subjectNames().length;
+  const nOrds = Object.keys(MATERIA_DETAIL || {}).length;
   const cats = st.categories || [];
   const avancePct = nQ ? Math.round(nDom / nQ * 100) : 0;
   return (
-    <main className="main">
-      <PageHead title="Categorías" sub={cats.length + (cats.length === 1 ? " categoría" : " categorías") + " · organiza tus exámenes o convocatorias"} crumbs={[["Inicio", "inicio"], "Categorías"]}
-        actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva categoría</button>} />
+    <React.Fragment>
+      <SectionHead icon="🗂" title="Categorías" desc={cats.length + (cats.length === 1 ? " categoría" : " categorías") + " · organiza tus exámenes o convocatorias"} actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva categoría</button>} />
       <div className="cat-grid">
         {cats.map((cat, i) => {
           const isPrimary = i === 0;
@@ -292,8 +263,8 @@ function Categorias() {
         confirmLabel={dlg && dlg.mode === "edit" ? "Guardar cambios" : "Crear categoría"}
         onClose={() => setDlg(null)}
         onConfirm={(v) => {
-          if (dlg.mode === "edit") { window.EPStore.updateCategory(dlg.cat.id, { name: v.name, desc: v.desc, color: v.color }); window.toast && window.toast("Categoría actualizada", "ok"); }
-          else { window.EPStore.addCategory({ name: v.name, desc: v.desc, color: v.color }); window.toast && window.toast("Categoría creada", "ok"); }
+          if (dlg.mode === "edit") { EPStore.updateCategory(dlg.cat.id, { name: v.name, desc: v.desc, color: v.color }); toast && toast("Categoría actualizada", "ok"); }
+          else { EPStore.addCategory({ name: v.name, desc: v.desc, color: v.color }); toast && toast("Categoría creada", "ok"); }
           setDlg(null);
         }} />
 
@@ -301,16 +272,15 @@ function Categorias() {
         title="¿Eliminar esta categoría?"
         body={del && <span>Se eliminará <b>“{del.name}”</b>. Tus materias y preguntas no se tocan; solo desaparece esta agrupación.</span>}
         onClose={() => setDel(null)}
-        onConfirm={() => { window.EPStore.deleteCategory(del.id); setDel(null); window.toast && window.toast("Categoría eliminada", "ok"); }} />
-    </main>
+        onConfirm={() => { EPStore.deleteCategory(del.id); setDel(null); toast && toast("Categoría eliminada", "ok"); }} />
+    </React.Fragment>
   );
 }
 
 /* =========================== MATERIAS =========================== */
-function Materias() {
+function MateriasBody() {
   const go = useGo();
-  const { TaxEditDialog, ConfirmDialog } = window;
-  const st = window.useStore();
+  const st = useStore();
   const [dlg, setDlg] = React.useState(null); // { mode:"add"|"edit", subj }
   const [del, setDel] = React.useState(null); // { name, count }
   // descripciones del temario base (contenido fijo); las materias nuevas no la tienen
@@ -322,7 +292,7 @@ function Materias() {
     "Adiestramiento y Mando Militar": "Mando, liderazgo y adiestramiento.",
     "Aspecto Técnico": "Ciberseguridad y ciberdefensa.",
   };
-  const DETAIL = window.MATERIA_DETAIL || {};
+  const DETAIL = MATERIA_DETAIL || {};
   const mats = (st.subjects || []).map((s) => {
     const qs = st.questions.filter((q) => q.subject === s.name);
     const dom = st.cards.filter((c) => c.subject === s.name && c.nivel === "dominado").length;
@@ -334,9 +304,8 @@ function Materias() {
     setDel({ name, count });
   };
   return (
-    <main className="main">
-      <PageHead title="Materias" sub={mats.length + " materias · edita nombre, color o crea las tuyas"} crumbs={[["Inicio", "inicio"], ["Categorías", "categorias"], "Materias"]}
-        actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva materia</button>} />
+    <React.Fragment>
+      <SectionHead icon="📚" title="Materias" desc={mats.length + " materias · edita nombre, color o crea las tuyas"} actions={<button className="btn btn-accent" onClick={() => setDlg({ mode: "add" })}>+ Nueva materia</button>} />
       <div className="cat-grid">
         {mats.map((mt) => (
           <div className="catcard" key={mt.name}>
@@ -372,15 +341,15 @@ function Materias() {
           if (dlg.mode === "edit") {
             const old = dlg.subj.name;
             if (v.name && v.name !== old) {
-              const r = window.EPStore.renameSubject(old, v.name);
-              if (!r.ok) { window.toast && window.toast(r.reason === "ya existe" ? "Ya existe una materia con ese nombre" : "No se pudo renombrar", "danger"); return; }
+              const r = EPStore.renameSubject(old, v.name);
+              if (!r.ok) { toast && toast(r.reason === "ya existe" ? "Ya existe una materia con ese nombre" : "No se pudo renombrar", "danger"); return; }
             }
-            window.EPStore.setSubjectColor(v.name || old, v.color);
-            window.toast && window.toast("Materia actualizada", "ok");
+            EPStore.setSubjectColor(v.name || old, v.color);
+            toast && toast("Materia actualizada", "ok");
           } else {
-            const ok = window.EPStore.addSubject({ name: v.name, color: v.color });
-            if (!ok) { window.toast && window.toast("Ya existe una materia con ese nombre", "danger"); return; }
-            window.toast && window.toast("Materia creada", "ok");
+            const ok = EPStore.addSubject({ name: v.name, color: v.color });
+            if (!ok) { toast && toast("Ya existe una materia con ese nombre", "danger"); return; }
+            toast && toast("Materia creada", "ok");
           }
           setDlg(null);
         }} />
@@ -393,23 +362,21 @@ function Materias() {
         onClose={() => setDel(null)}
         onConfirm={() => {
           if (del.count > 0) { setDel(null); return; }
-          window.EPStore.deleteSubject(del.name); setDel(null); window.toast && window.toast("Materia eliminada", "ok");
+          EPStore.deleteSubject(del.name); setDel(null); toast && toast("Materia eliminada", "ok");
         }} />
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ====================== DETALLE DE MATERIA ====================== */
 function MateriaDetalle() {
   const go = useGo();
-  const { PromptDialog } = window;
-  const st = window.useStore();
+  const st = useStore();
   const [open, setOpen] = React.useState(0);
   const [ordOpen, setOrdOpen] = React.useState(false);
   const [ordEdit, setOrdEdit] = React.useState(null); // ordenamiento a renombrar
   const [ordDel, setOrdDel] = React.useState(null);   // ordenamiento a eliminar
-  const { ConfirmDialog } = window;
-  const DETAIL = window.MATERIA_DETAIL || {};
+  const DETAIL = MATERIA_DETAIL || {};
   const SUBJECTS = {
     "Legislación Militar": "Ordenamientos jurídico-militares: justicia, organización, disciplina, ascensos y deberes del Ejto. y F.A.M.",
     "Operaciones Militares": "Doctrina de logística, operaciones, operaciones conjuntas y planeamiento operacional.",
@@ -418,9 +385,9 @@ function MateriaDetalle() {
     "Adiestramiento y Mando Militar": "Mando, liderazgo y proceso de adiestramiento militar.",
     "Aspecto Técnico": "Ciberseguridad, ciberdefensa y operaciones en el ciberespacio.",
   };
-  const names = window.subjectNames();
+  const names = subjectNames();
   const subject = (window.__epSubject && names.includes(window.__epSubject)) ? window.__epSubject : (names[0] || "Legislación Militar");
-  const color = window.subjColor(subject);
+  const color = subjColor(subject);
   // each ordenamiento of this subject = a tree-tema; its títulos = cap-rows
   // conteos reales del banco: preguntas cuyo `ord` coincide con el ordenamiento (y `loc` con el título)
   const subjQs = st.questions.filter((x) => x.subject === subject);
@@ -460,7 +427,7 @@ function MateriaDetalle() {
             </div>
           </div>
           <div className="subj-r">
-            <button className="btn btn-accent btn-lg" onClick={() => { window.__epSimulacro = false; window.__epSubject = subject; window.EPStore.setNav({ subject, mode: "practica" }); go("quiz"); }}>Estudiar ▸</button>
+            <button className="btn btn-accent btn-lg" onClick={() => { window.__epSimulacro = false; window.__epSubject = subject; EPStore.setNav({ subject, mode: "practica" }); go("quiz"); }}>Estudiar ▸</button>
             <div className="subj-actions">
               <button className="btn" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ Pregunta</button>
               <button className="btn" onClick={() => go("tarjeta")}>+ Tarjeta</button>
@@ -486,7 +453,7 @@ function MateriaDetalle() {
                       <button className="ra-btn ra-del" title="Eliminar ordenamiento" aria-label={"Eliminar " + tm.n} onClick={() => setOrdDel(tm)}>✕</button>
                     </span>
                   )}
-                  <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); window.__epSimulacro = false; window.__epSubject = subject; window.EPStore.setNav({ subject, ord: tm.n, mode: "practica" }); go("quiz"); }}>Estudiar</button>
+                  <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); window.__epSimulacro = false; window.__epSubject = subject; EPStore.setNav({ subject, ord: tm.n, mode: "practica" }); go("quiz"); }}>Estudiar</button>
                 </div>
                 {isOpen && tm.caps.map(([cn, cd, cq, ct, cu]) => (
                   <div className="cap-row" key={cn}>
@@ -503,7 +470,7 @@ function MateriaDetalle() {
                     <div className="cap-acts">
                       <button className="btn btn-sm" onClick={() => { window.__epEditQ = null; go("pregunta"); }}>+ P</button>
                       <button className="btn btn-sm" onClick={() => go("tarjeta")}>+ T</button>
-                      <button className="btn btn-sm btn-accent" onClick={() => { window.__epSimulacro = false; window.__epSubject = subject; window.EPStore.setNav({ subject, ord: tm.n, loc: cn, mode: "practica" }); go("quiz"); }}>Estudiar</button>
+                      <button className="btn btn-sm btn-accent" onClick={() => { window.__epSimulacro = false; window.__epSubject = subject; EPStore.setNav({ subject, ord: tm.n, loc: cn, mode: "practica" }); go("quiz"); }}>Estudiar</button>
                     </div>
                   </div>
                 ))}
@@ -531,12 +498,12 @@ function MateriaDetalle() {
           { key: "desc", label: "Referencia / descripción", placeholder: "Ref. legal o breve descripción" },
         ]}
         onClose={() => setOrdOpen(false)}
-        onConfirm={(v) => { window.EPStore.addOrdenamiento(subject, { name: v.name.trim(), desc: (v.desc || "").trim() }); setOrdOpen(false); setOpen(temas.length); window.toast && window.toast("Ordenamiento creado", "ok"); }} />
+        onConfirm={(v) => { EPStore.addOrdenamiento(subject, { name: v.name.trim(), desc: (v.desc || "").trim() }); setOrdOpen(false); setOpen(temas.length); toast && toast("Ordenamiento creado", "ok"); }} />
 
       <PromptDialog open={!!ordEdit} title="Renombrar ordenamiento" confirmLabel="Guardar"
         fields={[{ key: "name", label: "Nuevo nombre", placeholder: ordEdit ? ordEdit.n : "", required: true }]}
         onClose={() => setOrdEdit(null)}
-        onConfirm={(v) => { const r = window.EPStore.renameOrdenamiento(subject, ordEdit.id, v.name.trim()); setOrdEdit(null); window.toast && window.toast(r.ok ? "Ordenamiento renombrado" : "No se pudo renombrar", r.ok ? "ok" : "danger"); }} />
+        onConfirm={(v) => { const r = EPStore.renameOrdenamiento(subject, ordEdit.id, v.name.trim()); setOrdEdit(null); toast && toast(r.ok ? "Ordenamiento renombrado" : "No se pudo renombrar", r.ok ? "ok" : "danger"); }} />
 
       <ConfirmDialog open={!!ordDel} danger={ordDel && ordDel.q === 0} confirmLabel={ordDel && ordDel.q === 0 ? "Eliminar" : "Entendido"}
         title={ordDel && ordDel.q > 0 ? "No se puede eliminar todavía" : "¿Eliminar este ordenamiento?"}
@@ -544,7 +511,7 @@ function MateriaDetalle() {
           ? <span>“{ordDel.n}” tiene <b>{ordDel.q}</b> pregunta{ordDel.q === 1 ? "" : "s"}. Muévelas o renómbralo primero.</span>
           : <span>Se eliminará <b>“{ordDel.n}”</b>. No tiene preguntas asociadas.</span>)}
         onClose={() => setOrdDel(null)}
-        onConfirm={() => { if (ordDel.q > 0) { setOrdDel(null); return; } window.EPStore.deleteOrdenamiento(subject, ordDel.id); setOrdDel(null); window.toast && window.toast("Ordenamiento eliminado", "ok"); }} />
+        onConfirm={() => { if (ordDel.q > 0) { setOrdDel(null); return; } EPStore.deleteOrdenamiento(subject, ordDel.id); setOrdDel(null); toast && toast("Ordenamiento eliminado", "ok"); }} />
 
       <NotasPanel keyName={"materia:" + subject} color={color} />
     </main>
@@ -552,12 +519,12 @@ function MateriaDetalle() {
 }
 
 function NotasPanel({ keyName, color }) {
-  const st = window.useStore();
+  const st = useStore();
   const saved = st.notes[keyName] || "";
   const [val, setVal] = React.useState(saved);
   const [editing, setEditing] = React.useState(false);
   React.useEffect(() => { setVal(st.notes[keyName] || ""); }, [keyName]);
-  const save = () => { window.EPStore.setNote(keyName, val); setEditing(false); window.toast && window.toast("Apuntes guardados", "ok"); };
+  const save = () => { EPStore.setNote(keyName, val); setEditing(false); toast && toast("Apuntes guardados", "ok"); };
   return (
     <Panel idx="✎" title="Apuntes personales" meta={saved ? "guardados" : "vacío"}
       action={editing ? "guardar" : "editar"} onAction={editing ? save : () => setEditing(true)}>
@@ -581,9 +548,9 @@ function NotasPanel({ keyName, color }) {
 }
 
 /* ========================= ESTADÍSTICAS ========================= */
-function Estadisticas() {
+function EstadisticasBody() {
   const go = useGo();
-  const st = window.useStore();
+  const st = useStore();
   // actividad real de los últimos 7 días (unidades ≈ min: tarjetas, cuestionarios y tiempo registrado)
   const week = (() => {
     const act = st.activity || {};
@@ -625,12 +592,12 @@ function Estadisticas() {
       .sort((a, b) => a[1] - b[1])
       .slice(0, 4);
   })();
-  const porMateria = window.subjectNames().map((s) => {
+  const porMateria = subjectNames().map((s) => {
     const cs = st.cards.filter((c) => c.subject === s);
     const dom = cs.filter((c) => c.nivel === "dominado").length;
-    return [s, cs.length ? Math.round(dom / cs.length * 100) : 0, cs.length, window.subjColor(s)];
+    return [s, cs.length ? Math.round(dom / cs.length * 100) : 0, cs.length, subjColor(s)];
   });
-  const streak = window.realStreak ? window.realStreak() : 0;
+  const streak = realStreak ? realStreak() : 0;
   // constancia real (últimos 91 días) desde el mapa de actividad
   const heat = (window.activityMap ? window.activityMap().cells.slice(-91) : []).map((c) => c.level);
   const doneS = st.sessions.filter((x) => x.state === "done");
@@ -642,8 +609,8 @@ function Estadisticas() {
     ["Banco", st.questions.length.toLocaleString(), "preguntas = tarjetas"],
   ];
   return (
-    <main className="main" tabIndex={0} aria-label="Estadísticas de estudio, región desplazable">
-      <PageHead title="Estadísticas" sub="Resumen de tu actividad de estudio" crumbs={[["Inicio", "inicio"], "Estadísticas"]} />
+    <React.Fragment>
+      <SectionHead icon="📊" title="Resumen" desc="Tu actividad de estudio de un vistazo" />
 
       <div className="kpis">
         {kpis.map(([k, v, s]) => (
@@ -721,15 +688,14 @@ function Estadisticas() {
           <div className="heat-legend"><span>menos</span><span className="heat-c heat-0"></span><span className="heat-c heat-2"></span><span className="heat-c heat-4"></span><span>más</span></div>
         </Panel>
       </div>
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ========================= CONFIGURACIÓN ======================== */
 function Config() {
   const go = useGo();
-  const { ConfirmDialog } = window;
-  const st = window.useStore();
+  const st = useStore();
   const [s, setS] = React.useState({ explica: true, mezclar: true, sonido: false, autoguardar: true });
   const [confirmDel, setConfirmDel] = React.useState(false);
   const [nombre, setNombre] = React.useState(st.plan.nombre || "Aspirante");
@@ -740,20 +706,20 @@ function Config() {
   const [canInstall, setCanInstall] = React.useState(!!window.__epInstallPrompt);
   React.useEffect(() => { const h = () => setCanInstall(true); window.addEventListener("ep:can-install", h); return () => window.removeEventListener("ep:can-install", h); }, []);
   const guardarAspirante = () => {
-    window.EPStore.setNombre(nombre); window.EPStore.setExamDate(fecha); window.EPStore.setDias(dias);
-    window.generarPlan(); window.toast && window.toast("Configuración guardada y plan recalculado", "ok");
+    EPStore.setNombre(nombre); EPStore.setExamDate(fecha); EPStore.setDias(dias);
+    generarPlan(); toast && toast("Configuración guardada y plan recalculado", "ok");
   };
-  const instalar = async () => { const p = window.__epInstallPrompt; if (!p) { window.toast && window.toast("La instalación no está disponible en este navegador", "warn"); return; } p.prompt(); try { await p.userChoice; } catch (e) {} window.__epInstallPrompt = null; setCanInstall(false); };
+  const instalar = async () => { const p = window.__epInstallPrompt; if (!p) { toast && toast("La instalación no está disponible en este navegador", "warn"); return; } p.prompt(); try { await p.userChoice; } catch {} window.__epInstallPrompt = null; setCanInstall(false); };
   const t = (k) => setS((p) => ({ ...p, [k]: !p[k] }));
   return (
     <main className="main">
-      <PageHead title="Configuración" sub="Preferencias locales del sistema" crumbs={[["Inicio", "inicio"], "Configuración"]} />
+      <PageHead title="Configuración" sub="Preferencias del sistema, alertas y recordatorios" crumbs={[["Inicio", "inicio"], "Configuración"]} />
       <div className="cfg-metrics">
         <div className="cfg-metric"><div className="cfg-metric-v">{st.questions.length}</div><div className="cfg-metric-k">Preguntas</div></div>
         <div className="cfg-metric"><div className="cfg-metric-v">{st.cards.filter((c) => c.nivel === "dominado").length}</div><div className="cfg-metric-k">Dominadas</div></div>
         <div className="cfg-metric"><div className="cfg-metric-v">{st.sessions.length}</div><div className="cfg-metric-k">Sesiones</div></div>
         <div className="cfg-metric"><div className="cfg-metric-v">{st.plan.dias ? st.plan.dias.length : 0}</div><div className="cfg-metric-k">Días de plan</div></div>
-        <div className="cfg-metric"><div className="cfg-metric-v">v1.0</div><div className="cfg-metric-k">Local · SQLite</div></div>
+        <div className="cfg-metric"><div className="cfg-metric-v">v1.0</div><div className="cfg-metric-k">Local · IndexedDB</div></div>
       </div>
       <div className="settings">
         <Panel idx="01" title="Aspirante y examen">
@@ -765,7 +731,7 @@ function Config() {
         </Panel>
 
         <Panel idx="02" title="Estudio">
-          <div className="set-row"><div><div className="set-label">Meta diaria de preguntas</div><div className="set-desc">Objetivo que verás en el panel de Inicio.</div></div><select className="input input-sm" aria-label="Meta diaria de preguntas" value={st.plan.dailyGoal} onChange={(e) => window.EPStore.setGoal(+e.target.value)}><option>20</option><option>30</option><option>40</option><option>50</option></select></div>
+          <div className="set-row"><div><div className="set-label">Meta diaria de preguntas</div><div className="set-desc">Objetivo que verás en el panel de Inicio.</div></div><select className="input input-sm" aria-label="Meta diaria de preguntas" value={st.plan.dailyGoal} onChange={(e) => EPStore.setGoal(+e.target.value)}><option>20</option><option>30</option><option>40</option><option>50</option></select></div>
           <div className="set-row"><div><div className="set-label">Mostrar explicación tras responder</div><div className="set-desc">Revela la explicación al confirmar cada pregunta.</div></div><Switch on={s.explica} onClick={() => t("explica")} label="Mostrar explicación tras responder" /></div>
           <div className="set-row"><div><div className="set-label">Mezclar preguntas y respuestas</div><div className="set-desc">Orden aleatorio en cada sesión.</div></div><Switch on={s.mezclar} onClick={() => t("mezclar")} label="Mezclar preguntas y respuestas" /></div>
           <div className="set-row"><div><div className="set-label">Sonido de respuesta</div><div className="set-desc">Efecto al acertar o fallar.</div></div><Switch on={s.sonido} onClick={() => t("sonido")} label="Sonido de respuesta" /></div>
@@ -773,29 +739,31 @@ function Config() {
 
         <Panel idx="03" title="Apariencia">
           <div className="set-row"><div><div className="set-label">Menú lateral</div><div className="set-desc">Reordena u oculta páginas y agrega separadores o espacios.</div></div><button className="btn btn-sm" onClick={() => window.dispatchEvent(new Event("ep:editnav"))}>Personalizar…</button></div>
-          <div className="set-row"><div><div className="set-label">Idioma</div><div className="set-desc">Idioma de la interfaz.</div></div><select className="input input-sm" aria-label="Idioma"><option>Español</option><option>English</option></select></div>
           <div className="set-row"><div><div className="set-label">Instalar como app (PWA)</div><div className="set-desc">{canInstall ? "Úsala como programa de escritorio, sin navegador." : "En iPhone: Safari → Compartir → Agregar a pantalla de inicio. En escritorio, tu navegador la ofrecerá al usarla."}</div></div><button className="btn btn-sm" onClick={instalar} disabled={!canInstall} title={canInstall ? undefined : "Este navegador no expone el aviso de instalación"}>{canInstall ? "Instalar app" : "Instalación manual"}</button></div>
         </Panel>
 
         <Panel idx="04" title="Datos">
           <div className="set-row"><div><div className="set-label">Autoguardado</div><div className="set-desc">Guarda el progreso automáticamente.</div></div><Switch on={s.autoguardar} onClick={() => t("autoguardar")} label="Autoguardado" /></div>
-          <div className="set-row"><div><div className="set-label">Respaldo y exportación</div><div className="set-desc">Base de datos local (SQLite).</div></div>
-            <div className="set-btns"><button className="btn btn-sm" onClick={() => { const n = window.EPStore.exportJSON(); window.toast && window.toast("Respaldo exportado (" + n + " elementos)", "ok"); }}>Exportar JSON</button><button className="btn btn-sm" onClick={() => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); }}>Respaldar</button></div></div>
+          <div className="set-row"><div><div className="set-label">Respaldo y exportación</div><div className="set-desc">Base de datos local (IndexedDB) en este dispositivo.</div></div>
+            <div className="set-btns"><button className="btn btn-sm" onClick={() => { const n = EPStore.exportJSON(); toast && toast("Respaldo exportado (" + n + " elementos)", "ok"); }}>Exportar respaldo</button><button className="btn btn-sm" onClick={() => go("respaldo")}>Copias y restauración ▸</button></div></div>
           <div className="set-row"><div><div className="set-label">Importar banco</div><div className="set-desc">CSV, JSON o texto.</div></div><div className="set-btns"><button className="btn btn-sm" onClick={() => go("importar")}>Importar…</button></div></div>
           <div className="set-row"><div><div className="set-label danger-text">Borrar todos los datos</div><div className="set-desc">Acción irreversible.</div></div><button className="btn btn-sm btn-danger" onClick={() => setConfirmDel(true)}>Borrar</button></div>
         </Panel>
       </div>
 
+      {/* Alertas y recordatorios (antes página propia; la ruta «alertas» abre esta página) */}
+      <AlertasBody />
+
       <ConfirmDialog open={confirmDel} danger confirmLabel="Sí, borrar todo"
         title="¿Borrar todos los datos?"
         body={<span>Se eliminarán <b>todas</b> tus preguntas, tarjetas, sesiones y apuntes. Esta acción no se puede deshacer.</span>}
-        onClose={() => setConfirmDel(false)} onConfirm={() => { window.EPStore.reset(); setConfirmDel(false); window.toast && window.toast("Datos borrados", "ok"); go("inicio"); }} />
+        onClose={() => setConfirmDel(false)} onConfirm={() => { EPStore.reset(); setConfirmDel(false); toast && toast("Datos borrados", "ok"); go("inicio"); }} />
     </main>
   );
 }
 
 /* ============================ IMPORTAR =========================== */
-function Importar() {
+function ImportarBody() {
   const go = useGo();
   const [step, setStep] = React.useState(1);
   const [fileName, setFileName] = React.useState("");
@@ -807,7 +775,7 @@ function Importar() {
   const [error, setError] = React.useState("");
   const fileRef = React.useRef(null);
   const steps = ["Archivo", "Columnas", "Destino", "Confirmar"];
-  const SUBJECTS = window.subjectNames();
+  const SUBJECTS = subjectNames();
   const [destSubj, setDestSubj] = React.useState(SUBJECTS[0] || "");
   const [destOrd, setDestOrd] = React.useState("");
 
@@ -878,11 +846,46 @@ function Importar() {
           setMap(matrix[0].map(guessField));
         }
         setStep(2);
-      } catch (err) {
+      } catch {
         setError("No se pudo leer el archivo. Verifica que sea un CSV o JSON válido con encabezados.");
       }
     };
     reader.readAsText(file);
+  };
+
+  // bancos incluidos en la app (empaquetados con la PWA, funcionan offline)
+  const [banks, setBanks] = React.useState([]);
+  const [bankBusy, setBankBusy] = React.useState("");
+  React.useEffect(() => {
+    if (import.meta.env && import.meta.env.MODE === "test") return; // sin red en pruebas
+    let alive = true;
+    try {
+      fetch("data/bancos.json").then((r) => r.ok ? r.json() : [])
+        .then((list) => { if (alive && Array.isArray(list)) setBanks(list); })
+        .catch(() => { /* sin manifiesto: se oculta la sección */ });
+    } catch { /* entorno sin fetch relativo (tests) */ }
+    return () => { alive = false; };
+  }, []);
+  const loadBank = (b) => {
+    setBankBusy(b.file); setError("");
+    Promise.resolve()
+      .then(() => fetch("data/" + b.file))
+      .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then((arr) => {
+        if (!Array.isArray(arr) || !arr.length) throw new Error("vacío");
+        const list = arr.filter((o) => o.q && String(o.q).length > 3).map((o) => ({
+          subject: (o.subject && SUBJECTS.includes(o.subject)) ? o.subject : (b.materia || destSubj),
+          ord: o.ord || "", loc: o.loc || "", type: o.type || "OM", dif: o.dif || "medio",
+          status: "nuevo", tags: o.tags || [], q: o.q, options: o.options, answer: o.answer,
+          explain: o.explain || "", ref: o.ref || "" }));
+        const res = EPStore.addQuestions(list);
+        setFileName(b.nombre);
+        setResult({ detected: arr.length, valid: list.length, ...res });
+        setStep(4);
+        toast && toast(res.added + " preguntas importadas" + (res.skipped ? " · " + res.skipped + " duplicadas omitidas" : ""), "ok");
+      })
+      .catch(() => setError("No se pudo cargar el banco incluido. Revisa tu conexión e inténtalo de nuevo."))
+      .finally(() => setBankBusy(""));
   };
 
   const loadSample = () => {
@@ -937,15 +940,15 @@ function Importar() {
           status: "nuevo", tags: o.tags || [], q: o.q, options: o.options, answer: o.answer,
           explain: o.explain || "", ref: o.ref || "" }))
       : buildFromRows();
-    const res = window.EPStore.addQuestions(list);
+    const res = EPStore.addQuestions(list);
     setResult({ detected: rows.length, valid: list.length, ...res });
     setStep(4);
-    window.toast && window.toast(res.added + " preguntas importadas" + (res.skipped ? " · " + res.skipped + " duplicadas omitidas" : ""), "ok");
+    toast && toast(res.added + " preguntas importadas" + (res.skipped ? " · " + res.skipped + " duplicadas omitidas" : ""), "ok");
   };
 
   return (
-    <main className="main">
-      <PageHead title="Importar banco de preguntas" sub="CSV · JSON — o usa la plantilla de ejemplo" crumbs={[["Inicio", "inicio"], "Importar"]} />
+    <React.Fragment>
+      <SectionHead icon="⇪" title="Importar banco de preguntas" desc="CSV · JSON · banco incluido — o usa la plantilla de ejemplo" />
 
       <div className="stepper">
         {steps.map((s, i) => (
@@ -979,6 +982,22 @@ function Importar() {
             <button className="btn btn-accent" onClick={() => fileRef.current && fileRef.current.click()}>Seleccionar archivo</button>
           </div>
           <div className="imp-hint">⚠ Las preguntas duplicadas (mismo enunciado) se detectan y omiten automáticamente al importar.</div>
+        </Panel>
+      )}
+
+      {step === 1 && banks.length > 0 && (
+        <Panel idx="02" title="Banco incluido en la app" meta="sin archivo · funciona offline">
+          {banks.map((b) => (
+            <div className="set-row" key={b.file}>
+              <div>
+                <div className="set-label">{b.nombre}</div>
+                <div className="set-desc">{b.n} preguntas{b.desc ? " · " + b.desc : ""}</div>
+              </div>
+              <button className="btn btn-sm btn-accent" disabled={bankBusy === b.file} onClick={() => loadBank(b)}>
+                {bankBusy === b.file ? "Cargando…" : "Cargar " + b.n + " preguntas ▸"}
+              </button>
+            </div>
+          ))}
         </Panel>
       )}
 
@@ -1048,8 +1067,10 @@ function Importar() {
           </div>
         </Panel>
       )}
-    </main>
+    </React.Fragment>
   );
 }
 
-Object.assign(window, { Inicio, Categorias, Materias, MateriaDetalle, Estadisticas, Config, Importar });
+
+// Componentes exportados como módulo ES (ya no se publican en window.*; app/merged/pruebas los importan).
+export { Inicio, MateriaDetalle, Config, MateriasBody, CategoriasBody, EstadisticasBody, ImportarBody };

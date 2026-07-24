@@ -1,10 +1,12 @@
 /* EstudioPro · Prototipo — Pantallas/piezas nuevas (I):
    Heatmap de actividad, Informe semanal IA, Hoja de repaso imprimible, Editor de plan, Paleta de comandos, Notificaciones. */
-const { useGo: useGoI, PageHead: PageHeadI, Panel: PanelI, EmptyState: EmptyStateI } = window;
+import React from "react";
+import { EmptyState as EmptyStateI, NAV, NAV_EXTRA, PageHead as PageHeadI, Panel as PanelI, SectionHead, toast, useGo } from "./estudiopro-ui.jsx";
+import { EPStore, generarPlan, intel, readiness, subjectNames, useStore } from "./estudiopro-store.jsx";
 
 /* ---- helper: mapa de actividad diaria (últimos ~19 semanas) ---- */
 window.activityMap = function () {
-  const s = window.EPStore.get();
+  const s = EPStore.get();
   const byDate = {};
   (s.timeLog || []).forEach((t) => { byDate[t.date] = (byDate[t.date] || 0) + Math.round((t.seconds || 0) / 60); });
   Object.entries(s.activity || {}).forEach(([d, u]) => { byDate[d] = (byDate[d] || 0) + (u || 0); });
@@ -31,16 +33,16 @@ window.activityMap = function () {
 
 /* ---- helper: notificación real del navegador ---- */
 window.epNotify = async function (title, body) {
-  if (!("Notification" in window)) { window.toast && window.toast("Tu navegador no soporta notificaciones", "warn"); return false; }
+  if (!("Notification" in window)) { toast && toast("Tu navegador no soporta notificaciones", "warn"); return false; }
   let perm = Notification.permission;
   if (perm === "default") perm = await Notification.requestPermission();
-  if (perm !== "granted") { window.toast && window.toast("Permiso de notificaciones denegado", "warn"); return false; }
-  try { new Notification(title, { body, icon: "" }); return true; } catch (e) { return false; }
+  if (perm !== "granted") { toast && toast("Permiso de notificaciones denegado", "warn"); return false; }
+  try { new Notification(title, { body, icon: "" }); return true; } catch { return false; }
 };
 
 /* ============================ HEATMAP DE ACTIVIDAD (Inicio) ============================ */
 function ActivityHeatmap() {
-  const st = window.useStore();
+  const _st = useStore();
   const a = window.activityMap();
   const [tip, setTip] = React.useState(null);
   // dividir en semanas (columnas de 7, lunes arriba)
@@ -80,10 +82,10 @@ function ActivityHeatmap() {
 }
 
 /* ============================ INFORME SEMANAL CON IA ============================ */
-function Informe() {
-  const st = window.useStore();
-  const r = window.readiness();
-  const x = window.intel();
+function InformeBody() {
+  const st = useStore();
+  const r = readiness();
+  const x = intel();
   const a = window.activityMap();
   const [report, setReport] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
@@ -112,20 +114,19 @@ function Informe() {
     const sys = "Eres el mentor de estudio de un aspirante al ascenso militar mexicano. Redacta un informe semanal breve, motivador y accionable en español, "
       + "con estas secciones en MAYÚSCULA como encabezado: RESUMEN DE LA SEMANA, LO QUE VA BIEN, A MEJORAR, PLAN PARA LA PRÓXIMA SEMANA (lista numerada de 3-4 acciones). "
       + "Sé concreto y usa los datos. Máximo 220 palabras.";
-    const prompt = "Datos del aspirante esta semana:\n" + JSON.stringify(datos, null, 2) + "\nFecha del examen: " + (window.EPStore.get().plan.examDate || "sin definir") + ".";
+    const prompt = "Datos del aspirante esta semana:\n" + JSON.stringify(datos, null, 2) + "\nFecha del examen: " + (EPStore.get().plan.examDate || "sin definir") + ".";
     try {
       const out = await window.claude.complete({ system: sys, messages: [{ role: "user", content: prompt }], max_tokens: 700 });
       setReport(out);
-    } catch (e) { setReport(fallbackReport()); }
+    } catch { setReport(fallbackReport()); }
     finally { setLoading(false); }
   };
 
-  const copiar = () => { try { navigator.clipboard.writeText(report); window.toast && window.toast("Informe copiado", "ok"); } catch (e) {} };
+  const copiar = () => { try { navigator.clipboard.writeText(report); toast && toast("Informe copiado", "ok"); } catch {} };
 
   return (
-    <main className="main">
-      <PageHeadI title="Informe semanal" sub="Un resumen con IA de tu semana y el plan para la siguiente"
-        crumbs={[["Inicio", "inicio"], "Informe semanal"]}
+    <React.Fragment>
+      <SectionHead icon="📋" title="Informe semanal" desc="Un resumen de tu semana y el plan para la siguiente"
         actions={<button className="btn btn-accent" onClick={generar} disabled={loading}>{loading ? "Generando…" : report ? "Regenerar" : "✨ Generar informe"}</button>} />
       <div className="prep-kpis">
         <div className="kpi prep-kpi"><div className="kpi-v">{Math.round(r.min7 / 60 * 10) / 10} h</div><div className="kpi-l">Estudio (7 días)</div></div>
@@ -145,15 +146,14 @@ function Informe() {
           })}</div>}
         </div>
       </section>
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ============================ HOJA DE REPASO IMPRIMIBLE ============================ */
 function HojaRepaso() {
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const SUBJECTS = window.subjectNames();
+  const st = useStore();
+  const SUBJECTS = subjectNames();
   const [modo, setModo] = React.useState("fall");   // fall | imp | subj | all
   const [subj, setSubj] = React.useState(SUBJECTS[0]);
   const [conResp, setConResp] = React.useState(true);
@@ -209,75 +209,12 @@ function HojaRepaso() {
   );
 }
 
-/* ============================ EDITOR DE PLAN (arrastrar y soltar) ============================ */
-function EditorPlan() {
-  const go = useGoI();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  React.useEffect(() => { if (!st.plan.generado) window.generarPlan(); }, []);
-  const dias = (st.plan.dias || []).slice().sort((a, b) => a.fecha.localeCompare(b.fecha));
-  const [drag, setDrag] = React.useState(null);
-  const [over, setOver] = React.useState(null);
-
-  const commit = (arr) => {
-    // reasignar las fechas fijas en orden a la nueva secuencia de contenidos
-    const fechas = dias.map((d) => d.fecha);
-    const nuevo = arr.map((d, i) => ({ ...d, fecha: fechas[i] }));
-    window.EPStore.updatePlan(nuevo);
-  };
-  const onDrop = (idx) => {
-    if (drag === null || drag === idx) { setDrag(null); setOver(null); return; }
-    const arr = dias.slice();
-    const [it] = arr.splice(drag, 1);
-    arr.splice(idx, 0, it);
-    commit(arr); setDrag(null); setOver(null);
-    window.toast && window.toast("Plan reprogramado", "ok");
-  };
-  const toggleDone = (d) => window.EPStore.setPlanDayState(d.fecha, d.estado === "hecho" ? "pendiente" : "hecho");
-
-  const hoy = new Date().toISOString().slice(0, 10);
-  return (
-    <main className="main">
-      <PageHeadI title="Editor del plan" sub="Arrastra para reprogramar · marca días como hechos · recalcula"
-        crumbs={[["Calendario", "calendario"], "Editor del plan"]}
-        actions={<div style={{ display: "flex", gap: "8px" }}>
-          <button className="btn" onClick={() => { window.generarPlan(); window.toast && window.toast("Plan regenerado", "ok"); }}>Regenerar</button>
-          <button className="btn" onClick={() => go("calendario")}>Ver calendario ▸</button>
-        </div>} />
-      <div className="plan-ed-hint">Sujeta el punto <span className="plan-ed-grip">⠿</span> y arrastra un día sobre otro para intercambiar el orden. Las fechas se mantienen; solo cambia qué estudias cada día.</div>
-      <div className="plan-ed-list">
-        {dias.map((d, i) => {
-          const c = d.subject ? subjColor(d.subject) : "var(--accent)";
-          const isToday = d.fecha === hoy;
-          return (
-            <div key={d.fecha} draggable
-              onDragStart={() => setDrag(i)} onDragOver={(e) => { e.preventDefault(); setOver(i); }} onDrop={() => onDrop(i)} onDragEnd={() => { setDrag(null); setOver(null); }}
-              className={"plan-ed-row" + (d.estado === "hecho" ? " is-done" : "") + (drag === i ? " is-drag" : "") + (over === i && drag !== null && drag !== i ? " is-over" : "") + (isToday ? " is-today" : "")}
-              style={{ borderLeft: "4px solid " + c }}>
-              <span className="plan-ed-grip" aria-hidden="true">⠿</span>
-              <div className="plan-ed-date">
-                <b>{new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { weekday: "short", day: "numeric" })}</b>
-                <span>{new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { month: "short" })}</span>
-              </div>
-              <div className="plan-ed-body">
-                <div className="plan-ed-t">{d.tipo === "simulacro" ? "Simulacro general" : d.subject}</div>
-                <div className="plan-ed-s">{d.ord}{d.titulo ? " · " + d.titulo : ""}</div>
-              </div>
-              <span className={"plan-ed-chip plan-ed-" + d.tipo}>{d.tipo}</span>
-              <span className="plan-ed-min">{d.min}′</span>
-              <button className={"plan-ed-done" + (d.estado === "hecho" ? " is-on" : "")} onClick={() => toggleDone(d)} title="Marcar hecho">✓</button>
-            </div>
-          );
-        })}
-        {dias.length === 0 && <EmptyStateI icon="🗓️" title="Sin plan generado" desc="Genera tu plan para poder editarlo." actions={<button className="btn btn-accent" onClick={() => window.generarPlan()}>Generar plan</button>} />}
-      </div>
-    </main>
-  );
-}
+/* (El editor del plan vive ahora dentro de Calendario — pestaña «Lista» y edición
+   directa sobre el mes en estudiopro-screens-d.jsx.) */
 
 /* ============================ PALETA DE COMANDOS (Cmd/Ctrl+K) ============================ */
 function CommandPalette() {
-  const go = window.useGo();
+  const go = useGo();
   const [open, setOpen] = React.useState(false);
   const [q, setQ] = React.useState("");
   const [sel, setSel] = React.useState(0);
@@ -285,10 +222,15 @@ function CommandPalette() {
 
   const items = React.useMemo(() => {
     const nav = [];
-    (window.NAV || []).forEach((grp) => grp.items.forEach(([route, label]) => nav.push({ label, hint: grp.g, run: () => go(route) })));
+    const vistos = new Set();
+    const add = (route, label, hint) => { if (vistos.has(route)) return; vistos.add(route); nav.push({ label, hint, run: () => go(route) }); };
+    (NAV || []).forEach((grp) => grp.items.forEach(([route, label]) => add(route, label, grp.g)));
+    // páginas agrupadas en sub-pestañas y páginas sin entrada de menú: también buscables
+    Object.values(window.SUBNAV || {}).forEach((tabs) => tabs.forEach(([route, label]) => add(route, label, "página")));
+    (NAV_EXTRA || []).forEach(([route, label]) => add(route, label, "página"));
     const actions = [
-      { label: "Exportar respaldo", hint: "acción", run: () => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); } },
-      { label: "Regenerar plan de estudio", hint: "acción", run: () => { window.generarPlan(); window.toast && window.toast("Plan regenerado", "ok"); go("calendario"); } },
+      { label: "Exportar respaldo", hint: "acción", run: () => { EPStore.exportJSON(); toast && toast("Respaldo descargado", "ok"); } },
+      { label: "Regenerar plan de estudio", hint: "acción", run: () => { generarPlan(); toast && toast("Plan regenerado", "ok"); go("calendario"); } },
       { label: "Hoja de repaso (imprimir)", hint: "acción", run: () => go("imprimir") },
     ];
     return [...actions, ...nav];
@@ -337,4 +279,6 @@ function CommandPalette() {
   );
 }
 
-Object.assign(window, { ActivityHeatmap, Informe, HojaRepaso, EditorPlan, CommandPalette });
+
+// Componentes exportados como módulo ES (ya no se publican en window.*; app/merged/pruebas los importan).
+export { CommandPalette, HojaRepaso, InformeBody, ActivityHeatmap };

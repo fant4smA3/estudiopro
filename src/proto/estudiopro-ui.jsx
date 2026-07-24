@@ -1,50 +1,77 @@
 /* EstudioPro · Prototipo — shell interactivo + helpers.
    La navegación se hace con NavCtx (función go(route)).
-   CSS vive en el HTML (clases proapp/soft/mist/source/ff-grotesk). */
+   CSS vive en el HTML (clases proapp/soft/mist/source/ff-grotesk).
+   Refactor a ES modules: exporta sus componentes/helpers y mantiene la doble publicación en
+   window.* para las pruebas. Importa React, subjTextColor (banco) y el store (EPStore, useStore
+   y analíticas); solo el bus de navegación (window.__ep*) sigue en window. */
+import React from "react";
+import { subjTextColor } from "./estudiopro-bank.jsx";
+import { EPStore, useStore, smartStudy, realStreak, subjectNames } from "./estudiopro-store.jsx";
 
 const NavCtx = React.createContext(() => {});
 const useGo = () => React.useContext(NavCtx);
 
+/* Menú simplificado: las páginas afines están FUSIONADAS en una sola página
+   (secciones con SectionHead). Las rutas viejas siguen vivas como alias — ver app.jsx. */
 const NAV = [
   { g: "estudio", items: [
     ["inicio", "Inicio"],
-    ["categorias", "Categorías"],
     ["materias", "Materias"],
-    ["imprimir", "Hoja de repaso"],
-    ["glosario", "Glosario"],
-    ["metas", "Metas semanales"],
-    ["bitacora", "Bitácora"],
+    ["cuaderno", "Cuaderno"],
   ]},
   { g: "banco", items: [
     ["banco", "Banco de preguntas"],
-    ["crear-rapido", "Crear preguntas"],
-    ["duplicados", "Duplicados"],
-    ["distractores", "Reparar distractores"],
     ["tarjetas", "Tarjetas"],
-    ["repaso", "Repaso prioritario"],
-    ["cuestionarios", "Cuestionarios"],
-    ["simulacro", "Simulacro"],
-    ["calendario", "Calendario"],
-    ["plan", "Editor del plan"],
-    ["reportes", "Reportes"],
+    ["practica", "Práctica"],
+    ["calendario", "Calendario y plan"],
+    ["mantenimiento", "Mantenimiento del banco"],
   ]},
   { g: "progreso", items: [
-    ["preparacion", "Índice de preparación"],
-    ["inteligencia", "Inteligencia"],
+    ["preparacion", "Mi preparación"],
     ["estadisticas", "Estadísticas"],
-    ["evolucion", "Evolución simulacros"],
-    ["mapa", "Mapa del temario"],
-    ["confusiones", "Matriz de confusión"],
-    ["simulador", "Simulador de nota"],
-    ["informe", "Informe semanal"],
-    ["habitos", "Hábitos"],
   ]},
   { g: "gestión", items: [
-    ["importar", "Importar"],
-    ["respaldo", "Respaldo"],
-    ["alertas", "Alertas"],
+    ["datos", "Datos"],
     ["config", "Configuración"],
   ]},
+];
+
+/* Encabezado de sección dentro de páginas fusionadas (varias pantallas → una página) */
+function SectionHead({ icon, title, desc, actions }) {
+  return (
+    <div className="sec-head">
+      <div className="sec-head-l">
+        {icon && <span className="sec-ic" aria-hidden="true">{icon}</span>}
+        <div>
+          <h2 className="sec-t">{title}</h2>
+          {desc && <div className="sec-d">{desc}</div>}
+        </div>
+      </div>
+      {actions && <div className="sec-a">{actions}</div>}
+    </div>
+  );
+}
+/* Secciones y páginas fuera del menú pero vivas (accesibles por botones, alias y ⌘K) */
+const NAV_EXTRA = [
+  ["crear-rapido", "Crear preguntas"],
+  ["imprimir", "Hoja de repaso"],
+  ["metas", "Metas semanales"],
+  ["repaso", "Repaso prioritario"],
+  ["categorias", "Categorías"],
+  ["mapa", "Mapa del temario"],
+  ["glosario", "Glosario"],
+  ["bitacora", "Bitácora"],
+  ["simulacro", "Simulacro"],
+  ["distractores", "Reparar distractores"],
+  ["reportes", "Reportes del banco"],
+  ["inteligencia", "Inteligencia de estudio"],
+  ["simulador", "Simulador de nota"],
+  ["evolucion", "Evolución de simulacros"],
+  ["habitos", "Hábitos de estudio"],
+  ["confusiones", "Matriz de confusión"],
+  ["informe", "Informe semanal"],
+  ["respaldo", "Respaldo y copias"],
+  ["alertas", "Alertas"],
 ];
 
 /* Registro de etiquetas por id (fuente de verdad de qué páginas existen) */
@@ -59,15 +86,38 @@ function sidebarDefault() {
 }
 /* Layout efectivo: el guardado (reconciliado contra las páginas que existen) o el por defecto */
 function sidebarLayout() {
-  const st = window.EPStore ? window.EPStore.get() : null;
+  const st = EPStore ? EPStore.get() : null;
   const saved = st && Array.isArray(st.sidebar) ? st.sidebar : null;
   if (!saved) return sidebarDefault();
   // descarta ítems de páginas que ya no existen; conserva grupos/separadores/espacios
   return saved.filter((e) => e && e.t && (e.t !== "item" || NAV_LABELS[e.id])).map((e) => ({ ...e }));
 }
-window.NAV_LABELS = NAV_LABELS;
-window.sidebarDefault = sidebarDefault;
-window.sidebarLayout = sidebarLayout;
+/* Barra inferior móvil (≤720px): destinos al alcance del pulgar + botón central
+   «Estudiar» que lanza la acción inteligente (smartStudy). */
+function TabBar({ active, onMore }) {
+  const go = useGo();
+  const estudiar = () => { const s = smartStudy(); s.act(go); };
+  const Item = ({ id, label, icon, onClick }) => (
+    <button type="button" className={"tab-item" + (active === id ? " is-on" : "")}
+      aria-current={active === id ? "page" : undefined}
+      onClick={onClick || (() => go(id))}>
+      <span className="tab-ic" aria-hidden="true">{icon}</span>
+      <span className="tab-l">{label}</span>
+    </button>
+  );
+  return (
+    <nav className="tabbar" aria-label="Navegación principal">
+      <Item id="inicio" label="Inicio" icon="⌂" />
+      <Item id="practica" label="Práctica" icon="📝" />
+      <div className="tab-study-wrap">
+        <button type="button" className="tab-study" onClick={estudiar} aria-label="Estudiar ahora">⚡</button>
+        <span className="tab-study-l">Estudiar</span>
+      </div>
+      <Item id="banco" label="Banco" icon="📚" />
+      <Item id="mas" label="Más" icon="☰" onClick={onMore} />
+    </nav>
+  );
+}
 
 function Topbar({ onMenu, onFocus, onDark, dark }) {
   const go = useGo();
@@ -98,21 +148,21 @@ function Topbar({ onMenu, onFocus, onDark, dark }) {
 
 /* racha real (días consecutivos con actividad) e iniciales del aspirante */
 function TopbarStreak() {
-  const st = window.useStore ? window.useStore() : null;
-  const streak = st && window.realStreak ? window.realStreak() : 0;
+  useStore(); // suscribe para re-render al cambiar el estado
+  const streak = realStreak();
   return <span className="streak qbar-opt"><b>{streak}</b> día{streak === 1 ? "" : "s"}</span>;
 }
 function TopbarAvatar({ onClick }) {
-  const st = window.useStore ? window.useStore() : null;
-  const nombre = ((st && st.plan.nombre) || "Aspirante").trim();
+  const st = useStore();
+  const nombre = (st.plan.nombre || "Aspirante").trim();
   const ini = nombre.split(/\s+/).map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "A";
   return <button className="topbar-av" onClick={onClick} title="Perfil">{ini}</button>;
 }
 
 function GlobalSearch() {
   const go = useGo();
-  const st = window.useStore ? window.useStore() : { questions: [], cards: [] };
-  const SUBJECTS = window.subjectNames();
+  const st = useStore();
+  const SUBJECTS = subjectNames();
   const [q, setQ] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const boxRef = React.useRef(null);
@@ -127,7 +177,7 @@ function GlobalSearch() {
   let results = [];
   if (needle) {
     const subj = SUBJECTS.filter((s) => s.toLowerCase().includes(needle)).map((s) => ({ kind: "Materia", label: s, subject: s, go: () => { window.__epSubject = s; go("materia"); } }));
-    const qs = (st.questions || []).filter((x) => (x.q + " " + x.tags.join(" ") + " " + x.subject).toLowerCase().includes(needle)).slice(0, 5).map((x) => ({ kind: "Pregunta", label: x.q, subject: x.subject, go: () => { window.EPStore.setNav({ search: x.q }); go("banco"); } }));
+    const qs = (st.questions || []).filter((x) => (x.q + " " + x.tags.join(" ") + " " + x.subject).toLowerCase().includes(needle)).slice(0, 5).map((x) => ({ kind: "Pregunta", label: x.q, subject: x.subject, go: () => { EPStore.setNav({ search: x.q }); go("banco"); } }));
     const cs = (st.cards || []).filter((x) => (x.front + " " + x.back).toLowerCase().includes(needle)).slice(0, 4).map((x) => ({ kind: "Tarjeta", label: x.front, subject: x.subject, go: () => { window.__epSubject = x.subject; go("tarjetas"); } }));
     results = [...subj, ...qs, ...cs];
   }
@@ -145,7 +195,7 @@ function GlobalSearch() {
             ? <div className="gsearch-empty">Sin resultados para “{q}”</div>
             : results.map((r, i) => (
               <div className="gsearch-res" key={i} onClick={() => pick(r)}>
-                <span className="gsearch-kind" style={{ color: window.subjTextColor(r.subject) }}>{r.kind}</span>
+                <span className="gsearch-kind" style={{ color: subjTextColor(r.subject) }}>{r.kind}</span>
                 <span className="gsearch-label">{r.label}</span>
                 <span className="gsearch-subj">{r.subject}</span>
               </div>
@@ -158,14 +208,14 @@ function GlobalSearch() {
 
 function Side({ active, open }) {
   const go = useGo();
-  if (window.useStore) window.useStore(); // re-render al cambiar el layout guardado
+  useStore(); // re-render al cambiar el layout guardado
   const [editOpen, setEditOpen] = React.useState(false);
   React.useEffect(() => {
     const h = () => setEditOpen(true);
     window.addEventListener("ep:editnav", h);
     return () => window.removeEventListener("ep:editnav", h);
   }, []);
-  const layout = window.sidebarLayout ? window.sidebarLayout() : [];
+  const layout = sidebarLayout();
   return (
     <nav className={"side" + (open ? " is-open" : "")}>
       <div className="side-list">
@@ -200,7 +250,7 @@ function Side({ active, open }) {
 /* Editor del menú lateral: reordenar, ocultar páginas y agregar/quitar separadores y espacios */
 function SidebarEditor({ open, onClose }) {
   const [draft, setDraft] = React.useState([]);
-  React.useEffect(() => { if (open) setDraft(window.sidebarLayout()); }, [open]);
+  React.useEffect(() => { if (open) setDraft(sidebarLayout()); }, [open]);
   const known = NAV_LABELS;
   const usedIds = new Set(draft.filter((e) => e.t === "item").map((e) => e.id));
   const hidden = Object.keys(known).filter((id) => !usedIds.has(id));
@@ -212,7 +262,7 @@ function SidebarEditor({ open, onClose }) {
   const removeAt = (i) => setDraft((a) => a.filter((_, k) => k !== i));
   const append = (entry) => setDraft((a) => [...a, entry]);
   const setLabel = (i, v) => setDraft((a) => a.map((e, k) => (k === i ? { ...e, label: v } : e)));
-  const save = () => { window.EPStore.setSidebar(draft); window.toast && window.toast("Menú actualizado", "ok"); onClose && onClose(); };
+  const save = () => { EPStore.setSidebar(draft); toast("Menú actualizado", "ok"); onClose && onClose(); };
 
   const badge = { grp: "grupo", sep: "separador", gap: "espacio", item: "ítem" };
   return (
@@ -255,7 +305,7 @@ function SidebarEditor({ open, onClose }) {
         )}
       </div>
       <div className="modal-f navedit-f">
-        <button type="button" className="btn" onClick={() => setDraft(window.sidebarDefault())}>Restablecer</button>
+        <button type="button" className="btn" onClick={() => setDraft(sidebarDefault())}>Restablecer</button>
         <span className="navedit-spacer"></span>
         <button type="button" className="btn" onClick={onClose}>Cancelar</button>
         <button type="button" className="btn btn-accent" onClick={save}>Guardar</button>
@@ -266,9 +316,9 @@ function SidebarEditor({ open, onClose }) {
 
 /* avance global real: % de tarjetas dominadas sobre el banco */
 function SideFoot() {
-  const st = window.useStore ? window.useStore() : null;
-  const total = st ? st.questions.length : 0;
-  const dom = st ? st.cards.filter((c) => c.nivel === "dominado").length : 0;
+  const st = useStore();
+  const total = st.questions.length;
+  const dom = st.cards.filter((c) => c.nivel === "dominado").length;
   const pct = total ? Math.round(dom / total * 100) : 0;
   return (
     <div className="side-foot">
@@ -475,34 +525,46 @@ function Toast({ msg }) {
   return <div className="toast">{msg}</div>;
 }
 
-/* Toast host + global window.toast(msg, tone) */
-(function () {
-  let pushFn = null;
-  window.toast = (msg, tone) => { if (pushFn) pushFn(msg, tone || "ok"); };
-  window.ToastHost = function ToastHost() {
-    const [items, setItems] = React.useState([]);
-    React.useEffect(() => {
-      pushFn = (msg, tone) => {
-        const id = Date.now() + Math.random();
-        setItems((xs) => [...xs, { id, msg, tone }]);
-        setTimeout(() => setItems((xs) => xs.filter((x) => x.id !== id)), 2600);
-      };
-      return () => { pushFn = null; };
-    }, []);
-    return (
-      <div className="toast-host">
-        {items.map((t) => (
-          <div key={t.id} className={"toast toast-" + t.tone}>
-            <span className="toast-ic">{t.tone === "danger" ? "⚠" : t.tone === "warn" ? "!" : "✓"}</span>
-            <span className="toast-msg">{t.msg}</span>
-          </div>
-        ))}
-      </div>
-    );
+/* Toast host + toast(msg, tone, action?) — bus de notificaciones.
+   action = { label, run }: muestra un botón (p. ej. «Deshacer») y alarga la duración. */
+let _toastPush = null;
+const toast = (msg, tone, action) => { if (_toastPush) _toastPush(msg, tone || "ok", action); };
+function ToastHost() {
+  const [items, setItems] = React.useState([]);
+  React.useEffect(() => {
+    _toastPush = (msg, tone, action) => {
+      const id = Date.now() + Math.random();
+      setItems((xs) => [...xs, { id, msg, tone, action }]);
+      setTimeout(() => setItems((xs) => xs.filter((x) => x.id !== id)), action ? 6000 : 2600);
+    };
+    return () => { _toastPush = null; };
+  }, []);
+  const runAction = (t) => {
+    try { t.action.run(); } finally { setItems((xs) => xs.filter((x) => x.id !== t.id)); }
   };
-})();
+  return (
+    <div className="toast-host">
+      {items.map((t) => (
+        <div key={t.id} className={"toast toast-" + t.tone}>
+          <span className="toast-ic">{t.tone === "danger" ? "⚠" : t.tone === "warn" ? "!" : "✓"}</span>
+          <span className="toast-msg">{t.msg}</span>
+          {t.action && <button type="button" className="toast-act" onClick={() => runAction(t)}>{t.action.label}</button>}
+        </div>
+      ))}
+    </div>
+  );
+}
 
-Object.assign(window, {
-  NavCtx, useGo, NAV, Topbar, Side, Crumbs, PageHead, Panel, Diff, Switch,
-  EmptyState, Modal, ConfirmDialog, PromptDialog, ColorField, TaxEditDialog, Toast, ToastHost: window.ToastHost,
-});
+const EXPORTS = {
+  NavCtx, useGo, NAV, SectionHead, NAV_EXTRA, NAV_LABELS, sidebarDefault, sidebarLayout,
+  TabBar, Topbar, Side, Crumbs, PageHead, Panel, Diff, Switch,
+  EmptyState, Modal, ConfirmDialog, PromptDialog, ColorField, TaxEditDialog, Toast, ToastHost, toast,
+};
+// Doble publicación durante el refactor a ES modules: consumidores no migrados leen window.*.
+Object.assign(window, EXPORTS);
+
+export {
+  NavCtx, useGo, NAV, SectionHead, NAV_EXTRA, NAV_LABELS, sidebarDefault, sidebarLayout,
+  TabBar, Topbar, Side, Crumbs, PageHead, Panel, Diff, Switch,
+  EmptyState, Modal, ConfirmDialog, PromptDialog, ColorField, TaxEditDialog, Toast, ToastHost, toast,
+};

@@ -53,9 +53,8 @@ describe("SM-2", () => {
   });
 
   it("'Fácil' crece más rápido que 'Bien'", () => {
-    let a: any, b: any;
-    a = sm2Grade(undefined, "medio", NOW); a = sm2Grade(a, "medio", NOW); a = sm2Grade(a, "medio", NOW);
-    b = sm2Grade(undefined, "facil", NOW); b = sm2Grade(b, "facil", NOW); b = sm2Grade(b, "facil", NOW);
+    let a = sm2Grade(undefined, "medio", NOW); a = sm2Grade(a, "medio", NOW); a = sm2Grade(a, "medio", NOW);
+    let b = sm2Grade(undefined, "facil", NOW); b = sm2Grade(b, "facil", NOW); b = sm2Grade(b, "facil", NOW);
     expect(b.interval).toBeGreaterThan(a.interval);
   });
 
@@ -69,8 +68,7 @@ describe("SM-2", () => {
   });
 
   it("intervalo ≥21 días = dominado", () => {
-    let s: any;
-    s = sm2Grade(undefined, "facil", NOW);
+    let s = sm2Grade(undefined, "facil", NOW);
     s = sm2Grade(s, "facil", NOW);
     s = sm2Grade(s, "facil", NOW);
     expect(s.interval).toBeGreaterThanOrEqual(21);

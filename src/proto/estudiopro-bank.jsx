@@ -1,6 +1,6 @@
 /* EstudioPro · Prototipo — Colores de materia + banco de preguntas de ejemplo (temario real). */
 
-window.SUBJECT_COLORS = {
+export const SUBJECT_COLORS = {
   "Legislación Militar": "#2F73CE",
   "Operaciones Militares": "#2A8A5E",
   "Normatividad Gubernamental": "#A0742A",
@@ -9,19 +9,20 @@ window.SUBJECT_COLORS = {
   "Aspecto Técnico": "#0E7490",
 };
 // El color de materia sale del store editable si existe; si no, del valor por defecto.
-window.subjColor = (s) => {
+// (window.EPStore sigue como global: el store aún no está migrado.)
+export const subjColor = (s) => {
   try {
     const st = window.EPStore && window.EPStore.get && window.EPStore.get();
     if (st && st.subjects) { const m = st.subjects.find((x) => x.name === s); if (m && m.color) return m.color; }
-  } catch (e) { /* store aún no listo */ }
-  return window.SUBJECT_COLORS[s] || "#2F73CE";
+  } catch { /* store aún no listo */ }
+  return SUBJECT_COLORS[s] || "#2F73CE";
 };
 
 /* Variantes oscurecidas de los colores de materia para cuando se usan como TEXTO pequeño
    (pasan WCAG AA 4.5:1 sobre blanco y tintes claros). Los puntos, barras y rellenos siguen
    usando subjColor() con el color brillante de identidad. En tema oscuro no se aplican:
    el color brillante ya contrasta sobre la superficie oscura. */
-window.SUBJECT_TEXT_COLORS = {
+export const SUBJECT_TEXT_COLORS = {
   "Legislación Militar": "#2964B3",
   "Operaciones Militares": "#23734E",
   "Normatividad Gubernamental": "#815E22",
@@ -29,14 +30,22 @@ window.SUBJECT_TEXT_COLORS = {
   "Adiestramiento y Mando Militar": "#B53C0B",
   "Aspecto Técnico": "#0D6E89",
 };
-window.subjTextColor = (s) => {
-  if (typeof document !== "undefined" && document.querySelector(".theme-dark")) return window.subjColor(s);
-  return window.SUBJECT_TEXT_COLORS[s] || window.subjColor(s);
+export const subjTextColor = (s) => {
+  if (typeof document !== "undefined" && document.querySelector(".theme-dark")) return subjColor(s);
+  return SUBJECT_TEXT_COLORS[s] || subjColor(s);
+};
+
+/* Etiqueta corta de materia para chips estrechos. La primera palabra sola es ambigua
+   entre "Aspecto Administrativo" y "Aspecto Técnico", así que ahí se usa la segunda. */
+export const subjShort = (s) => {
+  const words = (s || "").split(" ");
+  if (words[0] === "Aspecto" && words[1]) return words[1];
+  return words[0] || s;
 };
 
 /* Banco de preguntas de ejemplo. type: OM (opción múltiple), VF (verdadero/falso), AB (abierta).
    status: ok=dominada, fall=fallada, nuevo=sin estudiar, imp=importante. */
-window.QUESTION_BANK = [
+export const QUESTION_BANK = [
   { id: "LM-001", subject: "Legislación Militar", ord: "Código de Justicia Militar", loc: "Libro Primero · Cap. I",
     type: "OM", dif: "medio", status: "ok", tags: ["delitos", "clasificación"],
     q: "Según el Código de Justicia Militar, ¿cómo se clasifican los delitos en razón de la voluntad del agente?",
@@ -153,11 +162,11 @@ window.QUESTION_BANK = [
     ref: "Manual de Ciberseguridad y Ciberdefensa, Cap. III" },
 ];
 
-window.TYPE_LABEL = { OM: "Opción múltiple", VF: "Verdadero / Falso", AB: "Abierta", REL: "Relacionar", COMP: "Completar" };
-window.STATUS_LABEL = { ok: "Dominada", fall: "Fallada", nuevo: "Sin estudiar", imp: "Importante" };
+export const TYPE_LABEL = { OM: "Opción múltiple", VF: "Verdadero / Falso", AB: "Abierta", REL: "Relacionar", COMP: "Completar" };
+export const STATUS_LABEL = { ok: "Dominada", fall: "Fallada", nuevo: "Sin estudiar", imp: "Importante" };
 
 /* Banco de tarjetas (flashcards) de ejemplo por materia. [frente, reverso, [tags], nivel] */
-window.CARD_BANK = {
+export const CARD_BANK = {
   "Legislación Militar": [
     ["¿Cómo se clasifican los delitos según la voluntad del agente en el CJM?", "En intencionales y no intencionales (de imprudencia o imprudenciales).", ["cjm", "delitos"], "medio"],
     ["¿Qué es la insubordinación conforme al CJM?", "Faltar al respeto, amenazar o agredir a un superior en actos del servicio o con motivo de él.", ["cjm", "insubordinación"], "difícil"],
@@ -195,3 +204,6 @@ window.CARD_BANK = {
   ],
 };
 
+
+// Doble publicación durante el refactor a ES modules: consumidores no migrados leen window.*.
+Object.assign(window, { SUBJECT_COLORS, subjColor, SUBJECT_TEXT_COLORS, subjTextColor, subjShort, QUESTION_BANK, TYPE_LABEL, STATUS_LABEL, CARD_BANK });

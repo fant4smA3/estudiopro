@@ -1,3 +1,4 @@
+import React from "react";
 // @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
 
 /* BEGIN USAGE */
@@ -176,7 +177,7 @@ function useTweaks(defaults) {
     try {
       const saved = JSON.parse(localStorage.getItem(TWEAKS_LS_KEY) || 'null');
       return saved && typeof saved === 'object' ? { ...defaults, ...saved } : defaults;
-    } catch (e) { return defaults; }
+    } catch { return defaults; }
   });
   // Accepts either setTweak('key', value) or setTweak({ key: value, ... }).
   const setTweak = React.useCallback((keyOrEdits, val) => {
@@ -184,7 +185,7 @@ function useTweaks(defaults) {
       ? keyOrEdits : { [keyOrEdits]: val };
     setValues((prev) => {
       const next = { ...prev, ...edits };
-      try { localStorage.setItem(TWEAKS_LS_KEY, JSON.stringify(next)); } catch (e) { /* sin almacenamiento */ }
+      try { localStorage.setItem(TWEAKS_LS_KEY, JSON.stringify(next)); } catch { /* sin almacenamiento */ }
       return next;
     });
     // Señal en la misma ventana para listeners in-page.
@@ -545,3 +546,6 @@ Object.assign(window, {
   TweakSlider, TweakToggle, TweakRadio, TweakSelect,
   TweakText, TweakNumber, TweakColor, TweakButton,
 });
+
+// Componentes exportados como módulo ES (ya no se publican en window.*; app/merged/pruebas los importan).
+export { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor };

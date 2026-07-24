@@ -1,14 +1,15 @@
 /* EstudioPro · Prototipo — Pantallas nuevas (K): Examen adaptativo, Confusiones, Metas semanales, Podcast, Glosario, Simulador de nota. */
-const { useGo: useGoK, PageHead: PageHeadK, Panel: PanelK, EmptyState: EmptyStateK } = window;
-const kSubjects = () => window.subjectNames();
+import React from "react";
+import { EmptyState as EmptyStateK, PageHead as PageHeadK, Panel as PanelK, PromptDialog, SectionHead, toast, useGo as useGoK } from "./estudiopro-ui.jsx";
+import { confusionMatrix, EPStore, realStreak, scoreScenarios, subjectNames, useStore, weeklyProgress } from "./estudiopro-store.jsx";
+import { subjColor } from "./estudiopro-bank.jsx";
+const kSubjects = () => subjectNames();
 const kShuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 /* ============================ EXAMEN ADAPTATIVO ============================ */
 function ExamenAdaptativo() {
   const go = useGoK();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const difOrder = { "fácil": 0, "medio": 1, "difícil": 2 };
+  const st = useStore();
   const pool = React.useMemo(() => (st.questions || []).filter((q) => q.type !== "AB" && q.options && q.options.length >= 2), []);
   const MAX = 12;
   const [i, setI] = React.useState(0);
@@ -38,7 +39,7 @@ function ExamenAdaptativo() {
     setChecked(true);
     const correct = sel === cur.answer;
     setHist((h) => [...h, { correct, level, id: cur._id, subject: cur.subject }]);
-    if (!correct) window.EPStore.updateQuestion(cur._id, { status: "fall" });
+    if (!correct) EPStore.updateQuestion(cur._id, { status: "fall" });
   };
   const next = () => {
     const correct = hist[hist.length - 1].correct;
@@ -48,7 +49,7 @@ function ExamenAdaptativo() {
     if (!q) { finish(nl); return; }
     setLevel(nl); setCur(q); setAsked((a) => [...a, q._id]); setI(i + 1); setSel(null); setChecked(false);
   };
-  const finish = (nl) => { setDone(true); window.EPStore.bumpToday(Math.round(hist.length / 2)); };
+  const finish = (nl) => { setDone(true); EPStore.bumpToday(Math.round(hist.length / 2)); };
 
   React.useEffect(() => {
     const onKey = (e) => {
@@ -134,23 +135,33 @@ function ExamenAdaptativo() {
 }
 
 /* ============================ CONFUSIONES (matriz + drill) ============================ */
-function Confusiones() {
+function ConfusionesBody() {
   const go = useGoK();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const m = window.confusionMatrix();
+  const _st = useStore();
+  const m = confusionMatrix();
   const cellColor = (v) => v >= 60 ? "var(--danger)" : v >= 40 ? "var(--warn)" : v >= 20 ? "color-mix(in srgb,var(--accent) 40%,#fff)" : "var(--surface-2)";
   const cellInk = (v) => v >= 40 ? "#fff" : "var(--mute)";
+  if (!m.hasData) {
+    return (
+      <React.Fragment>
+        <SectionHead icon="🎯" title="Matriz de confusión" desc="Dónde pierdes puntos: materia × dificultad" />
+        <EmptyStateK icon="🎯" title="Aún no hay respuestas registradas"
+          desc="Responde cuestionarios o simulacros; aquí verás en qué materias y dificultades pierdes puntos, con tus datos reales."
+          actions={<button className="btn btn-accent" onClick={() => go("cuestionarios")}>Ir a cuestionarios ▸</button>} />
+      </React.Fragment>
+    );
+  }
   return (
-    <main className="main">
-      <PageHeadK title="Matriz de confusión" sub="Dónde pierdes puntos exactamente: materia × tipo de error"
-        crumbs={[["Progreso", "inteligencia"], "Confusiones"]} />
-      <section className="panel cf-peak" style={{ borderLeft: "3px solid var(--danger)" }}>
-        <div className="cf-peak-ic">🎯</div>
-        <div><div className="cf-peak-t">Tu mayor fuga de puntos</div>
-          <div className="cf-peak-d"><b style={{ color: subjTextColor(m.peak.subj) }}>{m.peak.subj}</b> · {m.peak.col.toLowerCase()}</div></div>
-        <button className="btn btn-accent" onClick={() => { window.__epSubject = m.peak.subj; go("repaso"); }}>Practicar esto ▸</button>
-      </section>
+    <React.Fragment>
+      <SectionHead icon="🎯" title="Matriz de confusión" desc="Dónde pierdes puntos: materia × dificultad (% de falladas sobre respondidas)" />
+      {m.peak && (
+        <section className="panel cf-peak" style={{ borderLeft: "3px solid var(--danger)" }}>
+          <div className="cf-peak-ic">🎯</div>
+          <div><div className="cf-peak-t">Tu mayor fuga de puntos</div>
+            <div className="cf-peak-d"><b style={{ color: subjTextColor(m.peak.subj) }}>{m.peak.subj}</b> · preguntas de dificultad {m.peak.col.toLowerCase()} ({m.peak.fall} falladas)</div></div>
+          <button className="btn btn-accent" onClick={() => { window.__epSubject = m.peak.subj; go("repaso"); }}>Practicar esto ▸</button>
+        </section>
+      )}
       <section className="panel">
         <div className="panel-b cf-scroll">
           <table className="cf-table">
@@ -159,8 +170,8 @@ function Confusiones() {
               {m.rows.map((r) => (
                 <tr key={r.subj}>
                   <th className="cf-rowh"><span className="cron-dot" style={{ background: subjColor(r.subj) }}></span>{r.subj}</th>
-                  {r.cells.map((v, ci) => (
-                    <td key={ci} className="cf-cell" style={{ background: cellColor(v), color: cellInk(v), outline: ci === r.worst ? "2px solid var(--danger)" : "none", outlineOffset: "-2px" }} title={r.subj + " · " + m.cols[ci] + ": " + v + "% de error relativo"}>{v}</td>
+                  {r.cells.map((c, ci) => (
+                    <td key={ci} className="cf-cell" style={{ background: c ? cellColor(c.v) : "var(--surface-2)", color: c ? cellInk(c.v) : "var(--mute)", outline: ci === r.worst ? "2px solid var(--danger)" : "none", outlineOffset: "-2px" }} title={c ? (r.subj + " · " + m.cols[ci] + ": " + c.fall + " falladas de " + c.answered + " respondidas") : (r.subj + " · " + m.cols[ci] + ": sin respuestas aún")}>{c ? c.v : "–"}</td>
                   ))}
                 </tr>
               ))}
@@ -168,25 +179,23 @@ function Confusiones() {
           </table>
         </div>
       </section>
-      <div className="cf-legend"><span>Menos error</span><i className="mapa-sw" style={{ background: "var(--surface-2)" }}></i><i className="mapa-sw" style={{ background: "#9DBBE4" }}></i><i className="mapa-sw" style={{ background: "var(--warn)" }}></i><i className="mapa-sw" style={{ background: "var(--danger)" }}></i><span>Más error</span><span className="cf-legend-note">El recuadro rojo marca tu peor tipo de error por materia.</span></div>
-    </main>
+      <div className="cf-legend"><span>Menos error</span><i className="mapa-sw" style={{ background: "var(--surface-2)" }}></i><i className="mapa-sw" style={{ background: "#9DBBE4" }}></i><i className="mapa-sw" style={{ background: "var(--warn)" }}></i><i className="mapa-sw" style={{ background: "var(--danger)" }}></i><span>Más error</span><span className="cf-legend-note">El recuadro rojo marca tu peor dificultad por materia; «–» = sin respuestas aún.</span></div>
+    </React.Fragment>
   );
 }
 
-/* ============================ METAS SEMANALES + CONGELAR RACHA ============================ */
-function Metas() {
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const w = window.weeklyProgress();
+/* ============================ METAS SEMANALES + CONGELAR RACHA ============================
+   El cuerpo (MetasBody) también se incrusta en Inicio; la ruta «metas» sigue viva. */
+function MetasBody() {
+  const st = useStore();
+  const w = weeklyProgress();
   const DOW = ["L", "M", "X", "J", "V", "S", "D"];
   const R = 66, C = 2 * Math.PI * R, frac = Math.min(1, w.active / w.goal);
   const hoyISO = new Date().toISOString().slice(0, 10);
   const yaCongeladoHoy = (st.plan.frozenDates || []).includes(hoyISO);
-  const freeze = () => { const ok = window.EPStore.useFreeze(); window.toast && window.toast(ok ? "Día congelado — tu racha está a salvo" : "No quedan comodines o ya congelaste hoy", ok ? "ok" : "warn"); };
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- EPStore.useFreeze es un método del store (gasta un comodín), no un hook de React
+  const freeze = () => { const ok = EPStore.useFreeze(); toast && toast(ok ? "Día congelado — tu racha está a salvo" : "No quedan comodines o ya congelaste hoy", ok ? "ok" : "warn"); };
   return (
-    <main className="main">
-      <PageHeadK title="Metas semanales" sub="Constancia por semana, no solo por día — y un comodín para no perder la racha"
-        crumbs={[["Inicio", "inicio"], "Metas semanales"]} />
       <div className="mt-grid">
         <section className="panel mt-ring-panel">
           <div className="mt-ring-wrap">
@@ -194,7 +203,7 @@ function Metas() {
             <div className="mt-ring-c"><div className="mt-ring-n">{w.active}<span>/{w.goal}</span></div><div className="mt-ring-l">días activos</div></div>
           </div>
           <div className="mt-goal-row"><span>Meta semanal</span>
-            <select className="input input-sm" aria-label="Meta semanal de días" value={w.goal} onChange={(e) => window.EPStore.setWeeklyGoal(+e.target.value)}>{[3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n} días</option>)}</select>
+            <select className="input input-sm" aria-label="Meta semanal de días" value={w.goal} onChange={(e) => EPStore.setWeeklyGoal(+e.target.value)}>{[3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n} días</option>)}</select>
           </div>
           <div className="mt-week">
             {w.days.map((d, i) => (
@@ -206,8 +215,8 @@ function Metas() {
           </div>
         </section>
         <div className="mt-side">
-          <PanelK idx="🔥" title="Racha" meta={(window.realStreak ? window.realStreak() : 0) + " días"}>
-            <div className="mt-streak"><div className="mt-streak-n">{window.realStreak ? window.realStreak() : 0}</div><div className="mt-streak-l">días seguidos</div></div>
+          <PanelK idx="🔥" title="Racha" meta={(realStreak ? realStreak() : 0) + " días"}>
+            <div className="mt-streak"><div className="mt-streak-n">{realStreak ? realStreak() : 0}</div><div className="mt-streak-l">días seguidos</div></div>
             <div className="mt-freeze">
               <div className="mt-freeze-h"><span>❄ Comodines de racha</span><b>{w.freezes} disponibles</b></div>
               <p className="mt-freeze-d">Úsalos en un día justificado (guardia, comisión) para no perder la racha.</p>
@@ -220,14 +229,12 @@ function Metas() {
           </PanelK>
         </div>
       </div>
-    </main>
   );
 }
 
 /* ============================ PODCAST DE REPASO (audio continuo) ============================ */
 function Podcast() {
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+  const st = useStore();
   const SUBJECTS = kSubjects();
   const [fuente, setFuente] = React.useState("falladas");
   const [subject, setSubject] = React.useState("todas");
@@ -266,7 +273,7 @@ function Podcast() {
       if (!playRef.current) return; await speak("Respuesta. " + (resp || "consulta el material")); if (!playRef.current) return;
       if (q.explain) { await wait(500); if (!playRef.current) return; await speak(q.explain); } await wait(700); k++;
     }
-    if (k >= cola.length) { stop(); window.toast && window.toast("Fin del podcast de repaso", "ok"); }
+    if (k >= cola.length) { stop(); toast && toast("Fin del podcast de repaso", "ok"); }
   };
   const play = () => { if (!cola.length) return; playRef.current = true; setPlaying(true); run(idxRef.current); };
   const stop = () => { playRef.current = false; setPlaying(false); if (supported) window.speechSynthesis.cancel(); };
@@ -306,11 +313,9 @@ function Podcast() {
 }
 
 /* ============================ GLOSARIO ============================ */
-function Glosario() {
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+function GlosarioBody() {
+  const st = useStore();
   const SUBJECTS = kSubjects();
-  const { PromptDialog } = window;
   const [q, setQ] = React.useState("");
   const [subject, setSubject] = React.useState("todas");
   const [adding, setAdding] = React.useState(false);
@@ -320,9 +325,8 @@ function Glosario() {
     return okS && (!needle || (t.term + " " + t.def).toLowerCase().includes(needle));
   }).sort((a, b) => a.term.localeCompare(b.term));
   return (
-    <main className="main">
-      <PageHeadK title="Glosario" sub="Términos clave del temario, con su fundamento"
-        crumbs={[["Inicio", "inicio"], "Glosario"]}
+    <React.Fragment>
+      <SectionHead icon="📖" title="Glosario" desc="Términos clave del temario, con su fundamento"
         actions={<button className="btn btn-accent" onClick={() => setAdding(true)}>+ Nuevo término</button>} />
       <div className="notas-hub-bar">
         <input className="input search-input" placeholder="Buscar término…" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -334,7 +338,7 @@ function Glosario() {
         : <div className="gl-grid">
             {terms.map((t) => (
               <section className="gl-card" key={t.id} style={{ borderTop: "3px solid " + subjColor(t.subject) }}>
-                <div className="gl-card-h"><span className="gl-term">{t.term}</span><button className="cron-x" onClick={() => window.EPStore.deleteGlossary(t.id)} aria-label="Eliminar">×</button></div>
+                <div className="gl-card-h"><span className="gl-term">{t.term}</span><button className="cron-x" onClick={() => EPStore.deleteGlossary(t.id)} aria-label="Eliminar">×</button></div>
                 <p className="gl-def">{t.def}</p>
                 <div className="gl-foot"><span className="gl-subj" style={{ color: subjTextColor(t.subject) }}>{t.subject}</span>{t.ref && <span className="gl-ref">{t.ref}</span>}</div>
               </section>
@@ -342,20 +346,19 @@ function Glosario() {
           </div>}
       <PromptDialog open={adding} title="Nuevo término"
         fields={[{ key: "term", label: "Término", placeholder: "p. ej. Insubordinación", required: true }, { key: "subject", label: "Materia", placeholder: SUBJECTS[0], required: true }, { key: "def", label: "Definición", type: "textarea", placeholder: "Definición breve…", required: true }, { key: "ref", label: "Fundamento (opcional)", placeholder: "CJM · Art. …" }]}
-        confirmLabel="Guardar término" onConfirm={(v) => { window.EPStore.addGlossary(v); setAdding(false); window.toast && window.toast("Término añadido", "ok"); }} onClose={() => setAdding(false)} />
-    </main>
+        confirmLabel="Guardar término" onConfirm={(v) => { EPStore.addGlossary(v); setAdding(false); toast && toast("Término añadido", "ok"); }} onClose={() => setAdding(false)} />
+    </React.Fragment>
   );
 }
 
 /* ============================ SIMULADOR DE NOTA FINAL ============================ */
-function Simulador() {
+function SimuladorBody() {
   const go = useGoK();
-  const s = window.scoreScenarios();
+  const s = scoreScenarios();
   const yOf = (n, h) => h - (n / 10) * h;
   return (
-    <main className="main">
-      <PageHeadK title="Simulador de nota final" sub="Tu nota estimada el 27 de julio según cómo sigas estudiando"
-        crumbs={[["Progreso", "inteligencia"], "Simulador de nota"]} />
+    <React.Fragment>
+      <SectionHead icon="📐" title="Simulador de nota final" desc="Tu nota estimada según cómo sigas estudiando" />
       <div className="prep-kpis">
         <div className="kpi prep-kpi"><div className="kpi-v">{s.base}</div><div className="kpi-l">Nota base (hoy)</div></div>
         <div className="kpi prep-kpi"><div className="kpi-v">{s.dias}</div><div className="kpi-l">Días al examen</div></div>
@@ -392,8 +395,10 @@ function Simulador() {
         </div>
       </section>
       <section className="panel sim-cta"><span>La diferencia entre aprobar y no está en la constancia de las próximas {s.semanas} semanas.</span><button className="btn btn-accent" onClick={() => go("repaso")}>Empezar a cerrar la brecha ▸</button></section>
-    </main>
+    </React.Fragment>
   );
 }
 
-Object.assign(window, { ExamenAdaptativo, Confusiones, Metas, Podcast, Glosario, Simulador });
+
+// Componentes exportados como módulo ES (ya no se publican en window.*; app/merged/pruebas los importan).
+export { ConfusionesBody, GlosarioBody, SimuladorBody, MetasBody, ExamenAdaptativo, Podcast };

@@ -1,15 +1,29 @@
 /* EstudioPro · Prototipo — Pantallas D: Calendario, Simulacro (config + bloques), Alertas */
-const { useGo: useGoD, PageHead: PageHeadD, Panel: PanelD, Diff: DiffD, Crumbs: CrumbsD } = window;
+import React from "react";
+import { ColorField, ConfirmDialog, Crumbs as CrumbsD, Diff as DiffD, EmptyState, Modal, PageHead as PageHeadD, Panel, Panel as PanelD, SectionHead, Switch, toast, useGo as useGoD } from "./estudiopro-ui.jsx";
+import { daysToExam, EPStore, generarPlan, intel, subjectNames, useStore } from "./estudiopro-store.jsx";
+import { subjColor, subjShort, subjTextColor, TYPE_LABEL } from "./estudiopro-bank.jsx";
 
-/* ============================ CALENDARIO ============================ */
+/* ============================ CALENDARIO + EDITOR DEL PLAN ============================
+   Una sola página: el mes es editable (arrastra un día sobre otro para intercambiarlos,
+   o suéltalo en un día libre para moverlo) y la hoja de cada día permite cambiar estado,
+   mover a otra fecha o quitarlo. La pestaña Lista conserva el reordenado lineal. */
 function Calendario() {
   const go = useGoD();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+  const st = useStore();
   const [cursor, setCursor] = React.useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const [sel, setSel] = React.useState(null);
-  React.useEffect(() => { if (!st.plan.generado) window.generarPlan(); }, []);
-  const dias = st.plan.dias || [];
+  const [vista, setVista] = React.useState("agenda");  // agenda | mes | lista
+  const [dragDate, setDragDate] = React.useState(null); // arrastre entre celdas del mes
+  const [overDate, setOverDate] = React.useState(null);
+  const [dragIdx, setDragIdx] = React.useState(null);   // arrastre en la vista lista
+  const [overIdx, setOverIdx] = React.useState(null);
+  const [confirmRegen, setConfirmRegen] = React.useState(false);
+  const [moveTo, setMoveTo] = React.useState("");
+  const [edit, setEdit] = React.useState(null);   // evento en edición (o nuevo)
+  const [delAsk, setDelAsk] = React.useState(null); // evento por eliminar
+  React.useEffect(() => { if (!st.plan.generado) generarPlan(); }, []);
+  const dias = (st.plan.dias || []).slice().sort((a, b) => a.fecha.localeCompare(b.fecha));
   const byDate = {}; dias.forEach((d) => { byDate[d.fecha] = d; });
 
   const MES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
@@ -20,6 +34,7 @@ function Calendario() {
   const daysInMonth = new Date(y, m + 1, 0).getDate();
   const todayStr = new Date().toISOString().slice(0, 10);
   const examStr = st.plan.examDate;
+  const examTxt = examStr ? new Date(examStr + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" }) : "";
   const fmt = (dd) => new Date(y, m, dd).toISOString().slice(0, 10);
 
   const cells = [];
@@ -30,30 +45,195 @@ function Calendario() {
   const planMonth = dias.filter((d) => d.fecha.startsWith(y + "-" + String(m + 1).padStart(2, "0")));
   const hechos = planMonth.filter((d) => d.estado === "hecho").length;
 
-  const openDay = (dd) => { const d = byDate[fmt(dd)]; if (d) setSel(d); };
+  // --- edición del plan desde el calendario ---
+  // mover contenido a otra fecha: si la fecha destino ya tiene plan, se intercambian
+  const moveOrSwap = (fromFecha, toFecha) => {
+    if (!fromFecha || !toFecha || fromFecha === toFecha) return false;
+    const from = byDate[fromFecha];
+    if (!from) return false;
+    const to = byDate[toFecha];
+    let nuevo;
+    if (to) {
+      // intercambio: el contenido (y su estado) viaja; las fechas quedan fijas
+      nuevo = dias.map((d) => d.fecha === fromFecha ? { ...to, fecha: fromFecha } : d.fecha === toFecha ? { ...from, fecha: toFecha } : d);
+      toast && toast("Días intercambiados", "ok");
+    } else {
+      nuevo = dias.map((d) => d.fecha === fromFecha ? { ...d, fecha: toFecha } : d);
+      toast && toast("Día movido al " + new Date(toFecha + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short" }), "ok");
+    }
+    EPStore.updatePlan(nuevo.sort((a, b) => a.fecha.localeCompare(b.fecha)));
+    return true;
+  };
+  const removeDay = (d) => {
+    EPStore.updatePlan(dias.filter((x) => x.fecha !== d.fecha));
+    setSel(null);
+    toast && toast("Día quitado del plan", "ok");
+  };
+  const setEstado = (d, estado) => {
+    EPStore.setPlanDayState(d.fecha, estado);
+    setSel({ ...d, estado });
+    toast && toast(estado === "hecho" ? "Día marcado como estudiado" : "Día marcado como pendiente", "ok");
+  };
+  // vista lista: arrastrar reordena los contenidos sobre las fechas fijas (editor clásico)
+  const commitLista = (arr) => {
+    const fechas = dias.map((d) => d.fecha);
+    EPStore.updatePlan(arr.map((d, i) => ({ ...d, fecha: fechas[i] })));
+  };
+  const onDropLista = (idx) => {
+    if (dragIdx === null || dragIdx === idx) { setDragIdx(null); setOverIdx(null); return; }
+    const arr = dias.slice();
+    const [it] = arr.splice(dragIdx, 1);
+    arr.splice(idx, 0, it);
+    commitLista(arr); setDragIdx(null); setOverIdx(null);
+    toast && toast("Plan reprogramado", "ok");
+  };
+
+  // --- CRUD de eventos del plan (crear, editar, eliminar desde el propio calendario) ---
+  const SUBJECTS_CAL = subjectNames();
+  // color efectivo: el personalizado del evento o el de su materia
+  const dayColor = (d) => (d && d.color) || (d && d.subject ? subjColor(d.subject) : "var(--accent)");
+  // sin fecha explícita, propone el primer día libre desde hoy (evita pisar lo ya planeado)
+  const primerDiaLibre = () => {
+    const d = new Date(todayStr + "T00:00:00");
+    for (let i = 0; i < 400; i++) {
+      const iso = d.toISOString().slice(0, 10);
+      if (!byDate[iso]) return iso;
+      d.setDate(d.getDate() + 1);
+    }
+    return todayStr;
+  };
+  const nuevoEvento = (fecha) => setEdit({
+    _nuevo: true, fechaOrig: null, fecha: fecha || primerDiaLibre(), tipo: "estudio",
+    subject: SUBJECTS_CAL[0] || "", ord: "", titulo: "", min: 45, npreg: 12, estado: "pendiente", color: "", nota: "",
+  });
+  const editarEvento = (d) => { setSel(null); setEdit({ ...d, _nuevo: false, fechaOrig: d.fecha, color: d.color || "", nota: d.nota || "" }); };
+  const guardarEvento = () => {
+    const e = edit;
+    if (!e || !e.fecha) return;
+    const limpio = {
+      fecha: e.fecha, tipo: e.tipo,
+      subject: e.tipo === "simulacro" || e.tipo === "personal" ? (e.subject || null) : e.subject,
+      ord: (e.ord || "").trim(), titulo: (e.titulo || "").trim(),
+      estado: e.estado || "pendiente", min: Math.max(1, +e.min || 45), npreg: Math.max(0, +e.npreg || 0),
+      color: e.color || undefined, nota: (e.nota || "").trim() || undefined,
+    };
+    // quita el evento de su fecha anterior (si se movió) y coloca el nuevo
+    const resto = dias.filter((d) => d.fecha !== limpio.fecha && d.fecha !== e.fechaOrig);
+    EPStore.updatePlan([...resto, limpio].sort((a, b) => a.fecha.localeCompare(b.fecha)));
+    setEdit(null);
+    toast && toast(e._nuevo ? "Evento agregado al plan" : "Evento actualizado", "ok");
+  };
+  const eliminarEvento = (d) => {
+    EPStore.updatePlan(dias.filter((x) => x.fecha !== d.fecha));
+    setDelAsk(null); setEdit(null); setSel(null);
+    toast && toast("Evento eliminado del plan", "ok");
+  };
+
+  const openDay = (dd) => { const d = byDate[fmt(dd)]; if (d) { setSel(d); setMoveTo(""); } else { nuevoEvento(fmt(dd)); } };
   const startDay = (d) => {
     if (d.tipo === "simulacro") { go("simulacro"); return; }
     window.__epSimulacro = false; window.__epSubject = d.subject;
-    window.EPStore.setNav({ subject: d.subject, ord: d.ord, mode: "practica" });
+    EPStore.setNav({ subject: d.subject, ord: d.ord, mode: "practica" });
     go("quiz");
   };
-  const markDone = (d) => {
-    window.EPStore.get().plan.dias = dias.map((x) => x.fecha === d.fecha ? { ...x, estado: "hecho" } : x);
-    window.EPStore.setGoal(st.plan.dailyGoal); // fuerza emit
-    setSel({ ...d, estado: "hecho" });
-    window.toast && window.toast("Día marcado como estudiado", "ok");
-  };
+
+  // --- resumen del plan: cuenta regresiva, avance y sesión de hoy ---
+  const diasExamen = daysToExam();
+  const totalPlan = dias.length;
+  const hechasPlan = dias.filter((d) => d.estado === "hecho").length;
+  const pctPlan = totalPlan ? Math.round(hechasPlan / totalPlan * 100) : 0;
+  const nSimulacros = dias.filter((d) => d.tipo === "simulacro").length;
+  const hoyPlan = byDate[todayStr] || null;
+  // agenda: desde hoy en adelante; si ya pasó todo, muestra los últimos días del plan
+  const proximos = dias.filter((d) => d.fecha >= todayStr);
+  const agenda = proximos.length ? proximos : dias.slice(-7);
+  const fmtDia = (f, opts) => new Date(f + "T00:00:00").toLocaleDateString("es-MX", opts);
 
   return (
     <main className="main">
-      <PageHeadD title="Calendario de estudio" sub="Plan hasta el examen · 27 jul 2026" crumbs={[["Inicio", "inicio"], "Calendario"]}
+      <PageHeadD title="Calendario y plan de estudio" sub={"Organiza tu plan hasta el examen" + (examTxt ? " · " + examTxt : "")} crumbs={[["Inicio", "inicio"], "Calendario"]}
         actions={<div className="cal-nav">
-          <button className="btn btn-sm" onClick={() => setCursor(new Date(y, m - 1, 1))}>‹</button>
-          <span className="cal-month">{MES[m]} {y}</span>
-          <button className="btn btn-sm" onClick={() => setCursor(new Date(y, m + 1, 1))}>›</button>
-          <button className="btn btn-sm" onClick={() => { window.generarPlan(); window.toast && window.toast("Plan regenerado", "ok"); }}>Regenerar plan</button>
+          {vista === "mes" && <React.Fragment>
+            <button className="btn btn-sm" onClick={() => setCursor(new Date(y, m - 1, 1))} aria-label="Mes anterior">‹</button>
+            <span className="cal-month">{MES[m]} {y}</span>
+            <button className="btn btn-sm" onClick={() => setCursor(new Date(y, m + 1, 1))} aria-label="Mes siguiente">›</button>
+          </React.Fragment>}
+          <div className="rep-tabs cal-tabs">
+            <button className={"rep-tab" + (vista === "agenda" ? " is-on" : "")} onClick={() => setVista("agenda")}>Agenda</button>
+            <button className={"rep-tab" + (vista === "mes" ? " is-on" : "")} onClick={() => setVista("mes")}>Mes</button>
+            <button className={"rep-tab" + (vista === "lista" ? " is-on" : "")} onClick={() => setVista("lista")}>Lista</button>
+          </div>
+          <button className="btn btn-sm" onClick={() => setConfirmRegen(true)}>Regenerar plan</button>
+          <button className="btn btn-sm btn-accent" onClick={() => nuevoEvento()}>+ Nuevo evento</button>
         </div>} />
 
+      {/* resumen del plan: cuánto falta, cuánto llevas y qué toca hoy */}
+      <div className="plan-hdr">
+        <div className="plan-cd" aria-label={diasExamen + " días para el examen"}>
+          <b>{diasExamen}</b><span>{diasExamen === 1 ? "día" : "días"}</span>
+        </div>
+        <div className="plan-hdr-b">
+          <div className="plan-hdr-t">{diasExamen === 0 ? "El examen es hoy" : "Faltan " + diasExamen + (diasExamen === 1 ? " día" : " días") + " para el examen"}{examTxt ? " · " + examTxt : ""}</div>
+          <div className="mini-bar plan-bar"><i style={{ width: pctPlan + "%" }}></i></div>
+          <div className="plan-hdr-s">
+            <span><b>{hechasPlan}</b> de <b>{totalPlan}</b> sesiones hechas</span>
+            <span><b>{nSimulacros}</b> simulacro{nSimulacros === 1 ? "" : "s"}</span>
+            <span><b>{pctPlan}%</b> del plan</span>
+          </div>
+        </div>
+      </div>
+
+      {hoyPlan && (
+        <div className="plan-today" style={{ borderLeft: "4px solid " + (hoyPlan.subject ? subjColor(hoyPlan.subject) : "var(--accent)") }}>
+          <span className="plan-today-ic" style={{ background: hoyPlan.subject ? subjColor(hoyPlan.subject) : "var(--accent)" }} aria-hidden="true">{hoyPlan.tipo === "simulacro" ? "◎" : "▣"}</span>
+          <div className="plan-today-b">
+            <div className="plan-today-t">Hoy · {hoyPlan.tipo === "simulacro" ? "Simulacro general" : hoyPlan.subject}</div>
+            <div className="plan-today-d">{hoyPlan.ord}{hoyPlan.titulo ? " · " + hoyPlan.titulo : ""} · {hoyPlan.min} min</div>
+          </div>
+          {hoyPlan.estado === "hecho"
+            ? <span className="plan-today-done">✓ Hecho</span>
+            : <button className="btn btn-accent" onClick={() => startDay(hoyPlan)}>{hoyPlan.tipo === "simulacro" ? "Ir al simulacro ▸" : "Estudiar ahora ▸"}</button>}
+        </div>
+      )}
+
+      {vista === "agenda" && (
+        agenda.length === 0 ? (
+          <EmptyState icon="🗓" title="Sin plan generado"
+            desc="Genera tu plan de estudio para ver la agenda de aquí al examen."
+            actions={<button className="btn btn-accent" onClick={() => setConfirmRegen(true)}>Generar plan ▸</button>} />
+        ) : (
+          <div className="plan-agenda">
+            {agenda.map((d) => {
+              const c = dayColor(d);
+              const isToday = d.fecha === todayStr;
+              const isExam = d.fecha === examStr;
+              return (
+                <div className="ag-row" key={d.fecha}>
+                  <div className={"ag-date" + (isToday ? " is-today" : "")}>
+                    <b>{fmtDia(d.fecha, { day: "numeric" })}</b>
+                    <span>{isToday ? "Hoy" : fmtDia(d.fecha, { weekday: "short" })}</span>
+                  </div>
+                  <div className={"ag-card" + (isToday ? " is-today" : "") + (isExam ? " is-exam" : "") + (d.estado === "hecho" ? " is-done" : "")}
+                    style={{ borderLeftColor: c }} onClick={() => { setSel(d); setMoveTo(""); }} role="button" tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === "Enter") { setSel(d); setMoveTo(""); } }}>
+                    <div className="ag-body">
+                      <div className="ag-t">{d.tipo === "simulacro" ? "Simulacro general" : d.tipo === "personal" ? (d.titulo || "Evento") : d.subject}{isExam && <span className="ag-exam">EXAMEN</span>}</div>
+                      <div className="ag-s">{d.ord}{d.titulo ? " · " + d.titulo : ""}</div>
+                    </div>
+                    <span className={"ag-pill ag-" + d.tipo}>{d.tipo}</span>
+                    <span className="ag-min">{d.min}′</span>
+                    <button className={"ag-done" + (d.estado === "hecho" ? " is-on" : "")} title="Marcar hecho"
+                      aria-label={"Marcar " + (d.estado === "hecho" ? "pendiente" : "hecho")}
+                      onClick={(e) => { e.stopPropagation(); EPStore.setPlanDayState(d.fecha, d.estado === "hecho" ? "pendiente" : "hecho"); }}>✓</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )
+      )}
+
+      {vista === "mes" && <React.Fragment>
       <div className="cal-legend">
         <span><i className="cal-dot cd-done"></i> Estudiado</span>
         <span><i className="cal-dot cd-partial"></i> Parcial</span>
@@ -61,6 +241,7 @@ function Calendario() {
         <span><i className="cal-dot cd-sim"></i> Simulacro (viernes)</span>
         <span className="cal-legend-r">{hechos} días estudiados este mes</span>
       </div>
+      <div className="cal-hint">Toca un día con plan para abrirlo, o un <b>día libre para crear un evento</b> ahí. En computadora también puedes <b>arrastrar un día sobre otro</b> para intercambiarlos, o soltarlo en un día libre para moverlo.</div>
 
       <div className="calendar">
         <div className="cal-grid cal-head">
@@ -73,14 +254,25 @@ function Calendario() {
             const d = byDate[ds];
             const isToday = ds === todayStr;
             const isExam = ds === examStr;
-            const c = d && d.subject ? subjColor(d.subject) : null;
+            const c = d ? dayColor(d) : null;
             return (
-              <div key={dd} className={"cal-cell" + (isToday ? " is-today" : "") + (isExam ? " is-exam" : "") + (d ? " has-plan" : "")}
-                onClick={() => openDay(dd)} role={d ? "button" : undefined}>
+              <div key={dd} className={"cal-cell" + (isToday ? " is-today" : "") + (isExam ? " is-exam" : "") + (d ? " has-plan" : "") + (dragDate === ds ? " is-drag" : "") + (overDate === ds && dragDate && dragDate !== ds ? " is-over" : "")}
+                onClick={() => openDay(dd)} role={d ? "button" : undefined}
+                draggable={!!d}
+                onDragStart={d ? () => setDragDate(ds) : undefined}
+                onDragOver={(e) => { if (dragDate && dragDate !== ds) { e.preventDefault(); setOverDate(ds); } }}
+                onDragLeave={() => { if (overDate === ds) setOverDate(null); }}
+                onDrop={() => { moveOrSwap(dragDate, ds); setDragDate(null); setOverDate(null); }}
+                onDragEnd={() => { setDragDate(null); setOverDate(null); }}>
                 <span className="cal-num">{dd}{isExam && <span className="cal-examflag">EXAMEN</span>}</span>
-                {d && d.tipo === "simulacro" && <span className="cal-chip cal-chip-sim">Simulacro 200</span>}
-                {d && d.tipo === "estudio" && <span className="cal-chip" style={{ background: c + "22", color: window.subjTextColor(d.subject) }}><i className="cal-dot" style={{ background: c }}></i>{d.subject.split(" ")[0]}</span>}
-                {d && d.tipo === "repaso" && <span className="cal-chip cal-chip-rep">Repaso</span>}
+                {d && d.tipo === "simulacro" && !d.color && <span className="cal-chip cal-chip-sim">Simulacro {d.npreg || 200}</span>}
+                {d && d.tipo === "repaso" && !d.color && <span className="cal-chip cal-chip-rep">Repaso</span>}
+                {d && (d.tipo === "estudio" || d.tipo === "personal" || d.color) && (
+                  <span className="cal-chip" style={{ background: "color-mix(in srgb, " + c + " 16%, transparent)", color: (!d.color && d.subject) ? subjTextColor(d.subject) : c }}>
+                    <i className="cal-dot" style={{ background: c }}></i>
+                    {d.tipo === "personal" ? (d.titulo || "Evento") : (d.subject ? subjShort(d.subject) : d.tipo)}
+                  </span>
+                )}
                 {d && d.titulo && d.tipo !== "simulacro" && <span className="cal-cap">{d.titulo.replace(/^(Cap\.|Libro|Título)\s*/, "")}</span>}
                 {d && <span className={"cal-state " + (estadoCls[d.estado] || "")}></span>}
               </div>
@@ -88,38 +280,175 @@ function Calendario() {
           })}
         </div>
       </div>
+      </React.Fragment>}
+
+      {vista === "lista" && <React.Fragment>
+      <div className="plan-ed-hint">Sujeta el punto <span className="plan-ed-grip">⠿</span> y arrastra un día sobre otro para intercambiar el orden. Las fechas se mantienen; solo cambia qué estudias cada día.</div>
+      <div className="plan-ed-list">
+        {dias.map((d, i) => {
+          const c = dayColor(d);
+          const isToday = d.fecha === todayStr;
+          return (
+            <div key={d.fecha} draggable
+              onDragStart={() => setDragIdx(i)} onDragOver={(e) => { e.preventDefault(); setOverIdx(i); }} onDrop={() => onDropLista(i)} onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+              className={"plan-ed-row" + (d.estado === "hecho" ? " is-done" : "") + (dragIdx === i ? " is-drag" : "") + (overIdx === i && dragIdx !== null && dragIdx !== i ? " is-over" : "") + (isToday ? " is-today" : "")}
+              style={{ borderLeft: "4px solid " + c }}
+              onClick={() => { setSel(d); setMoveTo(""); }}>
+              <span className="plan-ed-grip" aria-hidden="true">⠿</span>
+              <div className="plan-ed-date">
+                <b>{new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { weekday: "short", day: "numeric" })}</b>
+                <span>{new Date(d.fecha + "T00:00:00").toLocaleDateString("es-MX", { month: "short" })}</span>
+              </div>
+              <div className="plan-ed-body">
+                <div className="plan-ed-t">{d.tipo === "simulacro" ? "Simulacro general" : d.subject}</div>
+                <div className="plan-ed-s">{d.ord}{d.titulo ? " · " + d.titulo : ""}</div>
+              </div>
+              <span className={"plan-ed-chip plan-ed-" + d.tipo}>{d.tipo}</span>
+              <span className="plan-ed-min">{d.min}′</span>
+              <button className={"plan-ed-done" + (d.estado === "hecho" ? " is-on" : "")} onClick={(e) => { e.stopPropagation(); EPStore.setPlanDayState(d.fecha, d.estado === "hecho" ? "pendiente" : "hecho"); }} title="Marcar hecho" aria-label={"Marcar " + (d.estado === "hecho" ? "pendiente" : "hecho")}>✓</button>
+            </div>
+          );
+        })}
+        {dias.length === 0 && <div className="plan-ed-hint">Sin plan generado. Usa «Regenerar plan» para crearlo.</div>}
+      </div>
+      </React.Fragment>}
 
       {sel && (
         <div className="cal-sheet" onClick={() => setSel(null)}>
-          <div className="cal-sheet-card" onClick={(e) => e.stopPropagation()} style={sel.subject ? { borderTop: "3px solid " + subjColor(sel.subject) } : { borderTop: "3px solid var(--accent)" }}>
-            <button className="cal-sheet-x" onClick={() => setSel(null)}>✕</button>
+          <div className="cal-sheet-card" onClick={(e) => e.stopPropagation()} style={{ borderTop: "3px solid " + dayColor(sel) }}>
+            <button className="cal-sheet-x" onClick={() => setSel(null)} aria-label="Cerrar">✕</button>
             <div className="cal-sheet-date">{new Date(sel.fecha + "T00:00:00").toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" })}</div>
-            <div className="cal-sheet-title">{sel.tipo === "simulacro" ? "Simulacro general" : sel.subject}</div>
+            <div className="cal-sheet-title">{sel.tipo === "simulacro" ? "Simulacro general" : sel.tipo === "personal" ? (sel.titulo || "Evento") : sel.subject}</div>
             <div className="cal-sheet-sub">{sel.ord}{sel.titulo ? " · " + sel.titulo : ""}</div>
             <div className="cal-sheet-stats">
               <span className="sc"><b>{sel.min}</b> min estimados</span>
               <span className="sc"><b>{sel.npreg}</b> preguntas</span>
               <span className={"sc cal-badge-" + sel.estado}>{sel.estado}</span>
             </div>
+            {sel.nota && <div className="cal-sheet-nota">{sel.nota}</div>}
             <div className="cal-sheet-acts">
-              <button className="btn btn-accent" onClick={() => startDay(sel)}>{sel.tipo === "simulacro" ? "Ir al simulacro ▸" : "Estudiar ahora ▸"}</button>
-              {sel.estado !== "hecho" && <button className="btn" onClick={() => markDone(sel)}>Marcar hecho</button>}
-              <button className="btn" onClick={() => setSel(null)}>Cerrar</button>
+              {sel.tipo !== "personal" && <button className="btn btn-accent" onClick={() => startDay(sel)}>{sel.tipo === "simulacro" ? "Ir al simulacro ▸" : "Estudiar ahora ▸"}</button>}
+              <button className="btn" onClick={() => editarEvento(sel)}>✎ Editar</button>
+              {sel.estado !== "hecho"
+                ? <button className="btn" onClick={() => setEstado(sel, "hecho")}>Marcar hecho</button>
+                : <button className="btn" onClick={() => setEstado(sel, "pendiente")}>Marcar pendiente</button>}
+              <button className="btn btn-danger" onClick={() => removeDay(sel)}>Quitar del plan</button>
+            </div>
+            <div className="cal-sheet-move">
+              <label htmlFor="cal-move-date">Mover a otra fecha</label>
+              <div className="cal-sheet-move-row">
+                <input id="cal-move-date" type="date" className="input input-sm" value={moveTo} onChange={(e) => setMoveTo(e.target.value)} />
+                <button className="btn btn-sm" disabled={!moveTo || moveTo === sel.fecha} onClick={() => { if (moveOrSwap(sel.fecha, moveTo)) setSel(null); }}>
+                  {moveTo && byDate[moveTo] ? "Intercambiar ▸" : "Mover ▸"}
+                </button>
+              </div>
+              {moveTo && byDate[moveTo] && moveTo !== sel.fecha && <span className="cal-sheet-move-note">Esa fecha ya tiene «{byDate[moveTo].tipo === "simulacro" ? "Simulacro general" : byDate[moveTo].subject}» — se intercambiarán.</span>}
             </div>
           </div>
         </div>
       )}
+
+      {/* editor de evento: crear / editar cualquier día del plan sin salir del calendario */}
+      <Modal open={!!edit} onClose={() => setEdit(null)}>
+        {edit && (
+          <React.Fragment>
+            <div className="modal-h">{edit._nuevo ? "Nuevo evento" : "Editar evento"}</div>
+            <div className="modal-b ev-form">
+              <div className="form-2">
+                <div className="field"><label htmlFor="ev-fecha">Fecha</label>
+                  <input id="ev-fecha" type="date" className="input" value={edit.fecha} onChange={(e) => setEdit({ ...edit, fecha: e.target.value })} />
+                </div>
+                <div className="field"><label htmlFor="ev-tipo">Tipo</label>
+                  <select id="ev-tipo" className="input" value={edit.tipo} onChange={(e) => setEdit({ ...edit, tipo: e.target.value })}>
+                    <option value="estudio">Estudio</option>
+                    <option value="repaso">Repaso</option>
+                    <option value="simulacro">Simulacro</option>
+                    <option value="personal">Personal / otro</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="field"><label htmlFor="ev-titulo">Título</label>
+                <input id="ev-titulo" className="input" placeholder={edit.tipo === "personal" ? "Ej. Entrega de documentos" : "Ej. Libro Primero — Reglas generales"}
+                  value={edit.titulo} onChange={(e) => setEdit({ ...edit, titulo: e.target.value })} />
+              </div>
+
+              {edit.tipo !== "personal" && (
+                <div className="form-2">
+                  <div className="field"><label htmlFor="ev-materia">Materia</label>
+                    <select id="ev-materia" className="input" value={edit.subject || ""} onChange={(e) => setEdit({ ...edit, subject: e.target.value })}>
+                      <option value="">— sin materia —</option>
+                      {SUBJECTS_CAL.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div className="field"><label htmlFor="ev-ord">Ordenamiento / tema</label>
+                    <input id="ev-ord" className="input" placeholder="Ej. Código de Justicia Militar" value={edit.ord} onChange={(e) => setEdit({ ...edit, ord: e.target.value })} />
+                  </div>
+                </div>
+              )}
+
+              <div className="form-2">
+                <div className="field"><label htmlFor="ev-min">Duración (min)</label>
+                  <input id="ev-min" type="number" min="1" className="input" value={edit.min} onChange={(e) => setEdit({ ...edit, min: e.target.value })} />
+                </div>
+                {edit.tipo !== "personal" && (
+                  <div className="field"><label htmlFor="ev-npreg">Nº de preguntas</label>
+                    <input id="ev-npreg" type="number" min="0" className="input" value={edit.npreg} onChange={(e) => setEdit({ ...edit, npreg: e.target.value })} />
+                  </div>
+                )}
+              </div>
+
+              <div className="field"><label htmlFor="ev-nota">Nota (opcional)</label>
+                <textarea id="ev-nota" className="input" rows={2} placeholder="Detalles, recordatorios…" value={edit.nota} onChange={(e) => setEdit({ ...edit, nota: e.target.value })}></textarea>
+              </div>
+
+              <div className="field">
+                <label>Color</label>
+                <ColorField value={edit.color || (edit.subject ? subjColor(edit.subject) : "#2F73CE")} onChange={(c) => setEdit({ ...edit, color: c })} />
+                {edit.color && <button type="button" className="ev-color-reset" onClick={() => setEdit({ ...edit, color: "" })}>{edit.subject ? "Usar el color de la materia" : "Quitar color personalizado"}</button>}
+              </div>
+
+              <div className="field"><label htmlFor="ev-estado">Estado</label>
+                <select id="ev-estado" className="input" value={edit.estado} onChange={(e) => setEdit({ ...edit, estado: e.target.value })}>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="parcial">Parcial</option>
+                  <option value="hecho">Hecho</option>
+                </select>
+              </div>
+
+              {byDate[edit.fecha] && edit.fecha !== edit.fechaOrig && (
+                <div className="ev-warn">Ese día ya tiene «{byDate[edit.fecha].tipo === "simulacro" ? "Simulacro general" : (byDate[edit.fecha].titulo || byDate[edit.fecha].subject || "un evento")}» — se reemplazará. El plan admite un evento por día.</div>
+              )}
+            </div>
+            <div className="modal-f">
+              {!edit._nuevo && <button className="btn btn-danger" onClick={() => setDelAsk(edit)}>Eliminar</button>}
+              <span style={{ flex: 1 }}></span>
+              <button className="btn" onClick={() => setEdit(null)}>Cancelar</button>
+              <button className="btn btn-accent" onClick={guardarEvento} disabled={!edit.fecha}>{edit._nuevo ? "Agregar al plan" : "Guardar cambios"}</button>
+            </div>
+          </React.Fragment>
+        )}
+      </Modal>
+
+      <ConfirmDialog open={!!delAsk} danger confirmLabel="Eliminar evento"
+        title="¿Eliminar este evento del plan?"
+        body={delAsk ? <span>Se quitará <b>{delAsk.tipo === "simulacro" ? "Simulacro general" : (delAsk.titulo || delAsk.subject || "el evento")}</b> del {new Date(delAsk.fecha + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "long" })}.</span> : null}
+        onClose={() => setDelAsk(null)} onConfirm={() => eliminarEvento(delAsk)} />
+
+      <ConfirmDialog open={confirmRegen} title="¿Regenerar el plan completo?"
+        body="Se creará un plan nuevo desde hoy hasta el examen y se perderán los cambios manuales (días movidos, intercambiados o quitados)."
+        confirmLabel="Regenerar plan" danger
+        onClose={() => setConfirmRegen(false)}
+        onConfirm={() => { generarPlan(); setConfirmRegen(false); toast && toast("Plan regenerado", "ok"); }} />
     </main>
   );
 }
-window.Calendario = Calendario;
 
 /* ====================== SIMULACRO (config + bloques) ====================== */
-function Simulacro() {
+function SimulacroBody() {
   const go = useGoD();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const SUBJECTS = window.subjectNames();
+  const st = useStore();
+  const SUBJECTS = subjectNames();
   const DEF = { "Legislación Militar": 40, "Operaciones Militares": 35, "Normatividad Gubernamental": 35, "Aspecto Administrativo": 25, "Adiestramiento y Mando Militar": 30, "Aspecto Técnico": 35 };
   const [dist, setDist] = React.useState(DEF);
   const [modo, setModo] = React.useState("aleatorio");
@@ -135,8 +464,8 @@ function Simulacro() {
   const repartirPorPeso = () => setDist(DEF);
 
   return (
-    <main className="main">
-      <PageHeadD title="Simulacro de examen" sub="200 preguntas · 120 + 15 descanso + 120 min" crumbs={[["Inicio", "inicio"], "Simulacro"]} />
+    <React.Fragment>
+      <SectionHead icon="📝" title="Simulacro de examen" desc="200 preguntas · 120 + 15 descanso + 120 min" />
 
       <div className="quiz-config">
         <div className="qc-main">
@@ -206,26 +535,24 @@ function Simulacro() {
             {effTotal < total && <div className="qc-sum-row"><span>Disponibles</span><b>{effTotal} en tu banco</b></div>}
             <div className="qc-sum-est">{effTotal === 0 ? "Tu banco no tiene preguntas para esta selección" : (ok && effTotal === 200 ? "Listo para iniciar" : effTotal < total ? "Se usarán las " + effTotal + " disponibles" : "Ajusta a 200 preguntas")}</div>
             <button className="btn btn-accent btn-lg" style={{ width: "100%" }} disabled={effTotal === 0}
-              onClick={() => { window.EPStore.setNav({ simDist: dist, simFiltro: modo === "filtros" ? filtro : "ninguno" }); go("simrun"); }}>Iniciar simulacro ▸</button>
+              onClick={() => { EPStore.setNav({ simDist: dist, simFiltro: modo === "filtros" ? filtro : "ninguno" }); go("simrun"); }}>Iniciar simulacro ▸</button>
           </div>
         </aside>
       </div>
-    </main>
+    </React.Fragment>
   );
 }
-window.Simulacro = Simulacro;
 
 /* ====================== SIMULACRO en curso (2 bloques + descanso) ====================== */
 function SimRun() {
   const go = useGoD();
-  const { TYPE_LABEL, ConfirmDialog } = window;
   // pool real: preguntas del banco según la distribución configurada, sin repetición
   const pool = React.useMemo(() => {
-    const nav = (window.EPStore.getNav && window.EPStore.getNav()) || {};
+    const nav = (EPStore.getNav && EPStore.getNav()) || {};
     const dist = nav.simDist || { "Legislación Militar": 40, "Operaciones Militares": 35, "Normatividad Gubernamental": 35, "Aspecto Administrativo": 25, "Adiestramiento y Mando Militar": 30, "Aspecto Técnico": 35 };
     const filtro = nav.simFiltro || "ninguno";
     const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-    let bank = (window.EPStore.get().questions || []).filter((q) => q.type !== "AB");
+    let bank = (EPStore.get().questions || []).filter((q) => q.type !== "AB");
     if (filtro === "solo falladas") bank = bank.filter((q) => q.status === "fall");
     else if (filtro === "importantes") bank = bank.filter((q) => q.status === "imp");
     else if (filtro === "difíciles") bank = bank.filter((q) => q.dif === "difícil");
@@ -279,17 +606,17 @@ function SimRun() {
     const score = total ? +(correct / total * 10).toFixed(1) : 0;
     // registra el simulacro en el histórico de Evolución (global + por materia)
     const byS = {}; Object.entries(byMat).forEach(([k, v]) => { byS[k] = v.total ? +(v.ok / v.total * 10).toFixed(1) : 0; });
-    window.EPStore.addSimResult({ global: score, byS });
+    EPStore.addSimResult({ global: score, byS });
     // marca el banco real con el desempeño del simulacro
     const seen = {}; pool.forEach((qq, k) => { if (qq._id) seen[qq._id] = { id: qq._id, correct: answers[k] === qq.answer }; });
-    window.EPStore.applyQuizResults(Object.values(seen));
+    EPStore.applyQuizResults(Object.values(seen));
     const el = elapsedRef.current;
     const time = String(Math.floor(el / 60)).padStart(2, "0") + ":" + String(el % 60).padStart(2, "0");
     const missed = pool.map((qq, k) => ({ q: qq.q, loc: qq.loc, ord: qq.ord, ok: answers[k] === qq.answer })).filter((m) => !m.ok);
-    window.EPStore.setLastResult({ subject: "Simulacro general", total, correct, wrong: total - correct, time, score, isSim: true,
+    EPStore.setLastResult({ subject: "Simulacro general", total, correct, wrong: total - correct, time, score, isSim: true,
       byChapter: Object.fromEntries(Object.entries(byMat).map(([k, v]) => [k, v])), missed });
-    window.EPStore.addSession({ subject: "Simulacro general", label: "Simulacro general · " + total + " preg", n: total, time, score, date: new Date().toISOString().slice(0, 10), state: "done" });
-    window.EPStore.bumpToday(answers.filter((a) => a !== null).length);
+    EPStore.addSession({ subject: "Simulacro general", label: "Simulacro general · " + total + " preg", n: total, time, score, date: new Date().toISOString().slice(0, 10), state: "done" });
+    EPStore.bumpToday(answers.filter((a) => a !== null).length);
     setPhase("done");
   };
   // banco sin preguntas para la selección: estado vacío en lugar de sesión
@@ -297,7 +624,7 @@ function SimRun() {
     return (
       <main className="main main-center">
         <div className="card-stage">
-          <window.EmptyState icon="⌕" title="No hay preguntas para el simulacro"
+          <EmptyState icon="⌕" title="No hay preguntas para el simulacro"
             desc="Tu banco no tiene preguntas calificables para la distribución elegida. Importa o crea preguntas primero."
             actions={<React.Fragment>
               <button className="btn" onClick={() => go("simulacro")}>‹ Ajustar simulacro</button>
@@ -322,7 +649,7 @@ function SimRun() {
     );
   }
   if (phase === "done") {
-    const r = window.EPStore.get().lastResult;
+    const r = EPStore.get().lastResult;
     return (
       <main className="main main-center">
         <div className="rest-screen">
@@ -361,7 +688,7 @@ function SimRun() {
           <div className="q-head">
             <span className="type-tag">{TYPE_LABEL[q.type] || q.type}</span>
             <DiffD level={q.dif} />
-            <span className="q-tag" style={{ color: window.subjTextColor(q.subject), fontWeight: 700 }}>{q.subject}</span>
+            <span className="q-tag" style={{ color: subjTextColor(q.subject), fontWeight: 700 }}>{q.subject}</span>
             {flags[cur] && <span className="q-flagged">★ marcada</span>}
           </div>
           <div className="q-text">{q.q}</div>
@@ -409,20 +736,17 @@ function SimRun() {
     </main>
   );
 }
-window.SimRun = SimRun;
 
 /* ============================ ALERTAS ============================ */
-function Alertas() {
-  const go = useGoD();
+function AlertasBody() {
   const [cfg, setCfg] = React.useState({ diaria: true, vencidas: true, simulacro: true, racha: true, meta: false });
   const [perm, setPerm] = React.useState(typeof Notification !== "undefined" ? Notification.permission : "unsupported");
   const pedirPermiso = async () => {
-    if (typeof Notification === "undefined") { setPerm("unsupported"); window.toast && window.toast("Navegador sin soporte de notificaciones", "warn"); return; }
+    if (typeof Notification === "undefined") { setPerm("unsupported"); toast && toast("Navegador sin soporte de notificaciones", "warn"); return; }
     const p = await Notification.requestPermission(); setPerm(p);
     if (p === "granted") window.epNotify("Notificaciones activadas", "Te avisaremos de tus repasos y simulacros.");
   };
   const t = (k) => setCfg((p) => ({ ...p, [k]: !p[k] }));
-  const Switch = window.Switch;
   const alerts = [
     ["diaria", "🗓️", "Recordatorio de sesión diaria", "Hoy toca Legislación · CJM Libro Primero", "8:00 a.m.", "var(--accent)"],
     ["vencidas", "🔁", "Tarjetas vencidas", "Tienes 58 tarjetas para repasar hoy", "9:00 a.m.", "#A0742A"],
@@ -431,8 +755,8 @@ function Alertas() {
     ["meta", "🎯", "Meta diaria no cumplida", "Te faltan 12 preguntas para tu meta", "9:30 p.m.", "#7A57C2"],
   ];
   return (
-    <main className="main">
-      <PageHeadD title="Alertas y recordatorios" sub="Notificaciones del plan de estudio" crumbs={[["Inicio", "inicio"], "Alertas"]} />
+    <React.Fragment>
+      <SectionHead icon="🔔" title="Alertas y recordatorios" desc="Notificaciones del plan de estudio" />
 
       <Panel idx="01" title="Próximas notificaciones">
         <div className="alert-list">
@@ -478,17 +802,14 @@ function Alertas() {
           ))}
         </div>
       </Panel>
-    </main>
+    </React.Fragment>
   );
 }
-window.Alertas = Alertas;
 
 /* ====================== REPASO PRIORITARIO (cola SRS) ====================== */
 function RepasoPrioritario() {
   const go = useGoD();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const SUBJECTS = window.subjectNames();
+  const st = useStore();
   // construye la cola con el orden del plan §5: falladas → importantes → vencidas → nuevas
   const falladas = st.questions.filter((q) => q.status === "fall");
   const importantes = st.questions.filter((q) => q.status === "imp");
@@ -504,7 +825,7 @@ function RepasoPrioritario() {
   const startTier = (t) => {
     if (t.kind === "tarj") { window.__epSubject = null; go("tarjetas"); return; }
     window.__epSimulacro = false; window.__epSubject = (t.items[0] && t.items[0].subject) || "Legislación Militar";
-    window.EPStore.setNav({ subject: window.__epSubject, mode: "practica", filter: t.label === "Falladas" ? "fall" : t.label === "Importantes" ? "imp" : null });
+    EPStore.setNav({ subject: window.__epSubject, mode: "practica", filter: t.label === "Falladas" ? "fall" : t.label === "Importantes" ? "imp" : null });
     go("quiz");
   };
   return (
@@ -557,12 +878,10 @@ function RepasoPrioritario() {
     </main>
   );
 }
-window.RepasoPrioritario = RepasoPrioritario;
 
 /* ====================== SESIÓN DE HOY (modo enfoque) ====================== */
 function SesionHoy() {
   const go = useGoD();
-  const subjColor = window.subjColor;
   const ses = window.__epSesion || { subject: "Legislación Militar", ord: "Código de Justicia Militar", titulo: "Libro Primero", step: 0 };
   const color = subjColor(ses.subject);
   const [step, setStep] = React.useState(ses.step || 0);
@@ -573,8 +892,8 @@ function SesionHoy() {
   ];
   const advance = () => setStep((s) => Math.min(3, s + 1));
   const goAction = (i) => {
-    if (i === 1) { window.__epSubject = ses.subject; window.EPStore.setNav({ subject: ses.subject, ord: ses.ord, mode: "practica" }); go("tarjetas"); }
-    if (i === 2) { window.__epSimulacro = false; window.__epSubject = ses.subject; window.EPStore.setNav({ subject: ses.subject, ord: ses.ord, mode: "practica" }); go("quiz"); }
+    if (i === 1) { window.__epSubject = ses.subject; EPStore.setNav({ subject: ses.subject, ord: ses.ord, mode: "practica" }); go("tarjetas"); }
+    if (i === 2) { window.__epSimulacro = false; window.__epSubject = ses.subject; EPStore.setNav({ subject: ses.subject, ord: ses.ord, mode: "practica" }); go("quiz"); }
   };
   return (
     <main className="main main-center">
@@ -582,7 +901,7 @@ function SesionHoy() {
         <CrumbsD path={[["Inicio", "inicio"], "Sesión de hoy"]} />
         <div className="study-top">
           <div className="study-meta">
-            <span className="study-meta-tag" style={{ color: window.subjTextColor(ses.subject) }}>Sesión de estudio · modo enfoque</span>
+            <span className="study-meta-tag" style={{ color: subjTextColor(ses.subject) }}>Sesión de estudio · modo enfoque</span>
             <span className="study-meta-name">{ses.subject} · {ses.titulo}</span>
           </div>
           <div className="sesion-prog"><span className="sp-n">{Math.min(step, 3)} / 3</span><div className="mini-bar mini-bar-wide" style={{ width: "180px" }}><i style={{ width: (Math.min(step, 3) / 3 * 100) + "%", background: color }}></i></div></div>
@@ -622,13 +941,11 @@ function SesionHoy() {
     </main>
   );
 }
-window.SesionHoy = SesionHoy;
 
 /* ====================== ONBOARDING GUIADO (multipaso) ====================== */
 function Onboarding() {
   const go = useGoD();
-  const subjColor = window.subjColor;
-  const SUBJECTS = window.subjectNames();
+  const SUBJECTS = subjectNames();
   const [step, setStep] = React.useState(0);
   const [examDate, setExamDate] = React.useState("2026-07-27");
   const [activeSubj, setActiveSubj] = React.useState(() => { const o = {}; SUBJECTS.forEach((s) => o[s] = true); return o; });
@@ -640,11 +957,11 @@ function Onboarding() {
   const finish = () => {
     const map = { L: 1, M: 2, X: 3, J: 4, V: 5, S: 6, D: 0 };
     const diasNum = Object.keys(dias).filter((k) => dias[k]).map((k) => map[k]);
-    window.EPStore.setExamDate(examDate);
-    window.EPStore.setGoal(goal);
-    window.EPStore.setDias(diasNum);
-    window.generarPlan();
-    window.toast && window.toast("Plan de estudio generado", "ok");
+    EPStore.setExamDate(examDate);
+    EPStore.setGoal(goal);
+    EPStore.setDias(diasNum);
+    generarPlan();
+    toast && toast("Plan de estudio generado", "ok");
     go("calendario");
   };
   return (
@@ -725,24 +1042,22 @@ function Onboarding() {
     </main>
   );
 }
-window.Onboarding = Onboarding;
 
 /* ====================== INTELIGENCIA DE ESTUDIO ====================== */
-function Inteligencia() {
+function InteligenciaBody() {
   const go = useGoD();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const x = window.intel();
+  const st = useStore();
+  const x = intel();
   const notaCls = x.nota >= 8 ? "rs-ok" : x.nota >= 6 ? "rs-warn" : "rs-bad";
   const recoIc = { debil: "🎯", fall: "🔁", olvido: "🕓", nota: "📈" };
   const startSubj = (subj, filter) => {
     window.__epSimulacro = false; window.__epSubject = subj;
-    window.EPStore.setNav({ subject: subj, mode: "practica", filter: filter || null });
+    EPStore.setNav({ subject: subj, mode: "practica", filter: filter || null });
     go("quiz");
   };
   return (
-    <main className="main">
-      <PageHeadD title="Inteligencia de estudio" sub="Análisis de tu desempeño y qué estudiar a continuación" crumbs={[["Inicio", "inicio"], "Inteligencia"]} />
+    <React.Fragment>
+      <SectionHead icon="🧠" title="Inteligencia de estudio" desc="Análisis de tu desempeño y qué estudiar a continuación" />
 
       {/* Predicción de nota */}
       <div className="intel-hero">
@@ -850,10 +1165,11 @@ function Inteligencia() {
       <div className="rp-note">
         <b>¿Cómo se calcula?</b> La nota proyectada combina tu <b>dominio por materia</b> (avance, aciertos y fallos) ponderado por el peso de cada área en el examen. Las recomendaciones priorizan lo débil, lo fallado y lo que llevas más tiempo sin repasar.
       </div>
-    </main>
+    </React.Fragment>
   );
 }
-window.Inteligencia = Inteligencia;
 
 /* helper local: Panel ya viene del window */
-const Panel = window.Panel;
+
+// Componentes exportados como módulo ES (ya no se publican en window.*; app/merged/pruebas los importan).
+export { Calendario, Onboarding, RepasoPrioritario, SesionHoy, SimRun, InteligenciaBody, SimulacroBody, AlertasBody };

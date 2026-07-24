@@ -1,7 +1,13 @@
 /* EstudioPro — Pantalla L: Reparar distractores.
    Detecta opciones placeholder ("Respuesta idéntica", "Distractor 1"…) o duplicadas y
-   propone reemplazos con las respuestas más parecidas del mismo tema (offline, epSimilar). */
-const { useGo: useGoL, PageHead: PageHeadL, Panel: PanelL, EmptyState: EmptyStateL } = window;
+   propone reemplazos con las respuestas más parecidas del mismo tema (offline, epSimilar).
+   Refactor a ES modules (Fase 3): importa React, banco, ui y store; solo los helpers
+   propios ep* (epNorm/epSimilar/epScanPlaceholders…) siguen como window.* hasta que migren. */
+import React from "react";
+import { subjColor } from "./estudiopro-bank.jsx";
+import { ConfirmDialog, EmptyState as EmptyStateL, Panel as PanelL, SectionHead, toast, useGo as useGoL } from "./estudiopro-ui.jsx";
+import { EPStore, useStore } from "./estudiopro-store.jsx";
+
 
 const PLACEHOLDER_RE = /^(respuesta\s+id[eé]ntica|distractor(es)?\s*\d*|opci[oó]n\s*\d*|pendiente|por\s+definir|xxx+|\.{2,}|[-–—])$/i;
 window.epIsPlaceholder = (t) => {
@@ -12,7 +18,7 @@ window.epIsPlaceholder = (t) => {
 
 /* escanea el banco: preguntas OM con opciones placeholder o duplicadas (nunca la correcta) */
 window.epScanPlaceholders = () => {
-  const st = window.EPStore.get();
+  const st = EPStore.get();
   const out = [];
   st.questions.forEach((q) => {
     if (!q.options || typeof q.answer !== "number") return;
@@ -32,7 +38,7 @@ window.epScanPlaceholders = () => {
 
 /* pool de candidatos reales de la materia (sin placeholders) con su ubicación */
 window.epRepairPool = (subject) => {
-  const st = window.EPStore.get();
+  const st = EPStore.get();
   const pool = [];
   st.questions.forEach((q) => {
     if (q.subject !== subject) return;
@@ -80,13 +86,12 @@ window.epRepairSuggest = (q, need, offset) => {
 window.epRepairApply = (q, bad, suggestions) => {
   const options = q.options.slice();
   bad.forEach((idx, k) => { if (suggestions[k]) options[idx] = suggestions[k]; });
-  window.EPStore.updateQuestion(q._id, { options });
+  EPStore.updateQuestion(q._id, { options });
 };
 
-function ReparaDistractores() {
+function ReparaDistractoresBody() {
   const go = useGoL();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+  const _st = useStore();
   const [offsets, setOffsets] = React.useState({});   // rotación de sugerencias por pregunta
   const [page, setPage] = React.useState(0);
   const [confirmAll, setConfirmAll] = React.useState(false);
@@ -101,9 +106,9 @@ function ReparaDistractores() {
 
   const applyOne = (q, bad) => {
     const sug = suggestFor(q, bad);
-    if (!sug.length) { window.toast && window.toast("Sin candidatos suficientes en la materia", "warn"); return; }
+    if (!sug.length) { toast && toast("Sin candidatos suficientes en la materia", "warn"); return; }
     window.epRepairApply(q, bad, sug);
-    window.toast && window.toast("Distractores reemplazados", "ok");
+    toast && toast("Distractores reemplazados", "ok");
   };
 
   const applyAll = () => {
@@ -113,26 +118,25 @@ function ReparaDistractores() {
       if (sug.length) { window.epRepairApply(q, bad, sug); n++; }
     });
     setConfirmAll(false);
-    window.toast && window.toast(n + " preguntas reparadas", "ok");
+    toast && toast(n + " preguntas reparadas", "ok");
   };
 
   const rotate = (q) => setOffsets((o) => ({ ...o, [q._id]: (o[q._id] || 0) + 3 }));
 
   if (!found.length) {
     return (
-      <main className="main">
-        <PageHeadL title="Reparar distractores" sub="opciones placeholder o repetidas en el banco" crumbs={[["Inicio", "inicio"], "Reparar distractores"]} />
+      <React.Fragment>
+        <SectionHead icon="✎" title="Reparar distractores" desc="Opciones placeholder o repetidas en el banco" />
         <EmptyStateL tone="ok" icon="✓" title="Banco en orden"
           desc="No hay preguntas con distractores placeholder («Respuesta idéntica», «Distractor 1»…) ni opciones duplicadas."
           actions={<button className="btn btn-accent" onClick={() => go("banco")}>Ir al banco ▸</button>} />
-      </main>
+      </React.Fragment>
     );
   }
 
-  const { ConfirmDialog } = window;
   return (
-    <main className="main">
-      <PageHeadL title="Reparar distractores" sub={found.length + " preguntas con opciones placeholder o repetidas"} crumbs={[["Inicio", "inicio"], "Reparar distractores"]}
+    <React.Fragment>
+      <SectionHead icon="✎" title="Reparar distractores" desc={found.length + " preguntas con opciones placeholder o repetidas"}
         actions={<button className="btn btn-accent" onClick={() => setConfirmAll(true)}>Reparar todas ({found.length}) ▸</button>} />
 
       <PanelL idx="—" title="Cómo funciona" meta="sugerencias del mismo tema">
@@ -192,8 +196,10 @@ function ReparaDistractores() {
         title="¿Reparar todas las preguntas?"
         body={<span>Se reemplazarán las opciones placeholder o repetidas de <b>{found.length}</b> preguntas con las sugerencias actuales. Las respuestas correctas no se tocan. Puedes ajustar cualquier pregunta después desde el banco.</span>}
         onClose={() => setConfirmAll(false)} onConfirm={applyAll} />
-    </main>
+    </React.Fragment>
   );
 }
 
-Object.assign(window, { ReparaDistractores });
+
+// Componentes exportados como módulo ES (ya no se publican en window.*; app/merged/pruebas los importan).
+export { ReparaDistractoresBody };

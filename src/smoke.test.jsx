@@ -1,39 +1,54 @@
 // @vitest-environment happy-dom
 /* Prueba de humo: monta la app completa y cada pantalla clave de la Fase 1,
    verificando que rendericen sin errores con el store real (datos semilla). */
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 import React from "react";
 import * as ReactDOMClient from "react-dom/client";
-import { createPortal } from "react-dom";
+import { flushSync } from "react-dom";
 
-let App, W;
+let App, W, SCREEN;
 
 beforeAll(async () => {
-  window.React = React;
-  window.ReactDOM = { ...ReactDOMClient, createPortal };
   window.__epSnapshot = null; // arranque limpio → siembra datos de ejemplo
   await import("./proto/index.js");
   App = (await import("./app.jsx")).default;
-  W = window;
+  W = window; // EPStore, analíticas y helpers ep* siguen publicados en window (bus de runtime)
+  // los componentes ya no viven en window: se resuelven por import (registro para el recorrido)
+  const [a, b, c, d, m] = await Promise.all([
+    import("./proto/estudiopro-screens-a.jsx"),
+    import("./proto/estudiopro-screens-b.jsx"),
+    import("./proto/estudiopro-screens-c.jsx"),
+    import("./proto/estudiopro-screens-d.jsx"),
+    import("./proto/estudiopro-merged.jsx"),
+  ]);
+  SCREEN = {
+    Inicio: a.Inicio, Config: a.Config,
+    Banco: b.Banco, Tarjetas: b.Tarjetas, TarjetaForm: b.TarjetaForm, PreguntaForm: b.PreguntaForm,
+    Perfil: c.Perfil,
+    Calendario: d.Calendario, SesionHoy: d.SesionHoy, RepasoPrioritario: d.RepasoPrioritario,
+    MateriasHub: m.MateriasHub, Cuaderno: m.Cuaderno, Practica: m.Practica, PracticaSimulacro: m.PracticaSimulacro,
+    Mantenimiento: m.Mantenimiento, MiPreparacion: m.MiPreparacion, EstadisticasHub: m.EstadisticasHub, Datos: m.Datos,
+  };
 });
 
+/* commit síncrono (flushSync): el resultado no depende de cuántos árboles previos
+   estén re-renderizando; la pausa corta deja correr los useEffect */
 const mount = async (node) => {
   const div = document.createElement("div");
   document.body.appendChild(div);
   const root = ReactDOMClient.createRoot(div);
-  await new Promise((res) => {
-    root.render(node);
-    setTimeout(res, 30);
-  });
-  return div;
+  flushSync(() => root.render(node));
+  await new Promise((res) => setTimeout(res, 20));
+  return { div, root };
 };
 
 describe("EstudioPro — humo", () => {
   it("la app completa monta y muestra el Inicio", async () => {
-    const div = await mount(React.createElement(App));
+    const { div, root } = await mount(React.createElement(App));
     expect(div.querySelector(".proapp")).toBeTruthy();
     expect(div.querySelector(".main")).toBeTruthy();
     expect(div.textContent).toContain("Resumen");
+    root.unmount(); div.remove();
   });
 
   it("el store siembra el banco de ejemplo", () => {
@@ -88,6 +103,24 @@ describe("EstudioPro — humo", () => {
     });
   });
 
+  it("el banco curado empaquetado es válido (sin placeholders, manifiesto consistente)", () => {
+    const fs = require("fs");
+    const bancos = JSON.parse(fs.readFileSync(process.cwd() + "/public/data/bancos.json", "utf8"));
+    expect(bancos.length).toBeGreaterThan(0);
+    for (const b of bancos) {
+      const data = JSON.parse(fs.readFileSync(process.cwd() + "/public/data/" + b.file, "utf8"));
+      expect(data.length, b.file + ": el manifiesto declara " + b.n).toBe(b.n);
+      data.forEach((q) => {
+        expect(q.q.length).toBeGreaterThan(10);
+        expect(q.options.length).toBe(4);
+        expect(q.answer).toBeGreaterThanOrEqual(0);
+        expect(q.answer).toBeLessThan(q.options.length);
+        q.options.forEach((o) => expect(W.epIsPlaceholder(o), b.file + " trae placeholder: " + o).toBe(false));
+        expect(new Set(q.options.map(W.epNorm)).size, "opciones repetidas en: " + q.q.slice(0, 60)).toBe(4);
+      });
+    }
+  });
+
   it("reparar distractores: detecta, sugiere y aplica", () => {
     const r0 = W.EPStore.addQuestions([
       { subject: "Aspecto Técnico", ord: "Manual Y", loc: "Cap. I", q: "¿Concepto base de prueba de reparación?", type: "OM",
@@ -112,15 +145,46 @@ describe("EstudioPro — humo", () => {
     expect(fixed.options[0]).toBe("Protección de activos de información"); // correcta intacta
   });
 
-  const SCREENS = ["Inicio", "Categorias", "Materias", "Banco", "Tarjetas", "TarjetaForm", "PreguntaForm", "Cuestionarios", "Simulacro", "Estadisticas", "Config", "Importar", "SesionHoy", "RepasoPrioritario", "Perfil", "Respaldo", "ReparaDistractores"];
+  // 12 páginas destino (varias fusionan pantallas que antes eran páginas propias) + flujos clave
+  const SCREENS = ["Inicio", "MateriasHub", "Cuaderno", "Banco", "Tarjetas", "Practica", "PracticaSimulacro", "Calendario", "Mantenimiento", "MiPreparacion", "EstadisticasHub", "Datos", "Config", "TarjetaForm", "PreguntaForm", "SesionHoy", "RepasoPrioritario", "Perfil"];
   for (const name of SCREENS) {
     it("pantalla " + name + " renderiza", async () => {
-      const C = W[name];
-      expect(C, name + " no existe en window").toBeTypeOf("function");
-      const div = await mount(
+      const C = SCREEN[name];
+      expect(C, name + " no exportado").toBeTypeOf("function");
+      const { div, root } = await mount(
         React.createElement(W.NavCtx.Provider, { value: () => {} }, React.createElement(C))
       );
       expect(div.querySelector("main.main"), name + " no renderizó <main>").toBeTruthy();
+      root.unmount(); div.remove(); // sin árboles residuales que re-rendericen en las siguientes pruebas
     });
   }
+
+  it("los datos de prueba (80%) importan limpio y las analíticas calculan valores coherentes", () => {
+    const fs = require("fs");
+    const payload = JSON.parse(fs.readFileSync(process.cwd() + "/public/data/progreso-prueba.json", "utf8"));
+    // las fechas del archivo son relativas a su día de generación; la racha y los
+    // vencimientos se evalúan "como si hoy" fuera ese día (si no, el archivo envejece
+    // y la prueba fallaría con el paso del calendario)
+    vi.useFakeTimers({ now: new Date(payload.exportedAt), toFake: ["Date"] });
+    const res = W.EPStore.importJSON(payload);
+    expect(res.ok).toBe(true);
+    expect(res.dropped).toBe(0);
+    expect(res.n).toBeGreaterThan(4000);
+    const st = W.EPStore.get();
+    // ~80% con estado SRS real
+    const conSrs = Object.keys(st.cardSrs).length;
+    expect(conSrs / st.questions.length).toBeGreaterThan(0.7);
+    expect(st.cards.filter((c) => c.nivel === "dominado").length).toBeGreaterThan(1000);
+    // las analíticas DERIVAN del estado (nada pintado)
+    expect(W.realStreak()).toBeGreaterThanOrEqual(10);
+    const intel = W.intel();
+    expect(intel.nota).toBeGreaterThan(5);
+    expect(intel.debil.subj).toBe("Normatividad Gubernamental"); // materia débil sembrada
+    const ready = W.readiness();
+    expect(ready.prob).toBeGreaterThan(50);
+    expect(W.dueCards().length).toBeGreaterThan(0);      // hay repasos que vencen hoy
+    expect((st.simHistory || []).length).toBeGreaterThanOrEqual(7);
+    expect(st.sessions.filter((s) => s.state === "done").length).toBeGreaterThan(30);
+    vi.useRealTimers();
+  });
 });

@@ -1,15 +1,18 @@
 /* EstudioPro · Prototipo — Pantallas nuevas (H): Preparación, Evolución, Mapa del temario, Respaldo, Reportes. */
-const { useGo: useGoH, PageHead: PageHeadH, Panel: PanelH, EmptyState: EmptyStateH } = window;
+import React from "react";
+import { ConfirmDialog, EmptyState as EmptyStateH, Modal, Panel as PanelH, SectionHead, toast, useGo as useGoH } from "./estudiopro-ui.jsx";
+import { EPStore, readiness, subjectNames, useStore } from "./estudiopro-store.jsx";
+import { subjColor } from "./estudiopro-bank.jsx";
+import { MATERIA_DETAIL } from "./estudiopro-data.jsx";
 
-const hSubjects = () => window.subjectNames();
+const hSubjects = () => subjectNames();
 const hHash = (s) => { let h = 0; for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) >>> 0; } return h; };
 
 /* ============================ ÍNDICE DE PREPARACIÓN ============================ */
-function Preparacion() {
+function PreparacionBody() {
   const go = useGoH();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const r = window.readiness();
+  const _st = useStore();
+  const r = readiness();
   const nivelColor = { "listo": "var(--ok)", "en-camino": "var(--accent)", "atención": "var(--warn)", "riesgo": "var(--danger)" }[r.nivel];
   const R = 92, C = 2 * Math.PI * R, frac = r.prob / 100;
 
@@ -23,9 +26,8 @@ function Preparacion() {
   ];
 
   return (
-    <main className="main">
-      <PageHeadH title="Índice de preparación" sub="¿Qué tan listo estás para el 27 de julio?"
-        crumbs={[["Inicio", "inicio"], "Índice de preparación"]} />
+    <React.Fragment>
+      <SectionHead icon="🎯" title="Índice de preparación" desc="¿Qué tan listo estás para el examen?" />
       <section className="panel prep-hero">
         <div className="prep-gauge-wrap">
           <svg viewBox="0 0 220 220" className="prep-gauge">
@@ -79,21 +81,20 @@ function Preparacion() {
           </ol>
         </PanelH>
       </div>
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ============================ EVOLUCIÓN DE SIMULACROS ============================ */
-function Evolucion() {
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+function EvolucionBody() {
+  const st = useStore();
   const SUBJECTS = hSubjects();
   const hist = (st.simHistory || []).slice().sort((a, b) => a.date.localeCompare(b.date));
   const [foco, setFoco] = React.useState("global");
 
   if (hist.length < 2) {
-    return (<main className="main"><PageHeadH title="Evolución de simulacros" crumbs={[["Inicio", "inicio"], "Evolución"]} />
-      <EmptyStateH icon="📈" title="Aún no hay suficientes simulacros" desc="Completa al menos dos simulacros para ver tu tendencia." /></main>);
+    return (<React.Fragment><SectionHead icon="📈" title="Evolución de simulacros" desc="Tendencia de tu nota hacia el examen" />
+      <EmptyStateH icon="📈" title="Aún no hay suficientes simulacros" desc="Completa al menos dos simulacros para ver tu tendencia." /></React.Fragment>);
   }
 
   // geometría del gráfico
@@ -115,9 +116,8 @@ function Evolucion() {
   const mejora = +(last.global - hist[0].global).toFixed(1);
 
   return (
-    <main className="main">
-      <PageHeadH title="Evolución de simulacros" sub="Tendencia de tu nota global y por materia hacia el 27 de julio"
-        crumbs={[["Inicio", "inicio"], "Evolución"]} />
+    <React.Fragment>
+      <SectionHead icon="📈" title="Evolución de simulacros" desc="Tendencia de tu nota global y por materia hacia el examen" />
       <div className="prep-kpis">
         <div className="kpi prep-kpi"><div className="kpi-v">{last.global}</div><div className="kpi-l">Último simulacro</div></div>
         <div className="kpi prep-kpi"><div className="kpi-v" style={{ color: mejora >= 0 ? "var(--ok)" : "var(--danger)" }}>{(mejora >= 0 ? "+" : "") + mejora}</div><div className="kpi-l">Mejora total</div></div>
@@ -142,7 +142,7 @@ function Evolucion() {
               </g>
             ))}
             <line x1={padL} y1={yOf(6)} x2={W - padR} y2={yOf(6)} stroke="var(--warn)" strokeWidth="1" strokeDasharray="4 4" opacity="0.6" />
-            {/* global tenue si hay foco de materia */}
+            {/* línea global tenue cuando hay foco de materia (nota: no empezar este comentario con "global": ESLint lo lee como directiva) */}
             {focoPts && <path d={line(globalPts)} fill="none" stroke="var(--line-strong)" strokeWidth="1.5" strokeDasharray="3 3" />}
             <path d={line(focoPts || globalPts)} fill="none" stroke={focoColor} strokeWidth="2.5" strokeLinejoin="round" />
             {(focoPts || globalPts).map((p, i) => (
@@ -181,17 +181,16 @@ function Evolucion() {
           })}
         </div>
       </PanelH>
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ============================ MAPA DE CALOR DEL TEMARIO ============================ */
-function MapaTemario() {
+function MapaTemarioBody() {
   const go = useGoH();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
+  const st = useStore();
   const SUBJECTS = hSubjects();
-  const DETAIL = window.MATERIA_DETAIL || {};
+  const DETAIL = MATERIA_DETAIL || {};
   const [foco, setFoco] = React.useState("todas");
 
   // dominio estimado por capítulo: mezcla estado real de preguntas del ordenamiento + señal estable por hash
@@ -215,9 +214,8 @@ function MapaTemario() {
   SUBJECTS.forEach((s) => ordsOf(s).forEach((ord) => DETAIL[ord].titulos.forEach((t) => t.caps.forEach((c) => { counts[bucket(capScore(ord, c[0]))]++; counts.total++; }))));
 
   return (
-    <main className="main">
-      <PageHeadH title="Mapa del temario" sub="Dominio estimado capítulo por capítulo — detecta tus huecos de un vistazo"
-        crumbs={[["Inicio", "inicio"], "Mapa del temario"]}
+    <React.Fragment>
+      <SectionHead icon="🗺" title="Mapa del temario" desc="Dominio estimado capítulo por capítulo — detecta tus huecos"
         actions={<select className="input" aria-label="Materia en foco" value={foco} onChange={(e) => setFoco(e.target.value)} style={{ maxWidth: "220px" }}>
           <option value="todas">Todas las materias</option>{SUBJECTS.map((s) => <option key={s}>{s}</option>)}
         </select>} />
@@ -256,17 +254,50 @@ function MapaTemario() {
           </section>
         );
       })}
-    </main>
+    </React.Fragment>
   );
 }
 
 /* ============================ RESPALDO (exportar / importar JSON) ============================ */
-function Respaldo() {
-  const st = window.useStore();
-  const { ConfirmDialog } = window;
+function RespaldoBody() {
+  const st = useStore();
   const fileRef = React.useRef(null);
   const [pending, setPending] = React.useState(null); // payload leído a confirmar
   const [info, setInfo] = React.useState(null);
+  // copias automáticas diarias (IndexedDB) + restauración
+  const [backups, setBackups] = React.useState([]);
+  const [restoreDate, setRestoreDate] = React.useState(null);
+  React.useEffect(() => {
+    if (window.epBackups) window.epBackups.list().then(setBackups).catch(() => {});
+  }, []);
+  const doRestoreBackup = () => {
+    const date = restoreDate; setRestoreDate(null);
+    window.epBackups.get(date).then((snap) => {
+      if (!snap) { toast && toast("No se encontró la copia", "danger"); return; }
+      const res = EPStore.importJSON({ data: snap });
+      if (res.ok) toast && toast("Copia del " + date + " restaurada (" + res.n + " preguntas)", "ok");
+      else toast && toast(res.msg || "No se pudo restaurar", "danger");
+    });
+  };
+  // recordatorio: días desde la última exportación (null = nunca)
+  const diasSinExportar = st.lastExport ? Math.floor((Date.now() - new Date(st.lastExport).getTime()) / 86400000) : null;
+  const recordar = diasSinExportar === null || diasSinExportar >= 7;
+  // datos de prueba (~80% de avance): descarga bajo demanda + importJSON validado
+  const [confirmDemo, setConfirmDemo] = React.useState(false);
+  const [demoBusy, setDemoBusy] = React.useState(false);
+  const loadDemo = () => {
+    setConfirmDemo(false); setDemoBusy(true);
+    Promise.resolve()
+      .then(() => fetch("data/progreso-prueba.json"))
+      .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then((payload) => {
+        const res = EPStore.importJSON(payload);
+        if (res.ok) toast && toast("Datos de prueba cargados: " + res.n.toLocaleString("es-MX") + " preguntas con progreso al 80%", "ok");
+        else toast && toast(res.msg || "No se pudo cargar", "danger");
+      })
+      .catch(() => toast && toast("No se pudieron descargar los datos de prueba. Revisa tu conexión.", "danger"))
+      .finally(() => setDemoBusy(false));
+  };
 
   const stats = [
     ["Preguntas", (st.questions || []).length],
@@ -286,22 +317,21 @@ function Respaldo() {
         const d = payload.data || payload;
         setInfo({ q: (d.questions || []).length, n: Object.keys(d.notes || {}).length, s: (d.sessions || []).length });
         setPending(payload);
-      } catch (err) { window.toast && window.toast("Archivo inválido o corrupto", "danger"); }
+      } catch { toast && toast("Archivo inválido o corrupto", "danger"); }
     };
     rd.readAsText(f);
     e.target.value = "";
   };
   const doImport = () => {
-    const res = window.EPStore.importJSON(pending);
+    const res = EPStore.importJSON(pending);
     setPending(null); setInfo(null);
-    if (res.ok) window.toast && window.toast("Respaldo restaurado (" + res.n + " preguntas)", "ok");
-    else window.toast && window.toast(res.msg || "No se pudo importar", "danger");
+    if (res.ok) toast && toast("Respaldo restaurado (" + res.n + " preguntas)" + (res.dropped ? " · " + res.dropped + " entradas inválidas omitidas" : ""), res.dropped ? "warn" : "ok");
+    else toast && toast(res.msg || "No se pudo importar", "danger");
   };
 
   return (
-    <main className="main">
-      <PageHeadH title="Respaldo de datos" sub="Exporta tu progreso a un archivo o restáuralo en otro dispositivo"
-        crumbs={[["Inicio", "inicio"], "Respaldo"]} />
+    <React.Fragment>
+      <SectionHead icon="🛟" title="Respaldo y copias" desc="Exporta tu progreso, restáuralo o usa las copias automáticas" />
       <div className="prep-kpis">
         {stats.map(([l, v]) => <div className="kpi prep-kpi" key={l}><div className="kpi-v">{v}</div><div className="kpi-l">{l}</div></div>)}
       </div>
@@ -310,7 +340,13 @@ function Respaldo() {
           <div className="resp-ic">⬇</div>
           <h3 className="resp-h">Exportar respaldo</h3>
           <p className="resp-d">Descarga un archivo <code>.json</code> con todo tu banco, tarjetas, apuntes, tiempos y progreso. Guárdalo en un lugar seguro.</p>
-          <button className="btn btn-accent btn-lg" onClick={() => { window.EPStore.exportJSON(); window.toast && window.toast("Respaldo descargado", "ok"); }}>Descargar respaldo</button>
+          <p className={"resp-last" + (recordar ? " is-warn" : "")}>
+            {diasSinExportar === null ? "⚠ Aún no has exportado ningún respaldo." :
+              diasSinExportar === 0 ? "✓ Exportaste hoy." :
+              (recordar ? "⚠ " : "✓ ") + "Última exportación hace " + diasSinExportar + " día" + (diasSinExportar === 1 ? "" : "s") + "."}
+            {recordar && " iOS puede purgar datos locales: exporta ahora."}
+          </p>
+          <button className="btn btn-accent btn-lg" onClick={() => { EPStore.exportJSON(); toast && toast("Respaldo descargado", "ok"); }}>Descargar respaldo</button>
         </section>
         <section className="panel resp-card">
           <div className="resp-ic">⬆</div>
@@ -320,20 +356,58 @@ function Respaldo() {
           <button className="btn btn-lg" onClick={() => fileRef.current && fileRef.current.click()}>Seleccionar archivo…</button>
         </section>
       </div>
+      <section className="panel">
+        <div className="panel-h">
+          <div className="panel-h-l"><span className="panel-idx">❄</span><span className="panel-title">Copias automáticas</span></div>
+          <div className="panel-h-r"><span className="panel-meta">una por día · se conservan las últimas 5</span></div>
+        </div>
+        <div className="panel-b">
+          {backups.length === 0
+            ? <p className="resp-d" style={{ margin: 0 }}>Aún no hay copias automáticas. Se crean solas al abrir la app cada día; aquí podrás restaurarlas si algo sale mal.</p>
+            : backups.map((b) => (
+                <div className="set-row" key={b.date}>
+                  <div>
+                    <div className="set-label">Copia del {new Date(b.date + "T00:00:00").toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" })}</div>
+                    <div className="set-desc">Estado completo tal como estaba al iniciar ese día.</div>
+                  </div>
+                  <button className="btn btn-sm" onClick={() => setRestoreDate(b.date)}>Restaurar…</button>
+                </div>
+              ))}
+        </div>
+      </section>
+      <section className="panel">
+        <div className="panel-h">
+          <div className="panel-h-l"><span className="panel-idx">🧪</span><span className="panel-title">Datos de prueba</span></div>
+          <div className="panel-h-r"><span className="panel-meta">~80% de avance simulado · 4,500+ reactivos</span></div>
+        </div>
+        <div className="panel-b">
+          <div className="set-row">
+            <div>
+              <div className="set-label">Cargar estado de prueba (progreso al 80%)</div>
+              <div className="set-desc">Banco completo por capítulo del temario + banco real de Aspecto Técnico, con repaso SM-2, sesiones, tiempos, racha y simulacros ya avanzados. Ideal para probar el sistema como si llevaras semanas estudiando. <b>Reemplaza todos tus datos actuales.</b></div>
+            </div>
+            <button className="btn btn-sm" disabled={demoBusy} onClick={() => setConfirmDemo(true)}>{demoBusy ? "Cargando…" : "Cargar datos de prueba…"}</button>
+          </div>
+        </div>
+      </section>
       <p className="resp-note">Tus datos se guardan localmente en este navegador. Exporta con regularidad para no perder tu avance.</p>
       <ConfirmDialog open={!!pending} title="¿Restaurar este respaldo?"
         body={info ? "El archivo contiene " + info.q + " preguntas, " + info.n + " apuntes y " + info.s + " sesiones. Esto reemplazará tus datos actuales." : ""}
         confirmLabel="Restaurar" danger onConfirm={doImport} onClose={() => { setPending(null); setInfo(null); }} />
-    </main>
+      <ConfirmDialog open={!!restoreDate} title={"¿Restaurar la copia del " + restoreDate + "?"}
+        body="Tus datos actuales se reemplazarán por el estado guardado ese día. Si tienes dudas, exporta un respaldo antes."
+        confirmLabel="Restaurar copia" danger onConfirm={doRestoreBackup} onClose={() => setRestoreDate(null)} />
+      <ConfirmDialog open={confirmDemo} title="¿Cargar los datos de prueba?"
+        body={<span>Se reemplazarán <b>todos</b> tus datos actuales por un estado simulado con ~80% de avance (4,500+ preguntas, repaso SM-2, sesiones, racha y simulacros). Si tienes progreso real, <b>exporta un respaldo antes</b>. Requiere conexión la primera vez (~4 MB).</span>}
+        confirmLabel="Sí, cargar datos de prueba" danger onConfirm={loadDemo} onClose={() => setConfirmDemo(false)} />
+    </React.Fragment>
   );
 }
 
 /* ============================ REPORTES DE ERRORES DEL BANCO ============================ */
-function Reportes() {
+function ReportesBody() {
   const go = useGoH();
-  const st = window.useStore();
-  const subjColor = window.subjColor;
-  const { Modal } = window;
+  const st = useStore();
   const [open, setOpen] = React.useState(false);
   const [q, setQ] = React.useState("");
   const [pickId, setPickId] = React.useState(null);
@@ -350,15 +424,14 @@ function Reportes() {
 
   const submit = () => {
     if (!pickId) return;
-    window.EPStore.reportQuestion(pickId, { reason, note });
+    EPStore.reportQuestion(pickId, { reason, note });
     setOpen(false); setPickId(null); setNote(""); setQ(""); setReason("desactualizado");
-    window.toast && window.toast("Reporte registrado", "ok");
+    toast && toast("Reporte registrado", "ok");
   };
 
   return (
-    <main className="main">
-      <PageHeadH title="Reportes del banco" sub="Marca reactivos con datos desactualizados o errores para revisarlos"
-        crumbs={[["Banco de preguntas", "banco"], "Reportes"]}
+    <React.Fragment>
+      <SectionHead icon="🚩" title="Reportes del banco" desc="Reactivos con datos desactualizados o errores"
         actions={<button className="btn btn-accent" onClick={() => setOpen(true)}>+ Reportar reactivo</button>} />
       <div className="rep-bar">
         <div className="rep-tabs">
@@ -387,9 +460,9 @@ function Reportes() {
                     {r.note && <div className="rep-note">“{r.note}”</div>}
                   </div>
                   <div className="rep-item-a">
-                    <button className="link-btn" onClick={() => window.EPStore.resolveReport(r.id)}>{r.status === "resuelto" ? "Reabrir" : "Resolver"}</button>
+                    <button className="link-btn" onClick={() => EPStore.resolveReport(r.id)}>{r.status === "resuelto" ? "Reabrir" : "Resolver"}</button>
                     {src && <button className="link-btn" onClick={() => { window.__epEditQ = src; go("pregunta"); }}>Editar</button>}
-                    <button className="link-btn link-danger" onClick={() => window.EPStore.deleteReport(r.id)}>Eliminar</button>
+                    <button className="link-btn link-danger" onClick={() => EPStore.deleteReport(r.id)}>Eliminar</button>
                   </div>
                 </section>
               );
@@ -427,8 +500,10 @@ function Reportes() {
           <button className="btn btn-accent" disabled={!pickId} onClick={submit}>Registrar reporte</button>
         </div>
       </Modal>
-    </main>
+    </React.Fragment>
   );
 }
 
-Object.assign(window, { Preparacion, Evolucion, MapaTemario, Respaldo, Reportes });
+
+// Componentes exportados como módulo ES (ya no se publican en window.*; app/merged/pruebas los importan).
+export { MapaTemarioBody, PreparacionBody, ReportesBody, RespaldoBody, EvolucionBody };
