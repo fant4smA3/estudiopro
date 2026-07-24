@@ -1,6 +1,6 @@
 /* EstudioPro · Prototipo — Pantallas D: Calendario, Simulacro (config + bloques), Alertas */
 import React from "react";
-import { ConfirmDialog, Crumbs as CrumbsD, Diff as DiffD, EmptyState, PageHead as PageHeadD, Panel, Panel as PanelD, SectionHead, Switch, toast, useGo as useGoD } from "./estudiopro-ui.jsx";
+import { ColorField, ConfirmDialog, Crumbs as CrumbsD, Diff as DiffD, EmptyState, Modal, PageHead as PageHeadD, Panel, Panel as PanelD, SectionHead, Switch, toast, useGo as useGoD } from "./estudiopro-ui.jsx";
 import { daysToExam, EPStore, generarPlan, intel, subjectNames, useStore } from "./estudiopro-store.jsx";
 import { subjColor, subjShort, subjTextColor, TYPE_LABEL } from "./estudiopro-bank.jsx";
 
@@ -20,6 +20,8 @@ function Calendario() {
   const [overIdx, setOverIdx] = React.useState(null);
   const [confirmRegen, setConfirmRegen] = React.useState(false);
   const [moveTo, setMoveTo] = React.useState("");
+  const [edit, setEdit] = React.useState(null);   // evento en edición (o nuevo)
+  const [delAsk, setDelAsk] = React.useState(null); // evento por eliminar
   React.useEffect(() => { if (!st.plan.generado) generarPlan(); }, []);
   const dias = (st.plan.dias || []).slice().sort((a, b) => a.fecha.localeCompare(b.fecha));
   const byDate = {}; dias.forEach((d) => { byDate[d.fecha] = d; });
@@ -86,7 +88,48 @@ function Calendario() {
     toast && toast("Plan reprogramado", "ok");
   };
 
-  const openDay = (dd) => { const d = byDate[fmt(dd)]; if (d) { setSel(d); setMoveTo(""); } };
+  // --- CRUD de eventos del plan (crear, editar, eliminar desde el propio calendario) ---
+  const SUBJECTS_CAL = subjectNames();
+  // color efectivo: el personalizado del evento o el de su materia
+  const dayColor = (d) => (d && d.color) || (d && d.subject ? subjColor(d.subject) : "var(--accent)");
+  // sin fecha explícita, propone el primer día libre desde hoy (evita pisar lo ya planeado)
+  const primerDiaLibre = () => {
+    const d = new Date(todayStr + "T00:00:00");
+    for (let i = 0; i < 400; i++) {
+      const iso = d.toISOString().slice(0, 10);
+      if (!byDate[iso]) return iso;
+      d.setDate(d.getDate() + 1);
+    }
+    return todayStr;
+  };
+  const nuevoEvento = (fecha) => setEdit({
+    _nuevo: true, fechaOrig: null, fecha: fecha || primerDiaLibre(), tipo: "estudio",
+    subject: SUBJECTS_CAL[0] || "", ord: "", titulo: "", min: 45, npreg: 12, estado: "pendiente", color: "", nota: "",
+  });
+  const editarEvento = (d) => { setSel(null); setEdit({ ...d, _nuevo: false, fechaOrig: d.fecha, color: d.color || "", nota: d.nota || "" }); };
+  const guardarEvento = () => {
+    const e = edit;
+    if (!e || !e.fecha) return;
+    const limpio = {
+      fecha: e.fecha, tipo: e.tipo,
+      subject: e.tipo === "simulacro" || e.tipo === "personal" ? (e.subject || null) : e.subject,
+      ord: (e.ord || "").trim(), titulo: (e.titulo || "").trim(),
+      estado: e.estado || "pendiente", min: Math.max(1, +e.min || 45), npreg: Math.max(0, +e.npreg || 0),
+      color: e.color || undefined, nota: (e.nota || "").trim() || undefined,
+    };
+    // quita el evento de su fecha anterior (si se movió) y coloca el nuevo
+    const resto = dias.filter((d) => d.fecha !== limpio.fecha && d.fecha !== e.fechaOrig);
+    EPStore.updatePlan([...resto, limpio].sort((a, b) => a.fecha.localeCompare(b.fecha)));
+    setEdit(null);
+    toast && toast(e._nuevo ? "Evento agregado al plan" : "Evento actualizado", "ok");
+  };
+  const eliminarEvento = (d) => {
+    EPStore.updatePlan(dias.filter((x) => x.fecha !== d.fecha));
+    setDelAsk(null); setEdit(null); setSel(null);
+    toast && toast("Evento eliminado del plan", "ok");
+  };
+
+  const openDay = (dd) => { const d = byDate[fmt(dd)]; if (d) { setSel(d); setMoveTo(""); } else { nuevoEvento(fmt(dd)); } };
   const startDay = (d) => {
     if (d.tipo === "simulacro") { go("simulacro"); return; }
     window.__epSimulacro = false; window.__epSubject = d.subject;
@@ -121,6 +164,7 @@ function Calendario() {
             <button className={"rep-tab" + (vista === "lista" ? " is-on" : "")} onClick={() => setVista("lista")}>Lista</button>
           </div>
           <button className="btn btn-sm" onClick={() => setConfirmRegen(true)}>Regenerar plan</button>
+          <button className="btn btn-sm btn-accent" onClick={() => nuevoEvento()}>+ Nuevo evento</button>
         </div>} />
 
       {/* resumen del plan: cuánto falta, cuánto llevas y qué toca hoy */}
@@ -160,7 +204,7 @@ function Calendario() {
         ) : (
           <div className="plan-agenda">
             {agenda.map((d) => {
-              const c = d.subject ? subjColor(d.subject) : "var(--accent)";
+              const c = dayColor(d);
               const isToday = d.fecha === todayStr;
               const isExam = d.fecha === examStr;
               return (
@@ -173,7 +217,7 @@ function Calendario() {
                     style={{ borderLeftColor: c }} onClick={() => { setSel(d); setMoveTo(""); }} role="button" tabIndex={0}
                     onKeyDown={(e) => { if (e.key === "Enter") { setSel(d); setMoveTo(""); } }}>
                     <div className="ag-body">
-                      <div className="ag-t">{d.tipo === "simulacro" ? "Simulacro general" : d.subject}{isExam && <span className="ag-exam">EXAMEN</span>}</div>
+                      <div className="ag-t">{d.tipo === "simulacro" ? "Simulacro general" : d.tipo === "personal" ? (d.titulo || "Evento") : d.subject}{isExam && <span className="ag-exam">EXAMEN</span>}</div>
                       <div className="ag-s">{d.ord}{d.titulo ? " · " + d.titulo : ""}</div>
                     </div>
                     <span className={"ag-pill ag-" + d.tipo}>{d.tipo}</span>
@@ -197,7 +241,7 @@ function Calendario() {
         <span><i className="cal-dot cd-sim"></i> Simulacro (viernes)</span>
         <span className="cal-legend-r">{hechos} días estudiados este mes</span>
       </div>
-      <div className="cal-hint">Toca un día para editarlo (estado, mover, quitar). En computadora también puedes <b>arrastrar un día sobre otro</b> para intercambiarlos, o soltarlo en un día libre para moverlo.</div>
+      <div className="cal-hint">Toca un día con plan para abrirlo, o un <b>día libre para crear un evento</b> ahí. En computadora también puedes <b>arrastrar un día sobre otro</b> para intercambiarlos, o soltarlo en un día libre para moverlo.</div>
 
       <div className="calendar">
         <div className="cal-grid cal-head">
@@ -210,7 +254,7 @@ function Calendario() {
             const d = byDate[ds];
             const isToday = ds === todayStr;
             const isExam = ds === examStr;
-            const c = d && d.subject ? subjColor(d.subject) : null;
+            const c = d ? dayColor(d) : null;
             return (
               <div key={dd} className={"cal-cell" + (isToday ? " is-today" : "") + (isExam ? " is-exam" : "") + (d ? " has-plan" : "") + (dragDate === ds ? " is-drag" : "") + (overDate === ds && dragDate && dragDate !== ds ? " is-over" : "")}
                 onClick={() => openDay(dd)} role={d ? "button" : undefined}
@@ -221,9 +265,14 @@ function Calendario() {
                 onDrop={() => { moveOrSwap(dragDate, ds); setDragDate(null); setOverDate(null); }}
                 onDragEnd={() => { setDragDate(null); setOverDate(null); }}>
                 <span className="cal-num">{dd}{isExam && <span className="cal-examflag">EXAMEN</span>}</span>
-                {d && d.tipo === "simulacro" && <span className="cal-chip cal-chip-sim">Simulacro 200</span>}
-                {d && d.tipo === "estudio" && <span className="cal-chip" style={{ background: c + "22", color: subjTextColor(d.subject) }}><i className="cal-dot" style={{ background: c }}></i>{subjShort(d.subject)}</span>}
-                {d && d.tipo === "repaso" && <span className="cal-chip cal-chip-rep">Repaso</span>}
+                {d && d.tipo === "simulacro" && !d.color && <span className="cal-chip cal-chip-sim">Simulacro {d.npreg || 200}</span>}
+                {d && d.tipo === "repaso" && !d.color && <span className="cal-chip cal-chip-rep">Repaso</span>}
+                {d && (d.tipo === "estudio" || d.tipo === "personal" || d.color) && (
+                  <span className="cal-chip" style={{ background: "color-mix(in srgb, " + c + " 16%, transparent)", color: (!d.color && d.subject) ? subjTextColor(d.subject) : c }}>
+                    <i className="cal-dot" style={{ background: c }}></i>
+                    {d.tipo === "personal" ? (d.titulo || "Evento") : (d.subject ? subjShort(d.subject) : d.tipo)}
+                  </span>
+                )}
                 {d && d.titulo && d.tipo !== "simulacro" && <span className="cal-cap">{d.titulo.replace(/^(Cap\.|Libro|Título)\s*/, "")}</span>}
                 {d && <span className={"cal-state " + (estadoCls[d.estado] || "")}></span>}
               </div>
@@ -237,7 +286,7 @@ function Calendario() {
       <div className="plan-ed-hint">Sujeta el punto <span className="plan-ed-grip">⠿</span> y arrastra un día sobre otro para intercambiar el orden. Las fechas se mantienen; solo cambia qué estudias cada día.</div>
       <div className="plan-ed-list">
         {dias.map((d, i) => {
-          const c = d.subject ? subjColor(d.subject) : "var(--accent)";
+          const c = dayColor(d);
           const isToday = d.fecha === todayStr;
           return (
             <div key={d.fecha} draggable
@@ -266,18 +315,20 @@ function Calendario() {
 
       {sel && (
         <div className="cal-sheet" onClick={() => setSel(null)}>
-          <div className="cal-sheet-card" onClick={(e) => e.stopPropagation()} style={sel.subject ? { borderTop: "3px solid " + subjColor(sel.subject) } : { borderTop: "3px solid var(--accent)" }}>
+          <div className="cal-sheet-card" onClick={(e) => e.stopPropagation()} style={{ borderTop: "3px solid " + dayColor(sel) }}>
             <button className="cal-sheet-x" onClick={() => setSel(null)} aria-label="Cerrar">✕</button>
             <div className="cal-sheet-date">{new Date(sel.fecha + "T00:00:00").toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" })}</div>
-            <div className="cal-sheet-title">{sel.tipo === "simulacro" ? "Simulacro general" : sel.subject}</div>
+            <div className="cal-sheet-title">{sel.tipo === "simulacro" ? "Simulacro general" : sel.tipo === "personal" ? (sel.titulo || "Evento") : sel.subject}</div>
             <div className="cal-sheet-sub">{sel.ord}{sel.titulo ? " · " + sel.titulo : ""}</div>
             <div className="cal-sheet-stats">
               <span className="sc"><b>{sel.min}</b> min estimados</span>
               <span className="sc"><b>{sel.npreg}</b> preguntas</span>
               <span className={"sc cal-badge-" + sel.estado}>{sel.estado}</span>
             </div>
+            {sel.nota && <div className="cal-sheet-nota">{sel.nota}</div>}
             <div className="cal-sheet-acts">
-              <button className="btn btn-accent" onClick={() => startDay(sel)}>{sel.tipo === "simulacro" ? "Ir al simulacro ▸" : "Estudiar ahora ▸"}</button>
+              {sel.tipo !== "personal" && <button className="btn btn-accent" onClick={() => startDay(sel)}>{sel.tipo === "simulacro" ? "Ir al simulacro ▸" : "Estudiar ahora ▸"}</button>}
+              <button className="btn" onClick={() => editarEvento(sel)}>✎ Editar</button>
               {sel.estado !== "hecho"
                 ? <button className="btn" onClick={() => setEstado(sel, "hecho")}>Marcar hecho</button>
                 : <button className="btn" onClick={() => setEstado(sel, "pendiente")}>Marcar pendiente</button>}
@@ -296,6 +347,93 @@ function Calendario() {
           </div>
         </div>
       )}
+
+      {/* editor de evento: crear / editar cualquier día del plan sin salir del calendario */}
+      <Modal open={!!edit} onClose={() => setEdit(null)}>
+        {edit && (
+          <React.Fragment>
+            <div className="modal-h">{edit._nuevo ? "Nuevo evento" : "Editar evento"}</div>
+            <div className="modal-b ev-form">
+              <div className="form-2">
+                <div className="field"><label htmlFor="ev-fecha">Fecha</label>
+                  <input id="ev-fecha" type="date" className="input" value={edit.fecha} onChange={(e) => setEdit({ ...edit, fecha: e.target.value })} />
+                </div>
+                <div className="field"><label htmlFor="ev-tipo">Tipo</label>
+                  <select id="ev-tipo" className="input" value={edit.tipo} onChange={(e) => setEdit({ ...edit, tipo: e.target.value })}>
+                    <option value="estudio">Estudio</option>
+                    <option value="repaso">Repaso</option>
+                    <option value="simulacro">Simulacro</option>
+                    <option value="personal">Personal / otro</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="field"><label htmlFor="ev-titulo">Título</label>
+                <input id="ev-titulo" className="input" placeholder={edit.tipo === "personal" ? "Ej. Entrega de documentos" : "Ej. Libro Primero — Reglas generales"}
+                  value={edit.titulo} onChange={(e) => setEdit({ ...edit, titulo: e.target.value })} />
+              </div>
+
+              {edit.tipo !== "personal" && (
+                <div className="form-2">
+                  <div className="field"><label htmlFor="ev-materia">Materia</label>
+                    <select id="ev-materia" className="input" value={edit.subject || ""} onChange={(e) => setEdit({ ...edit, subject: e.target.value })}>
+                      <option value="">— sin materia —</option>
+                      {SUBJECTS_CAL.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div className="field"><label htmlFor="ev-ord">Ordenamiento / tema</label>
+                    <input id="ev-ord" className="input" placeholder="Ej. Código de Justicia Militar" value={edit.ord} onChange={(e) => setEdit({ ...edit, ord: e.target.value })} />
+                  </div>
+                </div>
+              )}
+
+              <div className="form-2">
+                <div className="field"><label htmlFor="ev-min">Duración (min)</label>
+                  <input id="ev-min" type="number" min="1" className="input" value={edit.min} onChange={(e) => setEdit({ ...edit, min: e.target.value })} />
+                </div>
+                {edit.tipo !== "personal" && (
+                  <div className="field"><label htmlFor="ev-npreg">Nº de preguntas</label>
+                    <input id="ev-npreg" type="number" min="0" className="input" value={edit.npreg} onChange={(e) => setEdit({ ...edit, npreg: e.target.value })} />
+                  </div>
+                )}
+              </div>
+
+              <div className="field"><label htmlFor="ev-nota">Nota (opcional)</label>
+                <textarea id="ev-nota" className="input" rows={2} placeholder="Detalles, recordatorios…" value={edit.nota} onChange={(e) => setEdit({ ...edit, nota: e.target.value })}></textarea>
+              </div>
+
+              <div className="field">
+                <label>Color</label>
+                <ColorField value={edit.color || (edit.subject ? subjColor(edit.subject) : "#2F73CE")} onChange={(c) => setEdit({ ...edit, color: c })} />
+                {edit.color && <button type="button" className="ev-color-reset" onClick={() => setEdit({ ...edit, color: "" })}>{edit.subject ? "Usar el color de la materia" : "Quitar color personalizado"}</button>}
+              </div>
+
+              <div className="field"><label htmlFor="ev-estado">Estado</label>
+                <select id="ev-estado" className="input" value={edit.estado} onChange={(e) => setEdit({ ...edit, estado: e.target.value })}>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="parcial">Parcial</option>
+                  <option value="hecho">Hecho</option>
+                </select>
+              </div>
+
+              {byDate[edit.fecha] && edit.fecha !== edit.fechaOrig && (
+                <div className="ev-warn">Ese día ya tiene «{byDate[edit.fecha].tipo === "simulacro" ? "Simulacro general" : (byDate[edit.fecha].titulo || byDate[edit.fecha].subject || "un evento")}» — se reemplazará. El plan admite un evento por día.</div>
+              )}
+            </div>
+            <div className="modal-f">
+              {!edit._nuevo && <button className="btn btn-danger" onClick={() => setDelAsk(edit)}>Eliminar</button>}
+              <span style={{ flex: 1 }}></span>
+              <button className="btn" onClick={() => setEdit(null)}>Cancelar</button>
+              <button className="btn btn-accent" onClick={guardarEvento} disabled={!edit.fecha}>{edit._nuevo ? "Agregar al plan" : "Guardar cambios"}</button>
+            </div>
+          </React.Fragment>
+        )}
+      </Modal>
+
+      <ConfirmDialog open={!!delAsk} danger confirmLabel="Eliminar evento"
+        title="¿Eliminar este evento del plan?"
+        body={delAsk ? <span>Se quitará <b>{delAsk.tipo === "simulacro" ? "Simulacro general" : (delAsk.titulo || delAsk.subject || "el evento")}</b> del {new Date(delAsk.fecha + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "long" })}.</span> : null}
+        onClose={() => setDelAsk(null)} onConfirm={() => eliminarEvento(delAsk)} />
 
       <ConfirmDialog open={confirmRegen} title="¿Regenerar el plan completo?"
         body="Se creará un plan nuevo desde hoy hasta el examen y se perderán los cambios manuales (días movidos, intercambiados o quitados)."
